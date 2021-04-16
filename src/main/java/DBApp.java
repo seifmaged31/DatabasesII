@@ -3,7 +3,7 @@ import java.util.Iterator;
 
 public class DBApp implements DBAppInterface{
     public void init() {
-
+        //ay haga
     }
 
     public void createTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException {
