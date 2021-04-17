@@ -1,0 +1,2 @@
+"Table Name","Column Name","Column Type","Clustering Key","Indexed","min","max"
+"City Shop","ID","java.lang.Integer","True","True","0","10000"
