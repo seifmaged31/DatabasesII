@@ -1,2 +1,4 @@
 "Table Name","Column Name","Column Type","Clustering Key","Indexed","min","max"
-"City Shop","ID","java.lang.Integer","True","True","0","10000"
+"Student","gpa","java.lang.double","False","False","0.7","5.0"
+"Student","name","java.lang.String","False","False","AAAA","ZZZZ"
+"Student","id","java.lang.Integer","True","False","0","1000"
