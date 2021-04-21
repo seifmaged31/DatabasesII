@@ -2,6 +2,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 public class DBApp implements DBAppInterface{
+    public static void main(String[] args) {
+        System.out.print("fuck");
+    }
     public void init() {
 
     }
