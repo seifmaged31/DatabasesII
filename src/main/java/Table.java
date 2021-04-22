@@ -1,12 +1,9 @@
 import java.io.Serializable;
-import java.util.Hashtable;
 
-public class Table {
-
-    String tableName;
-    Hashtable<PageInfo,Page> pages;
-
-
-
-
+public class Table implements Serializable {
+    String name;
+    int numberOfPages;
+    public Table (String name){
+        this.name=name;
+    }
 }
