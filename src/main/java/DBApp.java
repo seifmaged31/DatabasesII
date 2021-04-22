@@ -115,8 +115,8 @@ public class DBApp implements DBAppInterface{
     }
 
     public static void main(String[] args) throws  DBAppException{
-        //String[]data = {"City Shop","ID","java.lang.Integer","True","True","0","10000"};
-        //writeDataLineByLine("src/main/resources/metadata.csv",data);
+        String[]data = {"City Shop","ID","java.lang.Integer","True","True","0","10000"};
+        writeDataLineByLine("src/main/resources/metadata.csv",data);
         /*Hashtable hash = new Hashtable();
         hash.put("A", "Ahmed");
         hash.put("D", "Donia");
@@ -128,7 +128,8 @@ public class DBApp implements DBAppInterface{
         Set<String> nameTypeAwy = hash.keySet();
         System.out.println(nameType);
         System.out.println(nameTypeAwy);*/
-        String strTableName = "Student";
+
+        /*String strTableName = "Student";
         DBApp dbApp = new DBApp( );
         Hashtable htblColNameType = new Hashtable( );
         htblColNameType.put("id", "java.lang.Integer");
@@ -146,7 +147,9 @@ public class DBApp implements DBAppInterface{
         htblColNameMax.put("gpa", "5.0");
 
 
-        dbApp.createTable( strTableName, "id", htblColNameType,htblColNameMin,htblColNameMax );
+        dbApp.createTable( strTableName, "id", htblColNameType,htblColNameMin,htblColNameMax );*/
+
+        System.out.println("sikosiko55555");
 
     }
 }
