@@ -81,6 +81,7 @@ public class DBApp implements DBAppInterface{
             writeDataLineByLine("src/main/resources/metadata.csv",result);
             //System.out.println(result + " after ");
         }
+        //create new table ?
     }
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
         // following method creates one index – either multidimensional
