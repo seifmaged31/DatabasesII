@@ -69,6 +69,7 @@ public class DBApp implements DBAppInterface{
             writeDataLineByLine("src/main/resources/metadata.csv",result);
             //System.out.println(result + " after ");
         }
+        //set clustering key for table for later checks a7a neeeejjjjj
     }
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
         // following method creates one index – either multidimensional
