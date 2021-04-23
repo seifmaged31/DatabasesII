@@ -140,7 +140,7 @@ public class DBApp implements DBAppInterface{
 
         dbApp.createTable( strTableName, "id", htblColNameType,htblColNameMin,htblColNameMax );*/
 
-        System.out.println("sikosiko55555");
+        System.out.println("sikosiko5555555555555555555555555555555555555");
 
     }
 }
