@@ -53,26 +53,14 @@ public class DBApp implements DBAppInterface{
         // htblColNameMin and htblColNameMax for passing minimum and maximum values
         // for data in the column. Key is the name of the column
         Set<String> nameType = colNameType.keySet();
-        //Set<String> nameMin = colNameMin.keySet();
-        //Set<String> nameMax = colNameMax.keySet();
-
         Iterator<String> itrType = nameType.iterator();
-       /* Iterator<String> itrMin = nameMin.iterator();
-        Iterator<String> itrMax = nameMax.iterator();
-
-        String colName;
-        String colType;
-        String cKey;
-        String indexed;
-        String min;
-        String max;*/
         String[]result = new String[7];
         result[0]=tableName;
 
         while (itrType.hasNext()) {
             // Getting Key
             result[1]=itrType.next(); //colName
-            result[2]=colNameType.get(result[1]); //colType
+            result[2] =colNameType.get(result[1]); //colType
             result[3]= (result[1].equals(clusteringKey))?"True":"False"; //clustering key
             result[4]="False"; //indexed
             result[5]=colNameMin.get(result[1]); //min
@@ -81,7 +69,7 @@ public class DBApp implements DBAppInterface{
             writeDataLineByLine("src/main/resources/metadata.csv",result);
             //System.out.println(result + " after ");
         }
-        //create new table ?
+        //set clustering key for table for later checks a7a neeeejjjjj
     }
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
         // following method creates one index – either multidimensional
@@ -90,7 +78,7 @@ public class DBApp implements DBAppInterface{
     }
 
     public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
-        // following method inserts one row only.
+        // following method inserts one row only
         // htblColNameValue must include a value for the primary key
 
     }
@@ -117,7 +105,7 @@ public class DBApp implements DBAppInterface{
 
     public static void main(String[] args) throws  DBAppException{
         String[]data = {"City Shop","ID","java.lang.Integer","True","True","0","10000"};
-        writeDataLineByLine("src/main/resources/metadata.csv",data);
+        //writeDataLineByLine("src/main/resources/metadata.csv",data);
         /*Hashtable hash = new Hashtable();
         hash.put("A", "Ahmed");
         hash.put("D", "Donia");
@@ -130,14 +118,16 @@ public class DBApp implements DBAppInterface{
         System.out.println(nameType);
         System.out.println(nameTypeAwy);*/
 
-        /*String strTableName = "Student";
-        DBApp dbApp = new DBApp( );
+        String strTableName = "Student";
+        //DBApp dbApp = new DBApp( );
         Hashtable htblColNameType = new Hashtable( );
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
-
-        Hashtable htblColNameMin = new Hashtable( );
+        Set<String> nameTypeAwy = htblColNameType.keySet();
+        //System.out.println(nameType);
+        System.out.println(nameTypeAwy);
+        /*Hashtable htblColNameMin = new Hashtable( );
         htblColNameMin.put("id", "0");
         htblColNameMin.put("name", "AAAA");
         htblColNameMin.put("gpa", "0.7");
@@ -150,7 +140,7 @@ public class DBApp implements DBAppInterface{
 
         dbApp.createTable( strTableName, "id", htblColNameType,htblColNameMin,htblColNameMax );*/
 
-        System.out.println("sikosiko55555");
+        System.out.println("sikosiko5555555555555555555555555555555555555");
 
     }
 }
