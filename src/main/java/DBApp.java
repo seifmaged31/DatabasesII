@@ -1,10 +1,7 @@
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class DBApp implements DBAppInterface{
@@ -55,13 +52,14 @@ public class DBApp implements DBAppInterface{
             while (itrType.hasNext()) {
                 // Getting Key
                 result[1] = itrType.next(); //colName
-                result[2] = colNameType.get(result[1]); //colType
+                result[2] = colNameType.get(result[1]) +""; //colType
                 result[3] = (result[1].equals(clusteringKey)) ? "True" : "False"; //clustering key
                 result[4] = "False"; //indexed
-                result[5] = colNameMin.get(result[1]); //min
-                result[6] = colNameMax.get(result[1]); //max
+                result[5] = "" + colNameMin.get(result[1]) ; //min
+                result[6] = "" + colNameMax.get(result[1]) ; //max
                 writeDataLineByLine("src/main/resources/metadata.csv", result);
             }
+            Table table = new Table(tableName);
         }
         //set clustering key for table for later checks
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
@@ -73,6 +71,9 @@ public class DBApp implements DBAppInterface{
     public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
         // following method inserts one row only
         // htblColNameValue must include a value for the primary key
+        Row row = new Row("id", colNameValue);
+       Table table = Table.deserializeTable(tableName);
+       table.insert(row, tableName);
 
     }
 
@@ -96,7 +97,45 @@ public class DBApp implements DBAppInterface{
         return null;
     }
 
-    public static void main(String[] args) throws  DBAppException{
+    public static void main(String[] args) throws  Exception{
 
+        String strTableName = "seif";
+        DBApp dbApp = new DBApp( );
+//        Hashtable htblColNameType = new Hashtable( );
+//        htblColNameType.put("id", "java.lang.Integer");
+//        htblColNameType.put("name", "java.lang.String");
+//        htblColNameType.put("gpa", "java.lang.double");
+//
+//        Hashtable min = new Hashtable();
+//        min.put("id", "1");
+//        min.put("name", "a");
+//        min.put("gpa", "1");
+//
+//        Hashtable max = new Hashtable();
+//        max.put("id", "100");
+//        max.put("name","zzzzzzzzzzzzzzz");
+//        max.put("gpa","4.0");
+//        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
+//
+//        Hashtable htblColNameValue = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 2343432 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+        Page table=null;
+        try{
+            FileInputStream fileIn =
+                    new FileInputStream(new File("src/main/resources/Data/" + "seif_1" +".class"));
+            ObjectInputStream in= new ObjectInputStream(fileIn);
+            table = (Page) in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (FileNotFoundException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(table);
     }
 }

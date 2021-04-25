@@ -38,7 +38,7 @@ public class Page implements Serializable {
         return false;
     }*/
 
-    public static int getMaxRows() throws  FileNotFoundException,IOException{
+   /* public static int getMaxRows() throws  FileNotFoundException,IOException{
         File configFile = new File("src/main/resources/DBApp.config");
 
         int maxRows=0;
@@ -59,7 +59,7 @@ public class Page implements Serializable {
         }
         return maxRows;
 
-    }
+    }*/
 
     public static void main(String [] args) throws IOException,ClassNotFoundException {
 
