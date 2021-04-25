@@ -19,8 +19,9 @@ public class Validators {
         types.add("java.lang.date");
         types.add("java.lang.string");
         for(String key:nameType){
-            key.toLowerCase();
-            if(!types.contains(key)){
+            //colNameType.get(key).toLowerCase();
+            //System.out.println(key);
+            if(!types.contains(colNameType.get(key).toLowerCase())){
                 throw new DBAppException("Invalid data type.");
             }
         }
