@@ -76,36 +76,58 @@ public class Page implements Serializable {
 
     public static void main(String [] args) throws IOException,ClassNotFoundException {
 
-       int res=0;
+     /*  int res=0;
         try {
-            FileOutputStream fileOut =
-                    new FileOutputStream(new File("src/main/resources/trial.class"));
+
+            Hashtable htblColNameType = new Hashtable( );
+        Date d = new Date(1995, 11, 17);
+        Date d1 = new Date(1998, 11, 17);
+        htblColNameType.put("id", 1);
+        htblColNameType.put("date", d1);
+        htblColNameType.put("name", "salma");
+        htblColNameType.put("gpa", 0.0);
+
+        Row a=new Row("date",htblColNameType);
+
+
+
+
+        Vector<Row> vecRow=new Vector<>();
+
+        /*xx.add(a);
+        System.out.println(a);
+        xx.add(b);
+        System.out.println(b);
+        Collections.sort(xx);
+        System.out.println(xx.toString());
+
+
+            /*FileOutputStream fileOut = new FileOutputStream(new File("src/main/resources/trial.class"));
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(4);
             out.writeObject(5);
             out.close();
             fileOut.close();
-            FileOutputStream fileOut2 =
-                    new FileOutputStream(new File("src/main/resources/trial.class"));
+            FileOutputStream fileOut2 = new FileOutputStream(new File("src/main/resources/trial.class"));
             ObjectOutputStream out2 = new ObjectOutputStream(fileOut2);
             out2.writeObject(69); //safla
             out2.close();
             fileOut2.close();
             System.out.println("Serialized data is saved in /src/main/resource/trial.class");
-            FileInputStream fileIn =
-                    new FileInputStream(new File("src/main/resources/trial.class"));
+            FileInputStream fileIn = new FileInputStream(new File("src/main/resources/trial.class"));
             ObjectInputStream in= new ObjectInputStream(fileIn);
             res = (int)in.readObject();
 
-
-        } catch (IOException i) {
+        /*} catch (IOException i) {
             i.printStackTrace();
         }
         catch(ClassNotFoundException c){
             c.printStackTrace();
         }
         System.out.println(res);
+        */
+    //}
+
+
     }
-
-
 }
