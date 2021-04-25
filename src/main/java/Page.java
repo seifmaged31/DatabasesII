@@ -79,17 +79,17 @@ public class Page implements Serializable {
         Page p = new Page(a);
         Row res = null;
         try {
-            FileOutputStream fileOut =
-                    new FileOutputStream(new File("src/main/resources/trial.class"));
+       /*    FileOutputStream fileOut =
+                    new FileOutputStream(new File("src/main/resources/salma.class"));
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(4);
-            out.writeObject(5);
+            out.writeObject(a);
             out.close();
-            fileOut.close();
+            fileOut.close();*/
+
             FileOutputStream fileOut2 =
-                    new FileOutputStream(new File("src/main/resources/trial.class"));
+                    new FileOutputStream(new File("src/main/resources/donia.class"));
             ObjectOutputStream out2 = new ObjectOutputStream(fileOut2);
-            out2.writeObject(69); //safla
+            out2.writeObject(p); //safla
             out2.close();
             fileOut2.close();
             System.out.println("Serialized data is saved in /src/main/resource/trial.class");
@@ -103,9 +103,8 @@ public class Page implements Serializable {
         } catch (IOException i) {
             i.printStackTrace();
         }
-        catch(ClassNotFoundException c){
-            c.printStackTrace();
-        }
+
+
         System.out.println(res);
     }
 
