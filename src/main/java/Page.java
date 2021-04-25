@@ -116,7 +116,7 @@ public class Page implements Serializable {
             System.out.println("Serialized data is saved in /src/main/resource/trial.class");
             FileInputStream fileIn = new FileInputStream(new File("src/main/resources/trial.class"));
             ObjectInputStream in= new ObjectInputStream(fileIn);
-            res = (int)in.readObject();
+            res = (int)in.readObject();*/
 
         /*} catch (IOException i) {
             i.printStackTrace();
