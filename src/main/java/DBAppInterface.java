@@ -10,7 +10,7 @@ public interface DBAppInterface {
 
     void createIndex(String tableName, String[] columnNames) throws DBAppException;
 
-    void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException;
+    void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException,IOException;
 
     void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException;
 

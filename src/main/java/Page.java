@@ -6,13 +6,11 @@ import java.util.*;
 public class Page implements Serializable {
 
     Vector<Row> rows;
-
+    Vector<Page> overflowPages;
 
     public Page(Row row) {
         rows=new Vector<>();
         rows.add(row);
-
-
     }
 
     public void insert(Row row){
