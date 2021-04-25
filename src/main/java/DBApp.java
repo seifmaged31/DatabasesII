@@ -68,7 +68,7 @@ public class DBApp implements DBAppInterface{
 
     }
 
-    public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
+    public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException, IOException {
         // following method inserts one row only
         // htblColNameValue must include a value for the primary key
         Row row = new Row("id", colNameValue);
