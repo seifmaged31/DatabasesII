@@ -16,12 +16,7 @@ public class Table implements Serializable{
     public void insert (Row row, String tableName) throws IOException{
        // Table table = this.deserializeTable(tableName);
         if (this.pages.isEmpty()){ //first insertion
-            Page page = new Page(row);
-            PageInfo info = new PageInfo(row);
-            this.pageNum++;
-            info.setPageNum(this.pageNum);
-            serializePage(page,this.pageNum);
-            pages.put(info,"src/main/resources/Data/" + this.tableName +"_"+ this.pageNum +".class" );
+            createPage(row);
             return;
         }
         Set<PageInfo> pagesInfosSet = pages.keySet();
@@ -167,6 +162,10 @@ public class Table implements Serializable{
             pageInfo.setMax(row);
         if(pageInfo.getMin().compareTo(row)>0)
             pageInfo.setMin(row);
+    }
+
+    public boolean checkRange (Row row, Row min, Row max){
+        return row.compareTo(min)>=0 && row.compareTo(max)<=0;
     }
 
     public void createPage(Row row){
