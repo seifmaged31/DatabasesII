@@ -3,7 +3,6 @@ import com.opencsv.CSVWriter;
 
 import java.io.*;
 import java.util.*;
-
 public class DBApp implements DBAppInterface{
 
     public static void writeDataLineByLine(String filePath,String[]data)
