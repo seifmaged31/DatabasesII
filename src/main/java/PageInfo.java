@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Hashtable;
 import java.util.Properties;
 
 public class PageInfo implements Serializable, Comparable {
@@ -7,12 +8,30 @@ public class PageInfo implements Serializable, Comparable {
      private Row min;
      private int pageNum;
      private int numOfRows=0;
+     private  Hashtable<PageInfo,String> overflowPages;
+     private int overflowNum;
 
-        public PageInfo(Row row){
+    public Hashtable<PageInfo, String> getOverflowPages() {
+        return overflowPages;
+    }
+
+    public void setOverflowPages(Hashtable<PageInfo, String> overflowPages) {
+        this.overflowPages = overflowPages;
+    }
+
+    public int getOverflowNum() {
+        return overflowNum;
+    }
+
+    public void setOverflowNum(int overflowNum) {
+        this.overflowNum = overflowNum;
+    }
+
+    public PageInfo(Row row){
 
             this.max=row;
             this.min=row;
-            numOfRows=1;
+            numOfRows = 1;
 
         }
 

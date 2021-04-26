@@ -1,7 +1,5 @@
 import java.io.*;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 
 public class Table implements Serializable{
 
@@ -26,22 +24,80 @@ public class Table implements Serializable{
             pages.put(info,"src/main/resources/Data/" + this.tableName +"_"+ this.pageNum +".class" );
             return;
         }
-        Set<PageInfo> pagesInfos = pages.keySet();
-
-        /*PageInfo firstInfo =pagesInfos.iterator().next();
-        if(pagesInfos.size()==1){
-            if(!firstInfo.isFull()){
-                Page page = deserializePage(pages.get(firstInfo));
-                page.insert(row);
-                this.updatePageInfo(firstInfo,row);
-                serializePage(page,firstInfo.getPageNum());
-                return;
-            }
-
-        }*/
+        Set<PageInfo> pagesInfosSet = pages.keySet();
+        ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
+        Collections.sort((List)pagesInfos);
         for(PageInfo pageInfo:pagesInfos){
-            if(pageInfo.isFull()){
+            if(!pagesInfos.iterator().hasNext()){//this is the last page
+                if(!pageInfo.isFull()){ // I have space to insert in this page
+                    Page page = deserializePage(pages.get(pageInfo));
+                    page.insert(row);
+                    this.updatePageInfo(pageInfo,row);
+                    serializePage(page,pageInfo.getPageNum());
+                    return;
+                }
+                else { // I have no space to insert so, move
 
+                    if(checkRange(row, pageInfo.getMin(), pageInfo.getMax())){ //the new row is within the page
+                        Page page = deserializePage(pages.get(pageInfo));
+                        Row lastElement = page.rows.lastElement();
+                        page.rows.removeElementAt(page.rows.size()-1);
+                        page.insert(row);
+                        this.updatePageInfo(pageInfo, row);
+                        serializePage(page, pageInfo.getPageNum());
+                        createPage(lastElement);
+                        return;
+
+                    }
+                    else{ // the new row isn't in the range
+                        createPage(row);
+                        return;
+                    }
+                }
+
+
+            }
+            int currentIndex =  ((List<?>) pagesInfos).indexOf(pageInfo);
+            PageInfo nextPageInfo =(PageInfo) ((List<?>) pagesInfos).get(currentIndex+1);
+            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())){ // any intermediate page that I need.
+                    if(!pageInfo.isFull()) { // if the page has space
+                        Page page = deserializePage(pages.get(pageInfo));
+                        page.insert(row);
+                        this.updatePageInfo(pageInfo, row);
+                        serializePage(page, pageInfo.getPageNum());
+                        return;
+                    }
+                    else{
+                        if(!nextPageInfo.isFull()){ //shifting to the next page
+
+                            Page page = deserializePage(pages.get(pageInfo));
+                            Row lastElement = page.rows.lastElement();
+                            page.rows.removeElementAt(page.rows.size()-1);
+                            page.insert(row);
+                            this.updatePageInfo(pageInfo, row);
+                            serializePage(page, pageInfo.getPageNum());
+                            Page nextPage= deserializePage(pages.get(nextPageInfo));
+                            nextPage.insert(lastElement);
+                            this.updatePageInfo(nextPageInfo, lastElement);
+                            serializePage(nextPage, nextPageInfo.getPageNum());
+
+                            return;
+
+
+                        }
+                        else{ // insert in overflow pages
+                            Hashtable overflowPages = pageInfo.getOverflowPages();
+                            Set pagesOverflowInfos = overflowPages.keySet();
+                            if(pagesOverflowInfos.size() == 0){ // we don't have overflow pages
+                                createOverflowPage(row,pageInfo);
+                                return;
+                            }
+                            else{ // we have overflow pages
+
+                            }
+                        }
+
+                    }
             }
         }
 
@@ -113,6 +169,21 @@ public class Table implements Serializable{
             pageInfo.setMin(row);
     }
 
-
+    public void createPage(Row row){
+        Page page = new Page(row);
+        PageInfo info = new PageInfo(row);
+        this.pageNum++;
+        info.setPageNum(this.pageNum);
+        serializePage(page, this.pageNum);
+        pages.put(info, "src/main/resources/Data/" + this.tableName + "_" + this.pageNum + ".class");
+    }
+    public void createOverflowPage(Row row,PageInfo mainPageInfo){
+        Page overflowPage = new Page(row);
+        PageInfo overflowInfo = new PageInfo(row);
+        mainPageInfo.setOverflowNum(mainPageInfo.getOverflowNum()+1);
+        overflowInfo.setPageNum(this.pageNum);
+        serializePage(overflowPage, this.pageNum);
+        mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/Data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
+    }
 
 }
