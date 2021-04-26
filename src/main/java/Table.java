@@ -99,6 +99,11 @@ public class Table implements Serializable{
 
     }
 
+    public void delete(Row row,String tableName){
+
+
+    }
+
     public void serializeTable (String tableName){
         try{
             FileOutputStream fileOut =
