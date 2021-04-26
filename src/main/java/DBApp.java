@@ -1,7 +1,10 @@
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 public class DBApp implements DBAppInterface{
 
@@ -115,14 +118,28 @@ public class DBApp implements DBAppInterface{
 //        max.put("name","zzzzzzzzzzzzzzz");
 //        max.put("gpa","4.0");
 //        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
-//
-//        Hashtable htblColNameValue = new Hashtable( );
-//        htblColNameValue.put("id", new Integer( 2343432 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
 
-        Page table=null;
+        Hashtable htblColNameValue = new Hashtable( );
+        htblColNameValue.put("id", new Integer( 5 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        Hashtable htblColNameValue1 = new Hashtable( );
+        htblColNameValue.put("id", new Integer( 9 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        Hashtable htblColNameValue2 = new Hashtable( );
+        htblColNameValue.put("id", new Integer( 1 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        Row r = new Row("id", htblColNameValue);
+        Row r1 = new Row("id", htblColNameValue1);
+        Row r2 = new Row("id", htblColNameValue2);
+
+
+
+        //   dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+       /* Page table=null;
         try{
             FileInputStream fileIn =
                     new FileInputStream(new File("src/main/resources/Data/" + "seif_1" +".class"));
@@ -135,6 +152,24 @@ public class DBApp implements DBAppInterface{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(table);
+        System.out.println(table);*/
+        Set<PageInfo> x = new HashSet<>();
+        PageInfo p1=new PageInfo(r);
+        p1.setPageNum(8);
+        PageInfo p2=new PageInfo(r);
+        p2.setPageNum(2);
+        PageInfo p3=new PageInfo(r);
+        p3.setPageNum(10);
+        x.add(p1);
+        x.add(p2);
+        x.add(p3);
+
+        ArrayList y = new ArrayList<>(x);
+        Collections.sort(y);
+        ((PageInfo)y.get(0)).setPageNum(5);
+        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
+
+        System.out.println(p2.getPageNum());
+
     }
 }
