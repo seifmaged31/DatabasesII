@@ -160,6 +160,19 @@ public class Table implements Serializable{
 
         }
     }
+    public void serializeOverflow (Page page, int pageNum, int overflow){
+        try{
+            FileOutputStream fileOut =
+                    new FileOutputStream(new File("src/main/resources/Data/" + this.tableName +"_"+ pageNum + "_" + overflow + ".class"));
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(page);
+            out.close();
+            fileOut.close();
+        }
+        catch(IOException i){
+
+        }
+    }
     public Page deserializePage(String path){
         Page page = null;
         try{
@@ -199,8 +212,8 @@ public class Table implements Serializable{
         Page overflowPage = new Page(row);
         PageInfo overflowInfo = new PageInfo(row);
         mainPageInfo.setOverflowNum(mainPageInfo.getOverflowNum()+1);
-        overflowInfo.setPageNum(this.pageNum);
-        serializePage(overflowPage, this.pageNum);
+        overflowInfo.setPageNum(mainPageInfo.getPageNum());
+        serializeOverflow(overflowPage, mainPageInfo.getPageNum(), overflowInfo.getPageNum());
         mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/Data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
     }
 
