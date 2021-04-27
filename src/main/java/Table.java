@@ -81,14 +81,28 @@ public class Table implements Serializable{
 
                         }
                         else{ // insert in overflow pages
-                            Hashtable overflowPages = pageInfo.getOverflowPages();
-                            Set pagesOverflowInfos = overflowPages.keySet();
-                            if(pagesOverflowInfos.size() == 0){ // we don't have overflow pages
+                            Hashtable <PageInfo,String>overflowPages = pageInfo.getOverflowPages();
+                            Set pagesOverflowInfoSet = overflowPages.keySet();
+                            ArrayList<PageInfo> pagesOverflowInfo = new ArrayList<PageInfo>(pagesOverflowInfoSet);
+                            Collections.sort((List)pagesOverflowInfo);
+                            if(pagesOverflowInfo.size() == 0){ // we don't have overflow pages
                                 createOverflowPage(row,pageInfo);
                                 return;
                             }
                             else{ // we have overflow pages
-
+                                for(PageInfo overflowInfo:pagesOverflowInfo){
+                                  if(!overflowInfo.isFull()){ // I found a space in one overflow
+                                      Page page = deserializePage(overflowPages.get(overflowInfo));
+                                      page.insert(row);
+                                      this.updatePageInfo(pageInfo, row);
+                                      serializePage(page, pageInfo.getPageNum());
+                                      return;
+                                  }
+                                  if(pagesOverflowInfo.indexOf(overflowInfo) == pagesOverflowInfo.size()-1){
+                                      createOverflowPage(row,pageInfo);
+                                      return;
+                                  }
+                                }
                             }
                         }
 
