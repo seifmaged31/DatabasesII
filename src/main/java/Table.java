@@ -117,11 +117,15 @@ public class Table implements Serializable{
 
 
     }
+    public void update(Row row, String tableName){
+
+    }
+
 
     public void serializeTable (String tableName){
         try{
             FileOutputStream fileOut =
-                    new FileOutputStream(new File("src/main/resources/Data/" + tableName +".class"));
+                    new FileOutputStream(new File("src/main/resources/data/" + tableName +".class"));
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(this);
             out.close();
@@ -136,7 +140,7 @@ public class Table implements Serializable{
         Table table=null;
         try{
             FileInputStream fileIn =
-                    new FileInputStream(new File("src/main/resources/Data/" + tableName +".class"));
+                    new FileInputStream(new File("src/main/resources/data/" + tableName +".class"));
             ObjectInputStream in= new ObjectInputStream(fileIn);
             table = (Table) in.readObject();
         } catch (FileNotFoundException | ClassNotFoundException e) {
@@ -150,7 +154,7 @@ public class Table implements Serializable{
     public void serializePage (Page page, int pageNum){
         try{
             FileOutputStream fileOut =
-                    new FileOutputStream(new File("src/main/resources/Data/" + this.tableName +"_"+ pageNum +".class"));
+                    new FileOutputStream(new File("src/main/resources/data/" + this.tableName +"_"+ pageNum +".class"));
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(page);
             out.close();
@@ -163,7 +167,7 @@ public class Table implements Serializable{
     public void serializeOverflow (Page page, int pageNum, int overflow){
         try{
             FileOutputStream fileOut =
-                    new FileOutputStream(new File("src/main/resources/Data/" + this.tableName +"_"+ pageNum + "_" + overflow + ".class"));
+                    new FileOutputStream(new File("src/main/resources/data/" + this.tableName +"_"+ pageNum + "_" + overflow + ".class"));
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(page);
             out.close();
@@ -206,7 +210,7 @@ public class Table implements Serializable{
         this.pageNum++;
         info.setPageNum(this.pageNum);
         serializePage(page, this.pageNum);
-        pages.put(info, "src/main/resources/Data/" + this.tableName + "_" + this.pageNum + ".class");
+        pages.put(info, "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class");
     }
     public void createOverflowPage(Row row,PageInfo mainPageInfo){
         Page overflowPage = new Page(row);
@@ -214,7 +218,7 @@ public class Table implements Serializable{
         mainPageInfo.setOverflowNum(mainPageInfo.getOverflowNum()+1);
         overflowInfo.setPageNum(mainPageInfo.getPageNum());
         serializeOverflow(overflowPage, mainPageInfo.getPageNum(), overflowInfo.getPageNum());
-        mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/Data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
+        mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
     }
 
 }
