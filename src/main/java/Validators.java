@@ -3,6 +3,8 @@ import com.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -63,16 +65,23 @@ public class Validators {
 
     }
     public void validateTypesInsertion(String type, Object value) throws DBAppException{
-
-            //System.out.println(value+" I am not an instance of String");
-            if(type.toLowerCase().equals("java.lang.integer") && !(value instanceof Integer))
+            System.out.println(value + " I entered the validation");
+            if(type.toLowerCase().equals("java.lang.integer") && !(value instanceof Integer)) {
+                System.out.println(value + " the type is " + type +", but I am not");
                 throw new DBAppException("Incorrect data type");
-            if(type.toLowerCase().equals("java.lang.double") && !(value instanceof Double))
+            }
+            if(type.toLowerCase().equals("java.lang.double") && !(value instanceof Double)) {
+                System.out.println(value + " the type is " + type +", but I am not");
                 throw new DBAppException("Incorrect data type");
-            if(type.toLowerCase().equals("java.lang.string") && !(value instanceof String))
+            }
+            if(type.toLowerCase().equals("java.lang.string") && !(value instanceof String)) {
+                System.out.println(value + " the type is " + type +", but I am not");
                 throw new DBAppException("Incorrect data type");
-            if(type.toLowerCase().equals("java.lang.date") && !(value instanceof Date))
+            }
+            if(type.toLowerCase().equals("java.lang.date") && !(value instanceof Date)) {
+                System.out.println(value + " the type is " + type +", but I am not");
                 throw new DBAppException("Incorrect data type");
+            }
 
 
     }
@@ -132,26 +141,29 @@ public class Validators {
     }
     public void validateInsertion (String tableName, Hashtable<String, Object> colNameValue) throws DBAppException{
         Set<String> keys = colNameValue.keySet();
-        Iterator<String> itr = keys.iterator();
-
+//        Iterator<String> itr = keys.iterator();
+        ArrayList<String> columns =  new ArrayList<>(keys);
+        int i=0;
         boolean type=false;
         try {
 
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
             // we are going to read data line by line
+            //String current =(String) itr.next();
             while ((nextRecord = reader.readNext()) != null) {
-                //String current =(String) itr.next();
+
                 if(nextRecord[0].equals(tableName)) {
-                    if (!nextRecord[1].equals(itr.next())) {
+                    if (!nextRecord[1].equals(columns.get(i))) {
                         colNameValue.put(nextRecord[1], null);
                     } else {
-//                        if (!(((colNameValue.get(itr.next())).getClass()).getTypeName()).equals(nextRecord[2])) {
-//                            System.out.println(colNameValue.get(itr.next()));
-//                            type = true;
-//                            break;
-//                        }
-                        validateTypesInsertion(nextRecord[2],colNameValue.get(itr.next()));
+                        if (!(((colNameValue.get(columns.get(i))).getClass()).getTypeName().toLowerCase()).equals(nextRecord[2].toLowerCase())) {
+                            System.out.println((((colNameValue.get(columns.get(i))).getClass()).getTypeName()));
+                            System.out.println(nextRecord[2]);
+                            type = true;
+                            break;
+                        }
+                        //validateTypesInsertion(nextRecord[2],colNameValue.get(current));
                     }
                 }
 
@@ -163,23 +175,25 @@ public class Validators {
             e.printStackTrace();
         }
 
-//        if(type)
-//            throw new DBAppException("A value entered for a column does not match the required data type.");
+        if(type)
+            throw new DBAppException("A value entered for a column does not match the required data type.");
+        else
+            System.out.println("we made it");
 
     }
 
-    public static void main(String[] args) throws  DBAppException{
+    public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Hashtable htblColNameValue = new Hashtable( );
         htblColNameValue.put("id", 7);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 0.95 );
         Validators v = new Validators();
         v.validateInsertion("seif", htblColNameValue);
-//System.out.println(htblColNameValue.get("id").getClass().getTypeName());
         Set<String>  x= htblColNameValue.keySet();
-        for (String y:x){
-            System.out.println(y+ " " + htblColNameValue.get(y));
-        }
+        Iterator<String> itr = x.iterator();
+//        while(itr.hasNext()){
+//            System.out.println(itr.next()+ " " + htblColNameValue.get(itr.next()));
+//        }
 
        // System.out.println(Double.parseDouble("1.5"));
 
@@ -192,5 +206,6 @@ public class Validators {
 //        Validators v = new Validators();
           //v.validateTypes("java.lang.String","Ahmed");
 //        System.out.println("Done");
+
     }
 }
