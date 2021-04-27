@@ -77,6 +77,7 @@ public class DBApp implements DBAppInterface{
        Table table = Table.deserializeTable(tableName);
        table.insert(row, tableName);
 
+
     }
 
     public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException {
@@ -98,6 +99,27 @@ public class DBApp implements DBAppInterface{
     public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
         return null;
     }
+
+    public String getClusteringKey(String tableName){
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                    if(nextRecord[3].equals("True")){
+                        return nextRecord[1];
+                    }
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return "";
+    }
+
 
     public static void main(String[] args) throws  Exception{
 
