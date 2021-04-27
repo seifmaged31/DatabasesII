@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.*;
 public class DBApp implements DBAppInterface{
 
+    Validators validator = new Validators();
     public static void writeDataLineByLine(String filePath,String[]data)
     {
 
@@ -45,7 +46,7 @@ public class DBApp implements DBAppInterface{
         // type as value
         // htblColNameMin and htblColNameMax for passing minimum and maximum values
         // for data in the column. Key is the name of the column
-        Validators.validateCreateTable(tableName,clusteringKey,colNameType,colNameMin,colNameMax);
+        validator.validateCreateTable(tableName,clusteringKey,colNameType,colNameMin,colNameMax);
         Set<String> nameType = colNameType.keySet();
             Iterator<String> itrType = nameType.iterator();
             String[] result = new String[7];
@@ -73,6 +74,8 @@ public class DBApp implements DBAppInterface{
     public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException, IOException {
         // following method inserts one row only
         // htblColNameValue must include a value for the primary key
+       // validator.validateClusteringKey();
+        String clusteringKey = getClusteringKey(tableName);
         Row row = new Row("id", colNameValue);
        Table table = Table.deserializeTable(tableName);
        table.insert(row, tableName);

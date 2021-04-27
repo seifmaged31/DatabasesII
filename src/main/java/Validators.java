@@ -17,7 +17,10 @@ import java.util.*;
 }*/
 
 public class Validators {
-    public static void validateCreateTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException, IOException {
+    DateTimeFormatter date = DateTimeFormatter.ofPattern("YYYY-MM-DD");
+
+
+    public void validateCreateTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException, IOException {
         Set<String> nameType = colNameType.keySet();
         Set<String> nameMax = colNameMax.keySet();
         Set<String> nameMin = colNameMin.keySet();
