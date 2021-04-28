@@ -17,6 +17,7 @@ public class Table implements Serializable{
 
         Table table = this.deserializeTable(tableName);
         if (this.pages.isEmpty()){ //first insertion
+            System.out.println("first insertion");
             createPage(row);
             serializeTable(tableName);
             return;
@@ -27,6 +28,7 @@ public class Table implements Serializable{
         for(PageInfo pageInfo:pagesInfos){
             if(pagesInfos.indexOf(pageInfo) == pagesInfos.size()-1){//this is the last page
                 if(!pageInfo.isFull()){ // I have space to insert in this page
+                    System.out.println("insertion in last page");
                     Page page = deserializePage(pages.get(pageInfo));
                     page.insert(row);
                     this.updatePageInfo(pageInfo,row);
@@ -51,6 +53,7 @@ public class Table implements Serializable{
 
                     }
                     else{ // the new row isn't in the range
+                        System.out.println("created new page with row");
                         createPage(row);
                         serializeTable(tableName);
                         return;
@@ -64,6 +67,7 @@ public class Table implements Serializable{
             if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || checkRange(row,pageInfo.getMax(),nextPageInfo.getMin()) || row.compareTo(pageInfo.getMin())<0){ // any intermediate page that I need.
                 System.out.println("im within range of this page or smaller than next page");
                     if(!pageInfo.isFull()) { // if the page has space
+                        System.out.println("there is space in this page (within range)");
                         Page page = deserializePage(pages.get(pageInfo));
                         page.insert(row);
                         this.updatePageInfo(pageInfo, row);
@@ -198,7 +202,9 @@ public class Table implements Serializable{
     }
 
     public  void updatePageInfo(PageInfo pageInfo, Row row){
+        System.out.println(pageInfo.getNumOfRows());
         pageInfo.setNumOfRows(pageInfo.getNumOfRows()+1);
+        System.out.println(pageInfo.getNumOfRows());
         if(row.compareTo(pageInfo.getMax())>0)
             pageInfo.setMax(row);
         if(pageInfo.getMin().compareTo(row)>0)

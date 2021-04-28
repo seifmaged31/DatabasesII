@@ -3,7 +3,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.*;
 
-public class Page implements Serializable {
+public class Page implements Serializable, Comparable {
 
     Vector<Row> rows;
 
