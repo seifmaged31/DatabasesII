@@ -10,42 +10,48 @@ public class Table implements Serializable{
     public Table (String tableName){
         this.tableName=tableName;
         pages = new Hashtable<PageInfo, String>();
-        serializeTable(this.tableName);
+        //serializeTable(this.tableName);
         pageNum=0;
     }
     public void insert (Row row, String tableName) throws IOException{
        // Table table = this.deserializeTable(tableName);
         if (this.pages.isEmpty()){ //first insertion
             createPage(row);
+            serializeTable(tableName);
             return;
         }
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List)pagesInfos);
         for(PageInfo pageInfo:pagesInfos){
-            if(!pagesInfos.iterator().hasNext()){//this is the last page
+            if(pagesInfos.indexOf(pageInfo) == pagesInfos.size()-1){//this is the last page
                 if(!pageInfo.isFull()){ // I have space to insert in this page
                     Page page = deserializePage(pages.get(pageInfo));
                     page.insert(row);
                     this.updatePageInfo(pageInfo,row);
                     serializePage(page,pageInfo.getPageNum());
+                    serializeTable(tableName);
                     return;
                 }
                 else { // I have no space to insert so, move
 
-                    if(checkRange(row, pageInfo.getMin(), pageInfo.getMax())){ //the new row is within the page
+                    if(checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || row.compareTo(pageInfo.getMin())<0){ //the new row is within the page
+                        System.out.println("insertion in this last page and create new page with last elem");
                         Page page = deserializePage(pages.get(pageInfo));
                         Row lastElement = page.rows.lastElement();
                         page.rows.removeElementAt(page.rows.size()-1);
+                        pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
                         page.insert(row);
                         this.updatePageInfo(pageInfo, row);
                         serializePage(page, pageInfo.getPageNum());
                         createPage(lastElement);
+                        serializeTable(tableName);
                         return;
 
                     }
                     else{ // the new row isn't in the range
                         createPage(row);
+                        serializeTable(tableName);
                         return;
                     }
                 }
@@ -54,17 +60,20 @@ public class Table implements Serializable{
             }
             int currentIndex =  ((List<?>) pagesInfos).indexOf(pageInfo);
             PageInfo nextPageInfo =(PageInfo) ((List<?>) pagesInfos).get(currentIndex+1);
-            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())){ // any intermediate page that I need.
+            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || checkRange(row,pageInfo.getMax(),nextPageInfo.getMin()) || row.compareTo(pageInfo.getMin())<0){ // any intermediate page that I need.
+                System.out.println("im within range of this page or smaller than next page");
                     if(!pageInfo.isFull()) { // if the page has space
                         Page page = deserializePage(pages.get(pageInfo));
                         page.insert(row);
                         this.updatePageInfo(pageInfo, row);
                         serializePage(page, pageInfo.getPageNum());
+                        serializeTable(tableName);
                         return;
                     }
-                    else{
-                        if(!nextPageInfo.isFull()){ //shifting to the next page
-
+                    else{ // the page has no space
+                        System.out.println("no space in first page");
+                        if(!nextPageInfo.isFull()){ //shifting to the next page, as the next page has space.
+                            System.out.println("there is space in next page");
                             Page page = deserializePage(pages.get(pageInfo));
                             Row lastElement = page.rows.lastElement();
                             page.rows.removeElementAt(page.rows.size()-1);
@@ -75,43 +84,37 @@ public class Table implements Serializable{
                             nextPage.insert(lastElement);
                             this.updatePageInfo(nextPageInfo, lastElement);
                             serializePage(nextPage, nextPageInfo.getPageNum());
-
+                            serializeTable(tableName);
                             return;
-
-
                         }
-                        else{ // insert in overflow pages
-                            Hashtable <PageInfo,String>overflowPages = pageInfo.getOverflowPages();
-                            Set pagesOverflowInfoSet = overflowPages.keySet();
-                            ArrayList<PageInfo> pagesOverflowInfo = new ArrayList<PageInfo>(pagesOverflowInfoSet);
-                            Collections.sort((List)pagesOverflowInfo);
-                            if(pagesOverflowInfo.size() == 0){ // we don't have overflow pages
-                                createOverflowPage(row,pageInfo);
+                        else{
+                            if(row.compareTo(pageInfo.getMax())>0){
+                                createPage(row);
+                                serializeTable(tableName);
                                 return;
                             }
-                            else{ // we have overflow pages
-                                for(PageInfo overflowInfo:pagesOverflowInfo){
-                                  if(!overflowInfo.isFull()){ // I found a space in one overflow
-                                      Page page = deserializePage(overflowPages.get(overflowInfo));
-                                      page.insert(row);
-                                      this.updatePageInfo(pageInfo, row);
-                                      serializePage(page, pageInfo.getPageNum());
-                                      return;
-                                  }
-                                  if(pagesOverflowInfo.indexOf(overflowInfo) == pagesOverflowInfo.size()-1){
-                                      createOverflowPage(row,pageInfo);
-                                      return;
-                                  }
-                                }
+                            else {
+                                System.out.println("no space in next page");
+                                Page page = deserializePage(pages.get(pageInfo));
+                                Row lastElement = page.rows.lastElement();
+                                page.rows.removeElementAt(page.rows.size() - 1);
+                                pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
+                                page.insert(row);
+                                this.updatePageInfo(pageInfo, row);
+                                serializePage(page, pageInfo.getPageNum());
+                                createPage(lastElement);
+                                serializeTable(this.tableName);
+                                return;
+                            }
                             }
                         }
 
                     }
             }
-        }
-
-
     }
+
+
+
 
     public void delete(Row row,String tableName){
 
@@ -219,6 +222,46 @@ public class Table implements Serializable{
         overflowInfo.setPageNum(mainPageInfo.getPageNum());
         serializeOverflow(overflowPage, mainPageInfo.getPageNum(), overflowInfo.getPageNum());
         mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
+    }
+
+    public static void main(String[] args) throws IOException {
+        Table t1 = (Table) deserializeTable("donia");
+//        Table t1 = new Table("donia");
+//        t1.serializeTable(t1.tableName);
+//        Hashtable htblColNameValue = new Hashtable( );
+//        htblColNameValue.put("id", 7);
+//        htblColNameValue.put("name", "Ahmed");
+//        htblColNameValue.put("gpa", 1.5 );
+//        Row r1 = new Row("id",htblColNameValue);
+//        t1.insert(r1,"donia");
+        Hashtable htblColNameValue = new Hashtable();
+        htblColNameValue.put("id", 4);
+        htblColNameValue.put("name", "donia");
+        htblColNameValue.put("gpa", 1.5 );
+        Row r1 = new Row("id",htblColNameValue);
+       t1.insert(r1,"donia");
+        System.out.println(t1.pageNum);
+        Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
+        Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
+      Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
+       Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
+        for(Row row: p1.rows){
+            System.out.print(row.values + ", " );
+        }
+        System.out.println();
+        for(Row row: p2.rows){
+            System.out.print(row.values + ", " );
+        }
+        System.out.println();
+        for(Row row: p3.rows){
+            System.out.print(row.values + ", " );
+        }
+        System.out.println();
+        for(Row row: p4.rows){
+            System.out.print(row.values + ", " );
+        }
+
+
     }
 
 }

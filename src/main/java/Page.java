@@ -108,4 +108,19 @@ public class Page implements Serializable {
     }
 
 
+    @Override
+    public int compareTo(Object o) {
+        Page p=(Page) o;
+//        if(this.rows.firstElement().compareTo(p.rows.firstElement())>0) {
+//            return 1;
+//        }
+//        else if(this.rows.firstElement().compareTo(p.rows.firstElement())>0){
+//            return -1;
+//            }
+//        else
+//            return 0;
+        return ((Row) rows.firstElement()).compareTo( p.rows.firstElement());
+
+
+    }
 }

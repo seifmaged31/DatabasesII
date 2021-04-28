@@ -45,6 +45,14 @@ public class Row implements Comparable, Serializable {
 
 
     }
+//    public String toString(){
+//        String result="";
+//        for(String value:values){
+//            result+= value + ", ";
+//
+//        }
+//        return result;
+//    }
 
 
     public static void main(String [] args)

@@ -188,7 +188,7 @@ public class Validators {
         Hashtable htblColNameValue = new Hashtable( );
         htblColNameValue.put("id", 7);
         htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", "fuck" );
+        htblColNameValue.put("gpa", 1.5 );
         Validators v = new Validators();
         v.validateInsertion("seif", htblColNameValue);
         Set<String>  x= htblColNameValue.keySet();

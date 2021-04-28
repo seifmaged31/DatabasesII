@@ -90,7 +90,6 @@ public class PageInfo implements Serializable, Comparable {
 
     public static int getMaxRows() throws FileNotFoundException, IOException {
         File configFile = new File("src/main/resources/DBApp.config");
-
         int maxRows=0;
 
         try {
@@ -114,6 +113,6 @@ public class PageInfo implements Serializable, Comparable {
     @Override
     public int compareTo(Object o) {
         PageInfo p = (PageInfo) o;
-        return ((Integer) this.getPageNum()).compareTo((Integer) p.getPageNum());
+        return ((Row) this.getMin()).compareTo((Row) p.getMin());
     }
 }
