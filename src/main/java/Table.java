@@ -13,8 +13,9 @@ public class Table implements Serializable{
         //serializeTable(this.tableName);
         pageNum=0;
     }
-    public void insert (Row row, String tableName) throws IOException{
-       // Table table = this.deserializeTable(tableName);
+    public void insert (Row row, String tableName) throws IOException {
+
+        Table table = this.deserializeTable(tableName);
         if (this.pages.isEmpty()){ //first insertion
             createPage(row);
             serializeTable(tableName);
@@ -77,6 +78,7 @@ public class Table implements Serializable{
                             Page page = deserializePage(pages.get(pageInfo));
                             Row lastElement = page.rows.lastElement();
                             page.rows.removeElementAt(page.rows.size()-1);
+                            pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
                             page.insert(row);
                             this.updatePageInfo(pageInfo, row);
                             serializePage(page, pageInfo.getPageNum());
