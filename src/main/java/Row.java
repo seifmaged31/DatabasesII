@@ -9,8 +9,9 @@ public class Row implements Comparable, Serializable {
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
         values = new Vector<>();
         this.clusteringKey=clusteringKey;
+        System.out.println("The clustering key " + clusteringKey);
         keyValue= colNameValues.get(clusteringKey);
-
+        System.out.println("The value " +keyValue.toString());
         //values.sort();
         Set<String> nameType = colNameValues.keySet();
         Iterator<String> itrType = nameType.iterator();

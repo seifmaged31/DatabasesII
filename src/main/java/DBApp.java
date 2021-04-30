@@ -63,6 +63,7 @@ public class DBApp implements DBAppInterface{
                 writeDataLineByLine("src/main/resources/metadata.csv", result);
             }
             Table table = new Table(tableName);
+            table.serializeTable(tableName);
         }
         //set clustering key for table for later checks
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
@@ -70,16 +71,35 @@ public class DBApp implements DBAppInterface{
         // or single dimension depending on the count of column names passed.
 
     }
+    public boolean tableExists(String tableName){
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                    return true;
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException, IOException {
         // following method inserts one row only
         // htblColNameValue must include a value for the primary key
-       // validator.validateClusteringKey();
+        validator.validateClusteringKey(tableName, colNameValue);
+        validator.validateTypesInsertion(colNameValue);
+        validator.validateInsertion(tableName,colNameValue);
+        validator.validateColNames(tableName,colNameValue);
         String clusteringKey = getClusteringKey(tableName);
-        Row row = new Row("id", colNameValue);
-       Table table = Table.deserializeTable(tableName);
-       table.insert(row, tableName);
-
+        Row row = new Row(clusteringKey, colNameValue);
+        Table table =(Table) Table.deserializeTable(tableName);
+        table.insert(row, tableName);
 
     }
 
@@ -144,21 +164,21 @@ public class DBApp implements DBAppInterface{
 //        max.put("gpa","4.0");
 //        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
 
-        Hashtable htblColNameValue = new Hashtable( );
-        htblColNameValue.put("id", new Integer( 5 ));
-        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-        htblColNameValue.put("gpa", new Double( 0.95 ) );
-        Hashtable htblColNameValue1 = new Hashtable( );
-        htblColNameValue.put("id", new Integer( 9 ));
-        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-        htblColNameValue.put("gpa", new Double( 0.95 ) );
-        Hashtable htblColNameValue2 = new Hashtable( );
-        htblColNameValue.put("id", new Integer( 1 ));
-        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-        htblColNameValue.put("gpa", new Double( 0.95 ) );
-        Row r = new Row("id", htblColNameValue);
-        Row r1 = new Row("id", htblColNameValue1);
-        Row r2 = new Row("id", htblColNameValue2);
+//        Hashtable htblColNameValue = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 5 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        Hashtable htblColNameValue1 = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 9 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        Hashtable htblColNameValue2 = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 1 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        Row r = new Row("id", htblColNameValue);
+//        Row r1 = new Row("id", htblColNameValue1);
+//        Row r2 = new Row("id", htblColNameValue2);
 
 
 
@@ -178,23 +198,23 @@ public class DBApp implements DBAppInterface{
             e.printStackTrace();
         }
         System.out.println(table);*/
-        Set<PageInfo> x = new HashSet<>();
-        PageInfo p1=new PageInfo(r);
-        p1.setPageNum(8);
-        PageInfo p2=new PageInfo(r);
-        p2.setPageNum(2);
-        PageInfo p3=new PageInfo(r);
-        p3.setPageNum(10);
-        x.add(p1);
-        x.add(p2);
-        x.add(p3);
-
-        ArrayList y = new ArrayList<>(x);
-        Collections.sort(y);
-        ((PageInfo)y.get(0)).setPageNum(5);
-        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
-
-        System.out.println(p2.getPageNum());
+//        Set<PageInfo> x = new HashSet<>();
+//        PageInfo p1=new PageInfo(r);
+//        p1.setPageNum(8);
+//        PageInfo p2=new PageInfo(r);
+//        p2.setPageNum(2);
+//        PageInfo p3=new PageInfo(r);
+//        p3.setPageNum(10);
+//        x.add(p1);
+//        x.add(p2);
+//        x.add(p3);
+//
+//        ArrayList y = new ArrayList<>(x);
+//        Collections.sort(y);
+//        ((PageInfo)y.get(0)).setPageNum(5);
+//        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
+//
+//        System.out.println(p2.getPageNum());
 
     }
 }

@@ -1,6 +1,7 @@
 import com.opencsv.CSVReader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -19,7 +20,6 @@ import java.util.*;
 }*/
 
 public class Validators {
-    DateTimeFormatter date = DateTimeFormatter.ofPattern("YYYY-MM-DD");
 
 
     public void validateCreateTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException, IOException {
@@ -64,25 +64,28 @@ public class Validators {
 
 
     }
-    public void validateTypesInsertion(String type, Object value) throws DBAppException{
-            System.out.println(value + " I entered the validation");
-            if(type.toLowerCase().equals("java.lang.integer") && !(value instanceof Integer)) {
-                System.out.println(value + " the type is " + type +", but I am not");
-                throw new DBAppException("Incorrect data type");
-            }
-            if(type.toLowerCase().equals("java.lang.double") && !(value instanceof Double)) {
-                System.out.println(value + " the type is " + type +", but I am not");
-                throw new DBAppException("Incorrect data type");
-            }
-            if(type.toLowerCase().equals("java.lang.string") && !(value instanceof String)) {
-                System.out.println(value + " the type is " + type +", but I am not");
-                throw new DBAppException("Incorrect data type");
-            }
-            if(type.toLowerCase().equals("java.lang.date") && !(value instanceof Date)) {
-                System.out.println(value + " the type is " + type +", but I am not");
-                throw new DBAppException("Incorrect data type");
-            }
+    public void validateTypesInsertion(Hashtable<String, Object> colNameValue) throws DBAppException{
+            //System.out.println(value + " I entered the validation");
+            Set<String> colNames = colNameValue.keySet();
+            for(String type:colNames){
 
+                if(type.toLowerCase().equals("java.lang.integer") && !(colNameValue.get(type) instanceof Integer)) {
+                    //System.out.println(value + " the type is " + type +", but I am not");
+                    throw new DBAppException("Incorrect data type");
+                }
+                if(type.toLowerCase().equals("java.lang.double") && !(colNameValue.get(type) instanceof Double)) {
+                    //System.out.println(value + " the type is " + type +", but I am not");
+                    throw new DBAppException("Incorrect data type");
+                }
+                if(type.toLowerCase().equals("java.lang.string") && !(colNameValue.get(type) instanceof String)) {
+                    //System.out.println(value + " the type is " + type +", but I am not");
+                    throw new DBAppException("Incorrect data type");
+                }
+                if(type.toLowerCase().equals("java.lang.date") && !(colNameValue.get(type) instanceof Date)) {
+                    //System.out.println(value + " the type is " + type +", but I am not");
+                    throw new DBAppException("Incorrect data type");
+                }
+            }
 
     }
     public void validateTypesTable(String type, String value) throws DBAppException{
@@ -107,6 +110,22 @@ public class Validators {
             }
             if (exception)
                 throw new DBAppException("Incorrect data type");
+        }
+    }
+    public void validateColNames(String tableName, Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
+        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+        String[] nextRecord;
+        Set<String> set = colNameValue.keySet();
+        ArrayList<String> colNames = new ArrayList<>(set);
+        ArrayList<String> csvColNames = new ArrayList<>();
+        // we are going to read data line by line
+        while ((nextRecord = reader.readNext()) != null) {
+            if(nextRecord[0].equals(tableName)){
+                csvColNames.add(nextRecord[1]);
+            }
+        }
+        if(!(csvColNames.containsAll(colNames) && colNames.containsAll(csvColNames))){
+            throw new DBAppException("The column names do not match");
         }
     }
 
@@ -155,11 +174,11 @@ public class Validators {
 
                 if(nextRecord[0].equals(tableName)) {
                     if (!nextRecord[1].equals(columns.get(i))) {
-                        colNameValue.put(nextRecord[1], null);
+                        //colNameValue.put(nextRecord[1], null);
                     } else {
                         if (!(((colNameValue.get(columns.get(i))).getClass()).getTypeName().toLowerCase()).equals(nextRecord[2].toLowerCase())) {
-                            System.out.println((((colNameValue.get(columns.get(i))).getClass()).getTypeName()));
-                            System.out.println(nextRecord[2]);
+                            //System.out.println((((colNameValue.get(columns.get(i))).getClass()).getTypeName()));
+                            //System.out.println(nextRecord[2]);
                             type = true;
                             break;
                         }
