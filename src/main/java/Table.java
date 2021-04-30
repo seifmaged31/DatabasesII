@@ -238,7 +238,7 @@ public class Table implements Serializable{
 
     public static void main(String[] args) throws IOException {
 //        Table t1 = (Table) deserializeTable("donia");
-//          //Table t1 = new Table("donia"); t1.serializeTable(t1.tableName);
+//        Table t1 = new Table("donia"); t1.serializeTable(t1.tableName);
 //        Hashtable htblColNameValue = new Hashtable();
 //        htblColNameValue.put("id", 4);
 //        htblColNameValue.put("name", "donia");
@@ -249,7 +249,7 @@ public class Table implements Serializable{
 //        Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
 //        Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
 //        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
-////       Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
+//        Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
 //        for(Row row: p1.rows){
 //            System.out.print(row.values + ", " );
 //        }
@@ -261,10 +261,10 @@ public class Table implements Serializable{
 //        for(Row row: p3.rows){
 //            System.out.print(row.values + ", " );
 //        }
-////        System.out.println();
-////        for(Row row: p4.rows){
-////            System.out.print(row.values + ", " );
-////        }
+//        System.out.println();
+//        for(Row row: p4.rows){
+//            System.out.print(row.values + ", " );
+//        }
 
 
     }
