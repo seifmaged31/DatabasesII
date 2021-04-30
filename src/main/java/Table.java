@@ -133,7 +133,7 @@ public class Table implements Serializable{
 
 
     }
-    public void update(Row row, String tableName){
+    public void update(String tableName, ArrayList indices, Hashtable<String, Object> columnNameValue, String clusteringKeyValue){
 
     }
 
@@ -234,14 +234,7 @@ public class Table implements Serializable{
         serializePage(page, this.pageNum);
         pages.put(info, "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class");
     }
-    public void createOverflowPage(Row row,PageInfo mainPageInfo){
-        Page overflowPage = new Page(row);
-        PageInfo overflowInfo = new PageInfo(row);
-        mainPageInfo.setOverflowNum(mainPageInfo.getOverflowNum()+1);
-        overflowInfo.setPageNum(mainPageInfo.getPageNum());
-        serializeOverflow(overflowPage, mainPageInfo.getPageNum(), overflowInfo.getPageNum());
-        mainPageInfo.getOverflowPages().put(overflowInfo, "src/main/resources/data/" + this.tableName + "_" + this.pageNum +"_"+ overflowInfo.getPageNum() +".class");
-    }
+
 
     public static void main(String[] args) throws IOException {
 //        Table t1 = (Table) deserializeTable("donia");

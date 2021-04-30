@@ -1,10 +1,7 @@
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 public class DBApp implements DBAppInterface{
 
@@ -98,16 +95,21 @@ public class DBApp implements DBAppInterface{
         validator.validateColNames(tableName,colNameValue);
         String clusteringKey = getClusteringKey(tableName);
         Row row = new Row(clusteringKey, colNameValue);
-        Table table =(Table) Table.deserializeTable(tableName);
+        Table table =Table.deserializeTable(tableName);
         table.insert(row, tableName);
 
     }
 
-    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException {
+    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException, IOException {
         // following method updates one row only
         // htblColNameValue holds the key and new value
         // htblColNameValue will not include clustering key as column name
         // strClusteringKeyValue is the value to look for to find the rows to update.
+
+        //validations keteer awy awy awy
+        ArrayList list = getIndices(tableName, columnNameValue);
+        Table table = Table.deserializeTable(tableName);
+        table.update(tableName, list, columnNameValue, clusteringKeyValue);
 
     }
 
@@ -142,6 +144,34 @@ public class DBApp implements DBAppInterface{
         }
         return "";
     }
+    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
+        ArrayList list = new ArrayList();
+        int c=-1;
+        Set<String> keys = columnNameValue.keySet();
+        Iterator<String> itr = keys.iterator();
+        String cur= itr.next();
+
+        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+        String[] nextRecord;
+        while ((nextRecord = reader.readNext()) != null) {
+            if(nextRecord[0].equals(tableName)) {
+                c++;
+                if(nextRecord[1].equals(cur)){
+                    list.add(c);
+                    if(itr.hasNext())
+                        cur=itr.next();
+                    else
+                        break;
+                }
+
+            }
+
+        }
+
+
+        return list;
+    }
+
 
 
     public static void main(String[] args) throws  Exception{
@@ -215,6 +245,12 @@ public class DBApp implements DBAppInterface{
 //        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
 //
 //        System.out.println(p2.getPageNum());
+
+        Hashtable<String, Object> row = new Hashtable();
+        row.put("first_name", "foo");
+        row.put("gpa", 1.1);
+
+        System.out.println(getIndices("students",row));
 
     }
 }

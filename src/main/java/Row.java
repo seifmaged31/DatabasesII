@@ -46,14 +46,17 @@ public class Row implements Comparable, Serializable {
 
 
     }
-//    public String toString(){
-//        String result="";
-//        for(String value:values){
-//            result+= value + ", ";
-//
-//        }
-//        return result;
-//    }
+    public void update (ArrayList indices, Hashtable<String, Object> columnNameValue)
+    {
+        Set<String> keySet = columnNameValue.keySet();
+        ArrayList<String> keys = new ArrayList<String>(keySet);
+        for (String key:keys){
+            this.values.set((int)indices.get(keys.indexOf(key)), columnNameValue.get(key).toString());
+
+        }
+
+    }
+
 
 
     public static void main(String [] args)
