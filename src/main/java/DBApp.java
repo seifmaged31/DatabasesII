@@ -106,7 +106,8 @@ public class DBApp implements DBAppInterface{
         // htblColNameValue will not include clustering key as column name
         // strClusteringKeyValue is the value to look for to find the rows to update.
 
-        //validations keteer awy awy awy
+        //validations
+        validator.validateUpdate(tableName,columnNameValue);
         ArrayList list = getIndices(tableName, columnNameValue);
         Table table = Table.deserializeTable(tableName);
         table.update(tableName, list, columnNameValue, clusteringKeyValue);

@@ -152,11 +152,10 @@ public class Validators {
         }
         catch(Exception e){
 
-            System.out.println("hi");
+            e.printStackTrace();
         }
             if(!found)
                 throw new DBAppException("The clustering key doesn't exist.");
-            System.out.println("bye");
     }
     public void validateInsertion (String tableName, Hashtable<String, Object> colNameValue) throws DBAppException{
         Set<String> keys = colNameValue.keySet();
@@ -202,6 +201,53 @@ public class Validators {
             System.out.println("we made it");
 
     }
+    public void validateUpdate (String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
+        Set<String> colNames = columnNameValue.keySet();
+        Iterator<String> itr = colNames.iterator();
+        String cur= itr.next();
+        boolean found=false;
+        boolean columns=false;
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                    if(nextRecord[3].equals("True")){
+                        for(String colName: colNames){
+                            if(colName.equals(nextRecord[1])){
+                                found=true;
+                                break;
+                            }
+                        }
+                    }
+
+                else{
+                    if (nextRecord[1].equals(cur))
+                        if(itr.hasNext())
+                            cur=itr.next();
+                        else
+                        {
+                            columns=true;
+                            break;
+                        }
+
+                    }
+            }
+
+        }
+        catch(Exception e){
+
+            e.printStackTrace();
+        }
+        if(found)
+            throw new DBAppException("Cannot update the clustering key.");
+        if(!columns)
+            throw new DBAppException("These columns are invalid and do not exist in the table.");
+
+    }
+
 
     public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Hashtable htblColNameValue = new Hashtable( );
