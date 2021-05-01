@@ -2,6 +2,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 public class DBApp implements DBAppInterface{
 
@@ -100,13 +101,12 @@ public class DBApp implements DBAppInterface{
 
     }
 
-    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException, IOException {
+    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException, IOException, ParseException {
         // following method updates one row only
         // htblColNameValue holds the key and new value
         // htblColNameValue will not include clustering key as column name
         // strClusteringKeyValue is the value to look for to find the rows to update.
 
-        //validations
         validator.validateUpdate(tableName,columnNameValue);
         ArrayList list = getIndices(tableName, columnNameValue);
         Table table = Table.deserializeTable(tableName);
@@ -145,33 +145,33 @@ public class DBApp implements DBAppInterface{
         }
         return "";
     }
-    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
-        ArrayList list = new ArrayList();
-        int c=-1;
-        Set<String> keys = columnNameValue.keySet();
-        Iterator<String> itr = keys.iterator();
-        String cur= itr.next();
-
-        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
-        String[] nextRecord;
-        while ((nextRecord = reader.readNext()) != null) {
-            if(nextRecord[0].equals(tableName)) {
-                c++;
-                if(nextRecord[1].equals(cur)){
-                    list.add(c);
-                    if(itr.hasNext())
-                        cur=itr.next();
-                    else
-                        break;
-                }
-
-            }
-
-        }
-
-
-        return list;
-    }
+//    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
+//        ArrayList list = new ArrayList();
+//        int c=-1;
+//        Set<String> keys = columnNameValue.keySet();
+//        Iterator<String> itr = keys.iterator();
+//        String cur= itr.next();
+//
+//        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+//        String[] nextRecord;
+//        while ((nextRecord = reader.readNext()) != null) {
+//            if(nextRecord[0].equals(tableName)) {
+//                c++;
+//                if(nextRecord[1].equals(cur)){
+//                    list.add(c);
+//                    if(itr.hasNext())
+//                        cur=itr.next();
+//                    else
+//                        break;
+//                }
+//
+//            }
+//
+//        }
+//
+//
+//        return list;
+//    }
 
 
 
@@ -251,7 +251,7 @@ public class DBApp implements DBAppInterface{
         row.put("first_name", "foo");
         row.put("gpa", 1.1);
 
-        System.out.println(getIndices("students",row));
+        //System.out.println(getIndices("students",row));
 
     }
 }

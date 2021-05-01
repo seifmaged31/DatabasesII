@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -247,17 +248,103 @@ public class Validators {
             throw new DBAppException("These columns are invalid and do not exist in the table.");
 
     }
+    public String getClusteringType(String tableName){
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName) && nextRecord[3].equals("True")){
+                    return nextRecord[2].toLowerCase();
+                }
+
+            }
+
+        }
+        catch(Exception e){
+
+            e.printStackTrace();
+        }
+        return "";
+    }
+    public Object getClusteringValue (String type, String value) throws ParseException {
+        switch (type)
+        {
+            case "java.lang.integer":return (int)(Integer.parseInt(value));
+            case "java.lang.double":return (Double)(Double.parseDouble(value));
+            case "java.util.date":return (Date)((new SimpleDateFormat("yyyy-MM-dd")).parse(value));
+            default: return (String) value;
+
+        }
+    }
+
 
 
     public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Hashtable htblColNameValue = new Hashtable( );
-        htblColNameValue.put("id", 7);
+        htblColNameValue.put("id", 8);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 1.5 );
-        Validators v = new Validators();
-        v.validateInsertion("seif", htblColNameValue);
-        Set<String>  x= htblColNameValue.keySet();
-        Iterator<String> itr = x.iterator();
+        //Validators v = new Validators();
+        //v.validateInsertion("seif", htblColNameValue);
+        Row r1 = new Row("id",htblColNameValue);
+        PageInfo pinfo1 = new PageInfo(r1);
+        htblColNameValue.clear();
+
+        htblColNameValue.put("id", 5);
+        htblColNameValue.put("name", "Ahmed");
+        htblColNameValue.put("gpa", 1.5 );
+        r1 = new Row("id",htblColNameValue);
+        PageInfo pinfo2 = new PageInfo(r1);
+        htblColNameValue.clear();
+
+        htblColNameValue.put("id", 4);
+        htblColNameValue.put("name", "Ahmed");
+        htblColNameValue.put("gpa", 1.5 );
+        r1 = new Row("id",htblColNameValue);
+        PageInfo pinfo3 = new PageInfo(r1);
+        htblColNameValue.clear();
+
+        htblColNameValue.put("id", 2);
+        htblColNameValue.put("name", "Ahmed");
+        htblColNameValue.put("gpa", 1.5 );
+        r1 = new Row("id",htblColNameValue);
+        PageInfo pinfo4 = new PageInfo(r1);
+        htblColNameValue.clear();
+
+        ArrayList a1 = new ArrayList();
+        a1.add(new Date(100,Calendar.JANUARY, 8));
+
+        a1.add(new Date(99, Calendar.OCTOBER, 8));
+        a1.add(new Date(101, Calendar.JULY, 8));
+        a1.add(new Date(101, Calendar.JULY, 2));
+        System.out.println("before");
+      /*  for(Row row:a1)
+            System.out.println(row.values);*/
+
+        System.out.println(a1);
+        Collections.sort(a1);
+        System.out.println(a1);
+       /* System.out.println("after");
+        for(Row row:a1)
+            System.out.println(row.values);*/
+
+        htblColNameValue.put("id", 0);
+        htblColNameValue.put("name", "Ahmed");
+        htblColNameValue.put("gpa", 1.5 );
+        r1 = new Row("id",htblColNameValue);
+        htblColNameValue.clear();
+
+
+        int index = Collections.binarySearch(a1,new Date(101, Calendar.JULY, 3));
+        System.out.println("The date to insert: " + new Date(101, Calendar.JULY, 3));
+        System.out.println(index);
+        System.out.println((index==-1)?0:(index<0)?((index+2)*-1):index);
+
+
+//        Set<String>  x= htblColNameValue.keySet();
+//        Iterator<String> itr = x.iterator();
 //        while(itr.hasNext()){
 //            System.out.println(itr.next()+ " " + htblColNameValue.get(itr.next()));
 //        }

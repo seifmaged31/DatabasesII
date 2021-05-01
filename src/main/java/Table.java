@@ -1,3 +1,5 @@
+import com.opencsv.CSVReader;
+
 import java.io.*;
 import java.util.*;
 
@@ -133,8 +135,55 @@ public class Table implements Serializable{
 
 
     }
-    public void update(String tableName, ArrayList indices, Hashtable<String, Object> columnNameValue, String clusteringKeyValue){
 
+    public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException {
+    ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
+    ArrayList listOfIndices = getIndices(tableName, columnNameValue);
+    Collections.sort(pagesInfo);
+    ArrayList values = new ArrayList();
+    pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
+    int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
+    indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
+    Page page = this.deserializePage(this.pages.get(pagesInfo.get(indexOfPage)));
+    Hashtable<String,Object> tempHash = new Hashtable<>(columnNameValue);//temporary hashtable to have the clustering key as column name
+    tempHash.put(clusteringKey,clusteringKeyValue);
+    Row comparisonRow = new Row(clusteringKey,tempHash);
+    int indexOfRow =Collections.binarySearch((List)page.rows,comparisonRow);
+    indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
+    Row rowToUpdate = page.rows.get(indexOfRow);
+    rowToUpdate.update(listOfIndices,columnNameValue);
+    serializePage(page,pagesInfo.get(indexOfPage).getPageNum());
+    serializeTable(tableName);
+
+    }
+
+
+    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
+        ArrayList list = new ArrayList();
+        int c=-1;
+        Set<String> keys = columnNameValue.keySet();
+        Iterator<String> itr = keys.iterator();
+        String cur= itr.next();
+
+        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+        String[] nextRecord;
+        while ((nextRecord = reader.readNext()) != null) {
+            if(nextRecord[0].equals(tableName)) {
+                c++;
+                if(nextRecord[1].equals(cur)){
+                    list.add(c);
+                    if(itr.hasNext())
+                        cur=itr.next();
+                    else
+                        break;
+                }
+
+            }
+
+        }
+
+
+        return list;
     }
 
 
