@@ -3,7 +3,9 @@ import java.util.*;
 
 public class Row implements Comparable, Serializable {
     String clusteringKey;
-    Object keyValue;
+    private Object keyValue;
+
+
     Vector<String> values;
 
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
@@ -50,12 +52,19 @@ public class Row implements Comparable, Serializable {
     {
         Set<String> keySet = columnNameValue.keySet();
         ArrayList<String> keys = new ArrayList<String>(keySet);
+        System.out.println(keys);
+        System.out.println(indices);
         for (String key:keys){
             this.values.set((int)indices.get(keys.indexOf(key)), columnNameValue.get(key).toString());
 
         }
 
     }
+
+    public void setKeyValue(Object keyValue) {
+        this.keyValue = keyValue;
+    }
+
 
 
 

@@ -108,9 +108,10 @@ public class DBApp implements DBAppInterface{
         // strClusteringKeyValue is the value to look for to find the rows to update.
 
         validator.validateUpdate(tableName,columnNameValue);
-        ArrayList list = getIndices(tableName, columnNameValue);
+        Object value = validator.getClusteringValue(validator.getClusteringType(tableName),clusteringKeyValue);
         Table table = Table.deserializeTable(tableName);
-        table.update(tableName, list, columnNameValue, clusteringKeyValue);
+        String clusteringKey = getClusteringKey(tableName);
+        table.update(tableName,columnNameValue, value,clusteringKey);
 
     }
 
@@ -177,8 +178,8 @@ public class DBApp implements DBAppInterface{
 
     public static void main(String[] args) throws  Exception{
 
-        String strTableName = "seif";
-        DBApp dbApp = new DBApp( );
+//        String strTableName = "donia";
+//        DBApp dbApp = new DBApp( );
 //        Hashtable htblColNameType = new Hashtable( );
 //        htblColNameType.put("id", "java.lang.Integer");
 //        htblColNameType.put("name", "java.lang.String");
