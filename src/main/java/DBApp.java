@@ -2,10 +2,11 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
-
 public class DBApp implements DBAppInterface{
 
+    Validators validator = new Validators();
     public static void writeDataLineByLine(String filePath,String[]data)
     {
 
@@ -43,7 +44,7 @@ public class DBApp implements DBAppInterface{
         // type as value
         // htblColNameMin and htblColNameMax for passing minimum and maximum values
         // for data in the column. Key is the name of the column
-        Validators.validateCreateTable(tableName,clusteringKey,colNameType,colNameMin,colNameMax);
+        validator.validateCreateTable(tableName,clusteringKey,colNameType,colNameMin,colNameMax);
         Set<String> nameType = colNameType.keySet();
             Iterator<String> itrType = nameType.iterator();
             String[] result = new String[7];
@@ -60,6 +61,7 @@ public class DBApp implements DBAppInterface{
                 writeDataLineByLine("src/main/resources/metadata.csv", result);
             }
             Table table = new Table(tableName);
+            table.serializeTable(tableName);
         }
         //set clustering key for table for later checks
     public void createIndex(String tableName, String[] columnNames) throws DBAppException {
@@ -67,21 +69,49 @@ public class DBApp implements DBAppInterface{
         // or single dimension depending on the count of column names passed.
 
     }
+    public boolean tableExists(String tableName){
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                    return true;
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException, IOException {
         // following method inserts one row only
         // htblColNameValue must include a value for the primary key
-        Row row = new Row("id", colNameValue);
-       Table table = Table.deserializeTable(tableName);
-       table.insert(row, tableName);
+        validator.validateClusteringKey(tableName, colNameValue);
+        validator.validateTypesInsertion(colNameValue);
+        validator.validateInsertion(tableName,colNameValue);
+        validator.validateColNames(tableName,colNameValue);
+        String clusteringKey = getClusteringKey(tableName);
+        Row row = new Row(clusteringKey, colNameValue);
+        Table table =Table.deserializeTable(tableName);
+        table.insert(row, tableName);
 
     }
 
-    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException {
+    public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue) throws DBAppException, IOException, ParseException {
         // following method updates one row only
         // htblColNameValue holds the key and new value
         // htblColNameValue will not include clustering key as column name
         // strClusteringKeyValue is the value to look for to find the rows to update.
+
+        validator.validateUpdate(tableName,columnNameValue);
+        Object value = validator.getClusteringValue(validator.getClusteringType(tableName),clusteringKeyValue);
+        Table table = Table.deserializeTable(tableName);
+        String clusteringKey = getClusteringKey(tableName);
+        table.update(tableName,columnNameValue, value,clusteringKey);
 
     }
 
@@ -97,10 +127,59 @@ public class DBApp implements DBAppInterface{
         return null;
     }
 
+    public String getClusteringKey(String tableName){
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                    if(nextRecord[3].equals("True")){
+                        return nextRecord[1];
+                    }
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return "";
+    }
+//    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
+//        ArrayList list = new ArrayList();
+//        int c=-1;
+//        Set<String> keys = columnNameValue.keySet();
+//        Iterator<String> itr = keys.iterator();
+//        String cur= itr.next();
+//
+//        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+//        String[] nextRecord;
+//        while ((nextRecord = reader.readNext()) != null) {
+//            if(nextRecord[0].equals(tableName)) {
+//                c++;
+//                if(nextRecord[1].equals(cur)){
+//                    list.add(c);
+//                    if(itr.hasNext())
+//                        cur=itr.next();
+//                    else
+//                        break;
+//                }
+//
+//            }
+//
+//        }
+//
+//
+//        return list;
+//    }
+
+
+
     public static void main(String[] args) throws  Exception{
 
-        String strTableName = "seif";
-        DBApp dbApp = new DBApp( );
+//        String strTableName = "donia";
+//        DBApp dbApp = new DBApp( );
 //        Hashtable htblColNameType = new Hashtable( );
 //        htblColNameType.put("id", "java.lang.Integer");
 //        htblColNameType.put("name", "java.lang.String");
@@ -116,14 +195,28 @@ public class DBApp implements DBAppInterface{
 //        max.put("name","zzzzzzzzzzzzzzz");
 //        max.put("gpa","4.0");
 //        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
-//
+
 //        Hashtable htblColNameValue = new Hashtable( );
-//        htblColNameValue.put("id", new Integer( 2343432 ));
+//        htblColNameValue.put("id", new Integer( 5 ));
 //        htblColNameValue.put("name", new String("Ahmed Noor" ) );
 //        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
+//        Hashtable htblColNameValue1 = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 9 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        Hashtable htblColNameValue2 = new Hashtable( );
+//        htblColNameValue.put("id", new Integer( 1 ));
+//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//        htblColNameValue.put("gpa", new Double( 0.95 ) );
+//        Row r = new Row("id", htblColNameValue);
+//        Row r1 = new Row("id", htblColNameValue1);
+//        Row r2 = new Row("id", htblColNameValue2);
 
-        Page table=null;
+
+
+        //   dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+       /* Page table=null;
         try{
             FileInputStream fileIn =
                     new FileInputStream(new File("src/main/resources/Data/" + "seif_1" +".class"));
@@ -136,6 +229,30 @@ public class DBApp implements DBAppInterface{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(table);
+        System.out.println(table);*/
+//        Set<PageInfo> x = new HashSet<>();
+//        PageInfo p1=new PageInfo(r);
+//        p1.setPageNum(8);
+//        PageInfo p2=new PageInfo(r);
+//        p2.setPageNum(2);
+//        PageInfo p3=new PageInfo(r);
+//        p3.setPageNum(10);
+//        x.add(p1);
+//        x.add(p2);
+//        x.add(p3);
+//
+//        ArrayList y = new ArrayList<>(x);
+//        Collections.sort(y);
+//        ((PageInfo)y.get(0)).setPageNum(5);
+//        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
+//
+//        System.out.println(p2.getPageNum());
+
+        Hashtable<String, Object> row = new Hashtable();
+        row.put("first_name", "foo");
+        row.put("gpa", 1.1);
+
+        //System.out.println(getIndices("students",row));
+
     }
 }

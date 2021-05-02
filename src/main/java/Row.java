@@ -3,14 +3,17 @@ import java.util.*;
 
 public class Row implements Comparable, Serializable {
     String clusteringKey;
-    Object keyValue;
+    private Object keyValue;
+
+
     Vector<String> values;
 
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
         values = new Vector<>();
         this.clusteringKey=clusteringKey;
+        //System.out.println("The clustering key " + clusteringKey);
         keyValue= colNameValues.get(clusteringKey);
-
+        //System.out.println("The value " +keyValue.toString());
         //values.sort();
         Set<String> nameType = colNameValues.keySet();
         Iterator<String> itrType = nameType.iterator();
@@ -45,6 +48,24 @@ public class Row implements Comparable, Serializable {
 
 
     }
+    public void update (ArrayList indices, Hashtable<String, Object> columnNameValue)
+    {
+        Set<String> keySet = columnNameValue.keySet();
+        ArrayList<String> keys = new ArrayList<String>(keySet);
+        System.out.println(keys);
+        System.out.println(indices);
+        for (String key:keys){
+            this.values.set((int)indices.get(keys.indexOf(key)), columnNameValue.get(key).toString());
+
+        }
+
+    }
+
+    public void setKeyValue(Object keyValue) {
+        this.keyValue = keyValue;
+    }
+
+
 
 
     public static void main(String [] args)

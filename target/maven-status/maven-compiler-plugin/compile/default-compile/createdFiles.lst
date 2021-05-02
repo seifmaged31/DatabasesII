@@ -1,5 +1,9 @@
 DBAppInterface.class
 Validators.class
-SQLTerm.class
+Page.class
 DBAppException.class
+SQLTerm.class
+Table.class
+PageInfo.class
+Row.class
 DBApp.class
