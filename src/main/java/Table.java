@@ -136,20 +136,23 @@ public class Table implements Serializable{
 
     }
 
-    public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException {
-    ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
+    public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException, DBAppException {
+
+        ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
     ArrayList listOfIndices = getIndices(tableName, columnNameValue);
     Collections.sort(pagesInfo);
     ArrayList values = new ArrayList();
     pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
     int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
-    indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
+    indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage; // [2, 4, 6 , 7]
     Page page = this.deserializePage(this.pages.get(pagesInfo.get(indexOfPage)));
     Hashtable<String,Object> tempHash = new Hashtable<>(columnNameValue);//temporary hashtable to have the clustering key as column name
     tempHash.put(clusteringKey,clusteringKeyValue);
     Row comparisonRow = new Row(clusteringKey,tempHash);
     int indexOfRow =Collections.binarySearch((List)page.rows,comparisonRow);
-    indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
+    if(indexOfRow<0)
+        throw new DBAppException("There is no record for this value of the primary key.");
+    //indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
     Row rowToUpdate = page.rows.get(indexOfRow);
     rowToUpdate.update(listOfIndices,columnNameValue);
     serializePage(page,pagesInfo.get(indexOfPage).getPageNum());
@@ -285,7 +288,7 @@ public class Table implements Serializable{
     }
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, DBAppException {
         Table t1 = (Table) deserializeTable("donia");
         //Table t1 = new Table("donia"); t1.serializeTable(t1.tableName);
         Hashtable htblColNameValue = new Hashtable();
