@@ -12,11 +12,11 @@ public class DBApp implements DBAppInterface{
 
         try {
             // create CSVReader object filereader as a parameter
-            CSVReader reader = new CSVReader((new FileReader(new File(filePath))));
+            CSVReader reader = new CSVReader((new FileReader(filePath)));
             // read all the previous written lines
             List allLines = reader.readAll();
             // create CSVWriter object filewriter object as parameter
-            CSVWriter writer = new CSVWriter(new FileWriter(new File(filePath)));
+            CSVWriter writer = new CSVWriter(new FileWriter(filePath));
             // add data to end of the list
             allLines.add(data);
             writer.writeAll(allLines);
@@ -32,6 +32,8 @@ public class DBApp implements DBAppInterface{
         // this does whatever initialization you would like
         // or leave it empty if there is no code you want to
         // execute at application startup
+        String path = "src/main/resources/data/";
+        File file = new File(path);
 
     }
     public void createTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException,IOException {
@@ -115,7 +117,7 @@ public class DBApp implements DBAppInterface{
 
     }
 
-    public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
+    public void deleteFromTable(String tableName, Hashtable<String , Object> columnNameValue) throws DBAppException {
         // following method could be used to delete one or more rows.
         // htblColNameValue holds the key and value. This will be used in search
         // to identify which rows/tuples to delete.
@@ -179,7 +181,8 @@ public class DBApp implements DBAppInterface{
     public static void main(String[] args) throws  Exception{
 
 //        String strTableName = "donia";
-//        DBApp dbApp = new DBApp( );
+        DBApp dbApp = new DBApp();
+        dbApp.init();
 //        Hashtable htblColNameType = new Hashtable( );
 //        htblColNameType.put("id", "java.lang.Integer");
 //        htblColNameType.put("name", "java.lang.String");
@@ -248,9 +251,9 @@ public class DBApp implements DBAppInterface{
 //
 //        System.out.println(p2.getPageNum());
 
-        Hashtable<String, Object> row = new Hashtable();
-        row.put("first_name", "foo");
-        row.put("gpa", 1.1);
+//        Hashtable<String, Object> row = new Hashtable();
+//        row.put("first_name", "foo");
+//        row.put("gpa", 1.1);
 
         //System.out.println(getIndices("students",row));
 
