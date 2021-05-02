@@ -144,7 +144,7 @@ public class Table implements Serializable{
     ArrayList values = new ArrayList();
     pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
     int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
-    indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
+    indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage; // [2, 4, 6 , 7]
     Page page = this.deserializePage(this.pages.get(pagesInfo.get(indexOfPage)));
     Hashtable<String,Object> tempHash = new Hashtable<>(columnNameValue);//temporary hashtable to have the clustering key as column name
     tempHash.put(clusteringKey,clusteringKeyValue);
