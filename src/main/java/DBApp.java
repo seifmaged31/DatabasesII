@@ -34,6 +34,9 @@ public class DBApp implements DBAppInterface{
         // execute at application startup
         String path = "src/main/resources/data/";
         File file = new File(path);
+        if (!file.exists()){
+            file.mkdirs();
+        }
 
     }
     public void createTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException,IOException {
@@ -186,7 +189,7 @@ public class DBApp implements DBAppInterface{
 
     public static void main(String[] args) throws  Exception{
 
-//        String strTableName = "donia";
+        String strTableName = "donia";
         DBApp dbApp = new DBApp();
         dbApp.init();
 //        Hashtable htblColNameType = new Hashtable( );

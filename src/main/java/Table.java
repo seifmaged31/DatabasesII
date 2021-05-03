@@ -33,7 +33,7 @@ public class Table implements Serializable{
                     //System.out.println("insertion in last page");
                     Page page = deserializePage(pages.get(pageInfo));
                     page.insert(row);
-                    this.updatePageInfo(pageInfo,row,page);
+                    this.updatePageInfoInsert(pageInfo,row,page);
                     serializePage(page,pageInfo.getPageNum());
                     serializeTable(tableName);
                     //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
@@ -49,7 +49,7 @@ public class Table implements Serializable{
                         pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
                         //pageInfo.setMax(page.rows.lastElement());
                         page.insert(row);
-                        this.updatePageInfo(pageInfo, row,page);
+                        this.updatePageInfoInsert(pageInfo, row,page);
                         serializePage(page, pageInfo.getPageNum());
                         createPage(lastElement);
                         serializeTable(tableName);
@@ -77,7 +77,7 @@ public class Table implements Serializable{
                         //System.out.println("there is space in this page (within range)");
                         Page page = deserializePage(pages.get(pageInfo));
                         page.insert(row);
-                        this.updatePageInfo(pageInfo, row,page);
+                        this.updatePageInfoInsert(pageInfo, row,page);
                         serializePage(page, pageInfo.getPageNum());
                         serializeTable(tableName);
                         return;
@@ -92,11 +92,11 @@ public class Table implements Serializable{
                             pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
                             //pageInfo.setMax(page.rows.lastElement());
                             page.insert(row);
-                            this.updatePageInfo(pageInfo,row,page);
+                            this.updatePageInfoInsert(pageInfo,row,page);
                             serializePage(page, pageInfo.getPageNum());
                             Page nextPage= deserializePage(pages.get(nextPageInfo));
                             nextPage.insert(lastElement);
-                            this.updatePageInfo(nextPageInfo, lastElement,nextPage);
+                            this.updatePageInfoInsert(nextPageInfo, lastElement,nextPage);
                             serializePage(nextPage, nextPageInfo.getPageNum());
                             serializeTable(tableName);
                             return;
@@ -115,7 +115,7 @@ public class Table implements Serializable{
                                 pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
                                 //pageInfo.setMax(page.rows.lastElement());
                                 page.insert(row);
-                                this.updatePageInfo(pageInfo, row,page);
+                                this.updatePageInfoInsert(pageInfo, row,page);
                                 serializePage(page, pageInfo.getPageNum());
                                 createPage(lastElement);
                                 serializeTable(this.tableName);
@@ -330,17 +330,17 @@ public class Table implements Serializable{
         return page;
     }
 
-    public  void updatePageInfo(PageInfo pageInfo, Row row,Page page){
-        //System.out.println(pageInfo.getNumOfRows());
-        ArrayList<Row> rows = new ArrayList<>(page.rows);
+    public  void updatePageInfoInsert(PageInfo pageInfo, Row row, Page page){
         pageInfo.setNumOfRows(pageInfo.getNumOfRows()+1);
-        //System.out.println(pageInfo.getNumOfRows());
-        pageInfo.setMax(rows.get(rows.size()-1));
-        pageInfo.setMin(rows.get(0));
-//        if(row.compareTo(pageInfo.getMax())>0)
-//            pageInfo.setMax(row);
-//        if(pageInfo.getMin().compareTo(row)>0)
-//            pageInfo.setMin(row);
+        pageInfo.setMax(page.rows.get(page.rows.size()-1));
+        pageInfo.setMin(page.rows.get(0));
+    }
+    public  void updatePageInfoDelete(PageInfo pageInfo,Page page){
+        pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
+        if (page.rows.size()>0){
+            pageInfo.setMax(page.rows.get(page.rows.size()-1));
+            pageInfo.setMin(page.rows.get(0));
+        }
     }
 
     public boolean checkRange (Row row, Row min, Row max){

@@ -52,13 +52,23 @@ public class Row implements Comparable, Serializable {
     {
         Set<String> keySet = columnNameValue.keySet();
         ArrayList<String> keys = new ArrayList<String>(keySet);
-        System.out.println(keys);
-        System.out.println(indices);
+//        System.out.println(keys);
+//        System.out.println(indices);
         for (String key:keys){
             this.values.set((int)indices.get(keys.indexOf(key)), columnNameValue.get(key).toString());
 
         }
 
+    }
+    public boolean matchRecord (ArrayList indices, Hashtable<String, Object> columnNameValue){
+        Set<String> keySet = columnNameValue.keySet();
+        ArrayList<String> keys = new ArrayList<String>(keySet);
+        for (String key:keys){
+            if(!columnNameValue.get(key).equals(this.values.get((int)indices.get(keys.indexOf(key))))){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void setKeyValue(Object keyValue) {
@@ -79,11 +89,11 @@ public class Row implements Comparable, Serializable {
         htblColNameType.put("gpa", 0.0);
 
 
-        Hashtable htblColNameType2 = new Hashtable( );
-        htblColNameType2.put("id", 2);
-        htblColNameType2.put("date", d);
-        htblColNameType2.put("name", "seif");
-        htblColNameType2.put("gpa", 1.0);
+//        Hashtable htblColNameType2 = new Hashtable( );
+//        htblColNameType2.put("id", 2);
+//        htblColNameType2.put("date", d);
+//        htblColNameType2.put("name", "seif");
+//        htblColNameType2.put("gpa", 1.0);
 
         Row a=new Row("date",htblColNameType);
         Row b=new Row("date",htblColNameType2);
