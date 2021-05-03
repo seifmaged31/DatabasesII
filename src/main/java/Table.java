@@ -157,37 +157,25 @@ public class Table implements Serializable{
             throw new DBAppException("No matching record.");
         page.delete(rowToDelete);
         updatePageInfoDelete(pageInfo, page);
-
-
+        serializePage(page,pageInfo.getPageNum());
+        //System.out.println("size of pagesInfo: "+ pagesInfo.size());
+        System.out.println(pageInfo.isEmpty());
         if(pageInfo.isEmpty()){
-            try{
-                FileOutputStream fileOut =
-                        new FileOutputStream(new File(this.pages.get(pageInfo)));
-                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                out.close();
-                fileOut.close();
-            }
-            catch(IOException i){
+                try {
+                    //System.out.println("i have entered the try");
+                    new FileOutputStream(this.pages.get(pageInfo)).close();
+                    //System.out.println("The path to delete: "+this.pages.get(pageInfo));
+                    //System.out.println("i am going inside the if");
+                    if(new File(this.pages.get(pageInfo)).delete()) {
+                        System.out.println("File Deleted");
+                    }
+                    else {
+                        System.out.println("File not Found");
+                    }
 
-            }
-
-            try
-            {
-                File f= new File(this.pages.get(pageInfo));
-                RandomAccessFile raf=new RandomAccessFile(f,"rw");
-                raf.close();
-                if (f.exists()) {
-                    f.delete();
-                    System.out.println(f.getName() + " is deleted!");
-                } else {
-                    System.out.println("Delete operation is failed.");
+                } catch (Exception e) {
+                    e.getStackTrace();
                 }
-
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
             this.pages.remove(pageInfo);
             serializeTable(tableName);
             return;
@@ -201,9 +189,52 @@ public class Table implements Serializable{
 
 
     }
-    public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue) {
+    public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue) throws IOException, DBAppException{
+
+        Boolean found = false;
+        Set<PageInfo> pagesInfosSet = pages.keySet();
+        ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
+        Collections.sort((List)pagesInfos);
+        ArrayList listOfIndices = getIndices(tableName, columnNameValue);
+        for(PageInfo pageInfo:pagesInfos){
+            Page page = deserializePage(this.pages.get(pageInfo));
+            for (Row row:page.rows){
+                if(row.matchRecord(listOfIndices,columnNameValue)){
+                    found = true;
+                    page.delete(row);
+                    updatePageInfoDelete(pageInfo, page);
+                    serializePage(page,pageInfo.getPageNum());
+                    if(pageInfo.isEmpty()){
+                        try {
+//                            System.out.println("i have entered the try");
+                            new FileOutputStream(this.pages.get(pageInfo)).close();
+//                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
+//                            System.out.println("i am going inside the if");
+                            if(new File(this.pages.get(pageInfo)).delete()) {
+                                System.out.println("File Deleted");
+                            }
+                            else {
+                                System.out.println("File not Found");
+                            }
+
+                        } catch (Exception e) {
+                            e.getStackTrace();
+                        }
+
+                        this.pages.remove(pageInfo);
+                    }
+                    else{
+                        serializePage(page, pageInfo.getPageNum());
+
+                    }
 
 
+                }
+            }
+        }
+        serializeTable(tableName);
+        if(!found)
+            throw new DBAppException ("No matching record found.");
     }
 
     public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException, DBAppException {
@@ -376,14 +407,15 @@ public class Table implements Serializable{
          Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
 //        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
 //        Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
-        for(Row row: p1.rows){
-            System.out.print(row.values + ", " );
-        }
-        System.out.println("");
-        for(Row row: p2.rows){
-            System.out.print(row.values + ", " );
-        }
-
+//        for(Row row: p1.rows){
+//            System.out.print(row.values + ", " );
+//        }
+//        File file = new File("src/main/resources/data/donia_2.class");
+//        file.delete();
+//        System.out.println();
+//        for(Row row: p2.rows){
+//            System.out.print(row.values + ", " );
+//        }
 //        System.out.println();
 //        for(Row row: p3.rows){
 //            System.out.print(row.values + ", " );
