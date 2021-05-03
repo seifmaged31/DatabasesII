@@ -115,13 +115,19 @@ public class DBApp implements DBAppInterface{
         String clusteringKey = getClusteringKey(tableName);
         table.update(tableName,columnNameValue, value,clusteringKey);
 
+
     }
 
-    public void deleteFromTable(String tableName, Hashtable<String , Object> columnNameValue) throws DBAppException {
+    public void deleteFromTable(String tableName, Hashtable<String , Object> columnNameValue) throws DBAppException,IOException {
         // following method could be used to delete one or more rows.
         // htblColNameValue holds the key and value. This will be used in search
         // to identify which rows/tuples to delete.
         //htblColNameValue enteries are ANDED together
+         String clusteringKey = getClusteringKey(tableName);
+        Table table = Table.deserializeTable(tableName);
+        if(columnNameValue.keySet().contains(clusteringKey))
+             table.deleteBinary(tableName,columnNameValue,columnNameValue.get(clusteringKey),clusteringKey);
+
 
     }
 
