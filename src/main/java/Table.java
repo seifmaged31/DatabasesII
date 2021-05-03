@@ -1,7 +1,7 @@
 import com.opencsv.CSVReader;
-
 import java.io.*;
 import java.util.*;
+import java.nio.file.*;
 
 public class Table implements Serializable{
 
@@ -136,16 +136,16 @@ public class Table implements Serializable{
     {
 
         ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
-        System.out.println("size of pagesHashtable: "+ pages.size());
-        System.out.println("size of pagesInfo: "+ pagesInfo.size());
+        //System.out.println("size of pagesHashtable: "+ pages.size());
+        //System.out.println("size of pagesInfo: "+ pagesInfo.size());
         ArrayList listOfIndices = getIndices(tableName, columnNameValue);
         System.out.println(listOfIndices.toString());
-        Collections.sort(pagesInfo);//doniaaaa , el hashtable mafehash kol el columns fa mehtageen nestakhdem listOfIndices (?)
+        Collections.sort(pagesInfo);
         ArrayList values = new ArrayList();
         pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
         int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
         System.out.println("The wanted index: " + indexOfPage);
-        indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage; // [2, 4, 6 , 7]
+        indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
         PageInfo pageInfo = pagesInfo.get(indexOfPage);
         Page page = this.deserializePage(this.pages.get(pageInfo));
         Row comparisonRow = new Row(clusteringKey,columnNameValue);
@@ -402,12 +402,13 @@ public class Table implements Serializable{
         htblColNameValue.put("name", "donia");
         htblColNameValue.put("gpa", 5555 );
        Row r1 = new Row("id",htblColNameValue);
-       t1.deleteBinary("donia",htblColNameValue,8,"id");
+      // t1.deleteBinary("donia",htblColNameValue,2,"id");
+         t1.deleteLinear("donia",htblColNameValue);
        //t1.insert(r1,"donia");
-//        t1.update("donia",htblColNameValue,11,"id");
+       // t1.update("donia",htblColNameValue,5,"id");
 //        System.out.println("Number of Pages: " + t1.pageNum);
-          Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
-         Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
+        //  Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
+//          Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
 //        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
 //        Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
 //        for(Row row: p1.rows){

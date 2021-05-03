@@ -5,8 +5,8 @@ public class Row implements Comparable, Serializable {
     String clusteringKey;
     private Object keyValue;
 
-
-    Vector<String> values;
+                            // name , gpa , id
+    Vector<String> values; //["seif","","1"]
 
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
         values = new Vector<>();
@@ -61,8 +61,8 @@ public class Row implements Comparable, Serializable {
 
     }
     public boolean matchRecord (ArrayList indices, Hashtable<String, Object> columnNameValue){
-        Set<String> keySet = columnNameValue.keySet();
-        ArrayList<String> keys = new ArrayList<String>(keySet);
+        Set<String> keySet = columnNameValue.keySet();     //keys: [name]
+        ArrayList<String> keys = new ArrayList<String>(keySet);// indices: [2]
         for (String key:keys){
             if(!columnNameValue.get(key).toString().equals(this.values.get((int)indices.get(keys.indexOf(key))))){
                 return false;

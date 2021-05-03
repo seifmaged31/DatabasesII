@@ -130,7 +130,8 @@ public class DBApp implements DBAppInterface{
         Table table = Table.deserializeTable(tableName);
         if(columnNameValue.keySet().contains(clusteringKey))
              table.deleteBinary(tableName,columnNameValue,columnNameValue.get(clusteringKey),clusteringKey);
-
+        else
+            table.deleteLinear(tableName,columnNameValue);
 
     }
 

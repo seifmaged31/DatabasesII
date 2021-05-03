@@ -12,6 +12,7 @@ public class Page implements Serializable, Comparable {
         rows=new Vector<>();
         //overflowPages= new Hashtable<>(); [ 10,20 ] 1
         rows.add(row);
+
     }
 
     public void insert(Row row){
