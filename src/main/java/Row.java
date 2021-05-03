@@ -64,7 +64,7 @@ public class Row implements Comparable, Serializable {
         Set<String> keySet = columnNameValue.keySet();
         ArrayList<String> keys = new ArrayList<String>(keySet);
         for (String key:keys){
-            if(!columnNameValue.get(key).equals(this.values.get((int)indices.get(keys.indexOf(key))))){
+            if(!columnNameValue.get(key).toString().equals(this.values.get((int)indices.get(keys.indexOf(key))))){
                 return false;
             }
         }

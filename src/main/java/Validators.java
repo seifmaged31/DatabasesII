@@ -47,21 +47,28 @@ public class Validators {
             throw new DBAppException("Incompatible column names.");
         }
 
+        Boolean same = false;
         try {
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
             // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null) {
                 if(nextRecord[0].equals(tableName))
-                    throw new DBAppException("The table name already exists.");
-                validateTypesTable(nextRecord[2],nextRecord[5]);
-                validateTypesTable(nextRecord[2],nextRecord[6]);
+                {
+                    same=true;
+                    break;
+                }
+//                validateTypesTable(nextRecord[2],nextRecord[5]);
+//                validateTypesTable(nextRecord[2],nextRecord[6]);
             }
 
         }
         catch(Exception e){
-
+                e.printStackTrace();
         }
+        if(same)
+            throw new DBAppException("This table name already exists");
+
 
 
     }
