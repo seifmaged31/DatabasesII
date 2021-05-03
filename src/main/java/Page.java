@@ -15,9 +15,9 @@ public class Page implements Serializable, Comparable {
 
     }
 
-    public void insert(Row row){
+    public void insert(Row row,int indexOfRow){
 
-        rows.add(row);
+        rows.insertElementAt(row,indexOfRow);
         Collections.sort(rows);
 
     }

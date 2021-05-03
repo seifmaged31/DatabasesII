@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 import java.nio.file.*;
 
+
 public class Table implements Serializable{
 
     String tableName;
@@ -15,7 +16,7 @@ public class Table implements Serializable{
         //serializeTable(this.tableName);
         pageNum=0;
     }
-    public void insert (Row row, String tableName) throws IOException {
+    public void insert (Row row, String tableName) throws IOException, DBAppException {
 
         Table table = this.deserializeTable(tableName);
         if (this.pages.isEmpty()){ //first insertion
@@ -27,12 +28,24 @@ public class Table implements Serializable{
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List)pagesInfos);
-        for(PageInfo pageInfo:pagesInfos){
+        ArrayList values = new ArrayList();
+        pagesInfos.forEach(info->values.add(info.getMin().getKeyValue()));
+        int indexOfPage =Collections.binarySearch(values,row.getKeyValue());
+        if(indexOfPage >=0)
+            throw new DBAppException("This clustering key already exists.");
+        indexOfPage = (indexOfPage==-1)?0:((indexOfPage+2)*-1); // [2, 4, 6 , 7]
+        Page page = this.deserializePage(this.pages.get(pagesInfos.get(indexOfPage)));
+        PageInfo pageInfo = pagesInfos.get(indexOfPage);
+        //for(PageInfo pageInfo:pagesInfos){
             if(pagesInfos.indexOf(pageInfo) == pagesInfos.size()-1){//this is the last page
                 if(!pageInfo.isFull()){ // I have space to insert in this page
                     //System.out.println("insertion in last page");
-                    Page page = deserializePage(pages.get(pageInfo));
-                    page.insert(row);
+                    page = deserializePage(pages.get(pageInfo));
+                    int indexOfRow =Collections.binarySearch((List)page.rows,row);
+                    if(indexOfRow>=0)
+                        throw new DBAppException("The clustering key already exists");
+                    indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                    page.insert(row,indexOfRow);
                     this.updatePageInfoInsert(pageInfo,row,page);
                     serializePage(page,pageInfo.getPageNum());
                     serializeTable(tableName);
@@ -43,12 +56,16 @@ public class Table implements Serializable{
 
                     if(checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || row.compareTo(pageInfo.getMin())<0){ //the new row is within the page
                         //System.out.println("insertion in this last page and create new page with last elem");
-                        Page page = deserializePage(pages.get(pageInfo));
+                        page = deserializePage(pages.get(pageInfo));
                         Row lastElement = page.rows.lastElement();
                         page.rows.removeElementAt(page.rows.size()-1);
                         pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
                         //pageInfo.setMax(page.rows.lastElement());
-                        page.insert(row);
+                        int indexOfRow =Collections.binarySearch((List)page.rows,row);
+                        if(indexOfRow>=0)
+                            throw new DBAppException("The clustering key already exists");
+                        indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                        page.insert(row,indexOfRow);
                         this.updatePageInfoInsert(pageInfo, row,page);
                         serializePage(page, pageInfo.getPageNum());
                         createPage(lastElement);
@@ -75,8 +92,12 @@ public class Table implements Serializable{
 //                System.out.println("min of next page: "+ nextPageInfo.getMin().values + "max of next page:" + nextPageInfo.getMax().values);
                 if(!pageInfo.isFull()) { // if the page has space
                         //System.out.println("there is space in this page (within range)");
-                        Page page = deserializePage(pages.get(pageInfo));
-                        page.insert(row);
+                        page = deserializePage(pages.get(pageInfo));
+                        int indexOfRow =Collections.binarySearch((List)page.rows,row);
+                        if(indexOfRow>=0)
+                            throw new DBAppException("The clustering key already exists");
+                        indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                        page.insert(row,indexOfRow);
                         this.updatePageInfoInsert(pageInfo, row,page);
                         serializePage(page, pageInfo.getPageNum());
                         serializeTable(tableName);
@@ -109,12 +130,16 @@ public class Table implements Serializable{
                             }
                             else {
                                 //System.out.println("no space in next page");
-                                Page page = deserializePage(pages.get(pageInfo));
+                                page = deserializePage(pages.get(pageInfo));
                                 Row lastElement = page.rows.lastElement();
                                 page.rows.removeElementAt(page.rows.size() - 1);
                                 pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
                                 //pageInfo.setMax(page.rows.lastElement());
-                                page.insert(row);
+                                int indexOfRow =Collections.binarySearch((List)page.rows,row);
+                                if(indexOfRow>=0)
+                                    throw new DBAppException("The clustering key already exists");
+                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                                page.insert(row,indexOfRow);
                                 this.updatePageInfoInsert(pageInfo, row,page);
                                 serializePage(page, pageInfo.getPageNum());
                                 createPage(lastElement);
@@ -198,14 +223,15 @@ public class Table implements Serializable{
         ArrayList listOfIndices = getIndices(tableName, columnNameValue);
         for(PageInfo pageInfo:pagesInfos){
             Page page = deserializePage(this.pages.get(pageInfo));
-            for (Row row:page.rows){
-                if(row.matchRecord(listOfIndices,columnNameValue)){
-                    found = true;
-                    page.delete(row);
-                    updatePageInfoDelete(pageInfo, page);
-                    serializePage(page,pageInfo.getPageNum());
-                    if(pageInfo.isEmpty()){
-                        try {
+
+                for (int i = page.rows.size()-1;i>=0;i--) {
+                    if (page.rows.get(i).matchRecord(listOfIndices, columnNameValue)) {
+                        found = true;
+                        page.delete(page.rows.get(i));
+                        updatePageInfoDelete(pageInfo, page);
+                        serializePage(page,pageInfo.getPageNum());
+                        if (pageInfo.isEmpty()) {
+                            try {
 //                            System.out.println("i have entered the try");
                             new FileOutputStream(this.pages.get(pageInfo)).close();
 //                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
@@ -229,8 +255,10 @@ public class Table implements Serializable{
                     }
 
 
-                }
+                    }
+
             }
+            serializePage(page,pageInfo.getPageNum());
         }
         serializeTable(tableName);
         if(!found)
@@ -356,6 +384,7 @@ public class Table implements Serializable{
             ObjectInputStream in= new ObjectInputStream(fileIn);
             page = (Page) in.readObject();
             in.close();
+            fileIn.close();
         } catch (FileNotFoundException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -407,15 +436,13 @@ public class Table implements Serializable{
        //t1.insert(r1,"donia");
        // t1.update("donia",htblColNameValue,5,"id");
 //        System.out.println("Number of Pages: " + t1.pageNum);
-        //  Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
+          Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
 //          Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
-//        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
-//        Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
-//        for(Row row: p1.rows){
-//            System.out.print(row.values + ", " );
-//        }
-//        File file = new File("src/main/resources/data/donia_2.class");
-//        file.delete();
+//          Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
+//          Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
+        for(Row row: p1.rows){
+            System.out.print(row.values + ", " );
+        }
 //        System.out.println();
 //        for(Row row: p2.rows){
 //            System.out.print(row.values + ", " );
@@ -428,6 +455,7 @@ public class Table implements Serializable{
 //        for(Row row: p4.rows){
 //            System.out.print(row.values + ", " );
 //        }
+
 //        try{
 //            FileOutputStream fileOut =
 //                    new FileOutputStream(new File("src/main/resources/data/trial.class"));

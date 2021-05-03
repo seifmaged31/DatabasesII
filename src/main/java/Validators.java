@@ -119,6 +119,19 @@ public class Validators {
             if (exception)
                 throw new DBAppException("Incorrect data type");
         }
+        if (type.toLowerCase().equals("java.util.date")) {
+            try {
+                (new SimpleDateFormat("yyyy-MM-dd")).parse(value);
+            } catch (ParseException e) {
+                exception = true;
+            }
+
+            if (exception)
+                throw new DBAppException("Incorrect data type");
+        }
+//        int year = Integer.parseInt(fields[0].trim().substring(0, 4));
+//        int month = Integer.parseInt(fields[0].trim().substring(5, 7));
+//        int day = Integer.parseInt(fields[0].trim().substring(8));
     }
     public void validateColNames(String tableName, Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
         CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
@@ -132,7 +145,7 @@ public class Validators {
                 csvColNames.add(nextRecord[1]);
             }
         }
-        if(!(csvColNames.containsAll(colNames) && colNames.containsAll(csvColNames))){
+        if(!(csvColNames.containsAll(colNames))){
             throw new DBAppException("The column names do not match");
         }
     }
@@ -284,8 +297,58 @@ public class Validators {
             default: return (String) value;
 
         }
-    }
 
+    }
+    public void validateRange(String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
+        ArrayList indices = Table.getIndices(tableName,colNameValue);
+        boolean error=false;
+        try {
+
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            int i=0;
+            ArrayList keys = new ArrayList(colNameValue.keySet());
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName)){
+                    if(nextRecord[1].equals(keys.get(i))){//[gpa,last,first,id]
+
+                        Object value = colNameValue.get(keys.get(i));
+                        Object min = getClusteringValue(nextRecord[2],nextRecord[5]);
+                        Object max = getClusteringValue(nextRecord[2],nextRecord[6]);
+
+                        if(!comparison(value,min,max)){
+                            error=true;
+                            break;
+                        }
+                        i++;
+                    }
+
+                }
+
+            }
+
+        }
+        catch(Exception e){
+
+            e.printStackTrace();
+        }
+        if(error)
+            throw new DBAppException("value(s) out of range");
+    }
+    public boolean comparison(Object target,Object min,Object max){
+        if(target instanceof Integer){
+            return ((Integer) target).compareTo((Integer) min)>=0 && ((Integer) target).compareTo((Integer) max)<=0 ;
+        }
+        if(target instanceof String){
+            return ((String) target).compareTo((String) min)>=0 && ((String) target).compareTo((String) max)<=0 ;
+        }
+        if(target instanceof Date){
+            return ((Date) target).compareTo((Date) min)>=0 && ((Date) target).compareTo((Date) max)<=0 ;
+        }
+        return ((Double) target).compareTo((Double) min)>=0 && ((Double) target).compareTo((Double) max)<=0 ;
+
+    }
 
 
     public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {

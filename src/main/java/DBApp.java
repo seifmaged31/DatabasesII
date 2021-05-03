@@ -63,6 +63,8 @@ public class DBApp implements DBAppInterface{
                 result[4] = "False"; //indexed
                 result[5] = "" + colNameMin.get(result[1]) ; //min
                 result[6] = "" + colNameMax.get(result[1]) ; //max
+                validator.validateTypesTable(result[2],result[5]);
+                validator.validateTypesTable(result[2],result[6]);
                 writeDataLineByLine("src/main/resources/metadata.csv", result);
             }
             Table table = new Table(tableName);
@@ -99,6 +101,7 @@ public class DBApp implements DBAppInterface{
         validator.validateTypesInsertion(colNameValue);
         validator.validateInsertion(tableName,colNameValue);
         validator.validateColNames(tableName,colNameValue);
+        validator.validateRange(tableName,colNameValue);
         String clusteringKey = getClusteringKey(tableName);
         Row row = new Row(clusteringKey, colNameValue);
         Table table =Table.deserializeTable(tableName);
@@ -113,6 +116,7 @@ public class DBApp implements DBAppInterface{
         // strClusteringKeyValue is the value to look for to find the rows to update.
 
         validator.validateUpdate(tableName,columnNameValue);
+        validator.validateRange(tableName,columnNameValue);
         Object value = validator.getClusteringValue(validator.getClusteringType(tableName),clusteringKeyValue);
         Table table = Table.deserializeTable(tableName);
         String clusteringKey = getClusteringKey(tableName);

@@ -13,6 +13,3 @@
 "transcripts","student_id","java.lang.String","False","False","43-0000","99-9999"
 "pcs","pc_id","java.lang.Integer","True","False","0","20000"
 "pcs","student_id","java.lang.String","False","False","43-0000","99-9999"
-"donia","gpa","java.lang.double","False","False","1","4.0"
-"donia","name","java.lang.String","False","False","a","zzzzzzzzzzzzzzz"
-"donia","id","java.lang.Integer","True","False","1","100"
