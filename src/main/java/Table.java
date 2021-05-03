@@ -312,6 +312,8 @@ public class Table implements Serializable{
                     new FileInputStream(new File("src/main/resources/data/" + tableName +".class"));
             ObjectInputStream in= new ObjectInputStream(fileIn);
             table = (Table) in.readObject();
+            in.close();
+
         } catch (FileNotFoundException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -353,6 +355,7 @@ public class Table implements Serializable{
                     new FileInputStream(new File(path));
             ObjectInputStream in= new ObjectInputStream(fileIn);
             page = (Page) in.readObject();
+            in.close();
         } catch (FileNotFoundException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -395,8 +398,8 @@ public class Table implements Serializable{
         Table t1 = deserializeTable("donia");
         //Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
         Hashtable htblColNameValue = new Hashtable();
-        htblColNameValue.put("id", 9 );
-        htblColNameValue.put("name", "dd");
+//        htblColNameValue.put("id", 20 );
+        htblColNameValue.put("name", "donia");
         htblColNameValue.put("gpa", 5555 );
        Row r1 = new Row("id",htblColNameValue);
        t1.deleteBinary("donia",htblColNameValue,8,"id");
