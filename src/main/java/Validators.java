@@ -194,16 +194,18 @@ public class Validators {
 
                 if(nextRecord[0].equals(tableName)) {
                     if (!nextRecord[1].equals(columns.get(i))) {
-                        //colNameValue.put(nextRecord[1], null);
+                        colNameValue.put(nextRecord[1], "null");
+                        continue;
                     } else {
                         if (!(((colNameValue.get(columns.get(i))).getClass()).getTypeName().toLowerCase()).equals(nextRecord[2].toLowerCase())) {
                             //System.out.println((((colNameValue.get(columns.get(i))).getClass()).getTypeName()));
                             //System.out.println(nextRecord[2]);
                             type = true;
-                            break;
+
                         }
                         //validateTypesInsertion(nextRecord[2],colNameValue.get(current));
                     }
+
                     i++;
                 }
 
@@ -289,7 +291,8 @@ public class Validators {
         return "";
     }
     public Object getClusteringValue (String type, String value) throws ParseException {
-        switch (type)
+
+        switch (type.toLowerCase())
         {
             case "java.lang.integer":return (int)(Integer.parseInt(value));
             case "java.lang.double":return (Double)(Double.parseDouble(value));

@@ -86,7 +86,7 @@ public class Table implements Serializable{
             }
             int currentIndex =  ((List<?>) pagesInfos).indexOf(pageInfo);
             PageInfo nextPageInfo =(PageInfo) ((List<?>) pagesInfos).get(currentIndex+1);
-            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || checkRange(row,pageInfo.getMax(),nextPageInfo.getMin()) || row.compareTo(pageInfo.getMin())<0){ // any intermediate page that I need.
+            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || (checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())) || row.compareTo(pageInfo.getMin())<0){ // any intermediate page that I need.
 //                System.out.println("im within range of this page or smaller than next page or smaller than all the elements in the page" );
 //                System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
 //                System.out.println("min of next page: "+ nextPageInfo.getMin().values + "max of next page:" + nextPageInfo.getMax().values);
@@ -107,18 +107,40 @@ public class Table implements Serializable{
                        // System.out.println("no space in first page");
                         if(!nextPageInfo.isFull()){ //shifting to the next page, as the next page has space.
                             //System.out.println("there is space in next page");
-                            Page page = deserializePage(pages.get(pageInfo));
-                            Row lastElement = page.rows.lastElement();
-                            page.rows.removeElementAt(page.rows.size()-1);
-                            pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
+
                             //pageInfo.setMax(page.rows.lastElement());
-                            page.insert(row);
-                            this.updatePageInfoInsert(pageInfo,row,page);
-                            serializePage(page, pageInfo.getPageNum());
-                            Page nextPage= deserializePage(pages.get(nextPageInfo));
-                            nextPage.insert(lastElement);
-                            this.updatePageInfoInsert(nextPageInfo, lastElement,nextPage);
-                            serializePage(nextPage, nextPageInfo.getPageNum());
+
+                            if (checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())){
+                                Page nextPage = deserializePage(pages.get(nextPageInfo));
+                                int indexOfRow =Collections.binarySearch((List)nextPage.rows,row);
+                                if(indexOfRow>=0)
+                                    throw new DBAppException("The clustering key already exists");
+                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                                nextPage.insert(row,indexOfRow);
+                                this.updatePageInfoInsert(nextPageInfo, row, nextPage);
+                                serializePage(nextPage, nextPageInfo.getPageNum());
+                            }
+                            else {
+                                page = deserializePage(pages.get(pageInfo));
+                                Row lastElement = page.rows.lastElement();
+                                page.rows.removeElementAt(page.rows.size()-1);
+                                pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
+                                int indexOfRow =Collections.binarySearch((List)page.rows,row);
+                                if(indexOfRow>=0)
+                                    throw new DBAppException("The clustering key already exists");
+                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                                page.insert(row,indexOfRow);
+                                this.updatePageInfoInsert(pageInfo, row, page);
+                                serializePage(page, pageInfo.getPageNum());
+                                Page nextPage = deserializePage(pages.get(nextPageInfo));
+                                indexOfRow =Collections.binarySearch((List)nextPage.rows,row);
+                                if(indexOfRow>=0)
+                                    throw new DBAppException("The clustering key already exists");
+                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
+                                nextPage.insert(lastElement,indexOfRow);
+                                this.updatePageInfoInsert(nextPageInfo, lastElement, nextPage);
+                                serializePage(nextPage, nextPageInfo.getPageNum());
+                            }
                             serializeTable(tableName);
                             return;
                         }
@@ -150,7 +172,8 @@ public class Table implements Serializable{
                         }
 
                     }
-            }
+
+            //}
     }
 
 
@@ -221,7 +244,8 @@ public class Table implements Serializable{
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List)pagesInfos);
         ArrayList listOfIndices = getIndices(tableName, columnNameValue);
-        for(PageInfo pageInfo:pagesInfos){
+        for(int j = pagesInfos.size()-1;j>=0;j--){
+            PageInfo pageInfo = pagesInfos.get(j);
             Page page = deserializePage(this.pages.get(pageInfo));
 
                 for (int i = page.rows.size()-1;i>=0;i--) {
@@ -233,26 +257,21 @@ public class Table implements Serializable{
                         if (pageInfo.isEmpty()) {
                             try {
 //                            System.out.println("i have entered the try");
-                            new FileOutputStream(this.pages.get(pageInfo)).close();
+                                new FileOutputStream(this.pages.get(pageInfo)).close();
 //                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
 //                            System.out.println("i am going inside the if");
-                            if(new File(this.pages.get(pageInfo)).delete()) {
-                                System.out.println("File Deleted");
-                            }
-                            else {
-                                System.out.println("File not Found");
+                                if (new File(this.pages.get(pageInfo)).delete()) {
+                                    System.out.println("File Deleted");
+                                } else {
+                                    System.out.println("File not Found");
+                                }
+
+                            } catch (Exception e) {
+                                e.getStackTrace();
                             }
 
-                        } catch (Exception e) {
-                            e.getStackTrace();
+                            this.pages.remove(pageInfo);
                         }
-
-                        this.pages.remove(pageInfo);
-                    }
-                    else{
-                        serializePage(page, pageInfo.getPageNum());
-
-                    }
 
 
                     }
@@ -341,6 +360,7 @@ public class Table implements Serializable{
             ObjectInputStream in= new ObjectInputStream(fileIn);
             table = (Table) in.readObject();
             in.close();
+            fileIn.close();
 
         } catch (FileNotFoundException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -423,18 +443,20 @@ public class Table implements Serializable{
 
     public static void main(String[] args) throws IOException, DBAppException {
 
+        DBApp zeft = new DBApp();
 
-        Table t1 = deserializeTable("donia");
-        //Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
+       //Table t1 = deserializeTable("donia");
+       Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
         Hashtable htblColNameValue = new Hashtable();
-//        htblColNameValue.put("id", 20 );
-        htblColNameValue.put("name", "donia");
-        htblColNameValue.put("gpa", 5555 );
+        htblColNameValue.put("id", 7);
+       // htblColNameValue.put("name", "donia");
+     // htblColNameValue.put("gpa", 6.0);
        Row r1 = new Row("id",htblColNameValue);
-      // t1.deleteBinary("donia",htblColNameValue,2,"id");
-         t1.deleteLinear("donia",htblColNameValue);
-       //t1.insert(r1,"donia");
-       // t1.update("donia",htblColNameValue,5,"id");
+    //  t1.deleteBinary("donia",htblColNameValue,8,"id");
+        // t1.deleteLinear("donia",htblColNameValue);
+      // t1.insert(r1,"donia");
+        zeft.insertIntoTable("donia",htblColNameValue);
+      //  t1.update("donia",htblColNameValue,11,"id");
 //        System.out.println("Number of Pages: " + t1.pageNum);
           Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
 //          Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
