@@ -21,6 +21,12 @@ public class Page implements Serializable, Comparable {
 
     }
 
+    public void delete(Row row){
+
+        rows.remove(row);
+        Collections.sort(rows);
+
+    }
 
 
 

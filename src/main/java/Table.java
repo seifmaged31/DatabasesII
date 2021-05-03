@@ -131,7 +131,77 @@ public class Table implements Serializable{
 
 
 
-    public void delete(Row row,String tableName){
+    public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws  DBAppException, IOException
+
+    {
+
+        ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
+        System.out.println("size of pagesHashtable: "+ pages.size());
+        System.out.println("size of pagesInfo: "+ pagesInfo.size());
+        ArrayList listOfIndices = getIndices(tableName, columnNameValue);
+        System.out.println(listOfIndices.toString());
+        Collections.sort(pagesInfo);//doniaaaa , el hashtable mafehash kol el columns fa mehtageen nestakhdem listOfIndices (?)
+        ArrayList values = new ArrayList();
+        pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
+        int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
+        System.out.println("The wanted index: " + indexOfPage);
+        indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage; // [2, 4, 6 , 7]
+        PageInfo pageInfo = pagesInfo.get(indexOfPage);
+        Page page = this.deserializePage(this.pages.get(pageInfo));
+        Row comparisonRow = new Row(clusteringKey,columnNameValue);
+        int indexOfRow =Collections.binarySearch((List)page.rows,comparisonRow);
+        if(indexOfRow<0)
+            throw new DBAppException("No matching record.");
+        Row rowToDelete = page.rows.get(indexOfRow);
+        if(!rowToDelete.matchRecord(listOfIndices,columnNameValue))
+            throw new DBAppException("No matching record.");
+        page.delete(rowToDelete);
+        updatePageInfoDelete(pageInfo, page);
+
+
+        if(pageInfo.isEmpty()){
+            try{
+                FileOutputStream fileOut =
+                        new FileOutputStream(new File(this.pages.get(pageInfo)));
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.close();
+                fileOut.close();
+            }
+            catch(IOException i){
+
+            }
+
+            try
+            {
+                File f= new File(this.pages.get(pageInfo));
+                RandomAccessFile raf=new RandomAccessFile(f,"rw");
+                raf.close();
+                if (f.exists()) {
+                    f.delete();
+                    System.out.println(f.getName() + " is deleted!");
+                } else {
+                    System.out.println("Delete operation is failed.");
+                }
+
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            this.pages.remove(pageInfo);
+            serializeTable(tableName);
+            return;
+        }
+        else{
+             serializePage(page, pageInfo.getPageNum());
+             serializeTable(tableName);
+             return;
+
+        }
+
+
+    }
+    public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue) {
 
 
     }
@@ -309,19 +379,44 @@ public class Table implements Serializable{
         for(Row row: p1.rows){
             System.out.print(row.values + ", " );
         }
-        System.out.println();
-        for(Row row: p2.rows){
-            System.out.print(row.values + ", " );
-        }
-        System.out.println();
-        for(Row row: p3.rows){
-            System.out.print(row.values + ", " );
-        }
+        System.out.println("");
+//        for(Row row: p2.rows){
+//            System.out.print(row.values + ", " );
+//        }
+
+//        System.out.println();
+//        for(Row row: p3.rows){
+//            System.out.print(row.values + ", " );
+//        }
 //        System.out.println();
 //        for(Row row: p4.rows){
 //            System.out.print(row.values + ", " );
 //        }
-
+//        try{
+//            FileOutputStream fileOut =
+//                    new FileOutputStream(new File("src/main/resources/data/trial.class"));
+//            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+//            out.close();
+//            fileOut.close();
+//        }
+//        catch(IOException i){
+//
+//        }
+//
+//        try
+//        {
+//            File f= new File("src/main/resources/data/trial.class");
+//            if (f.exists()) {
+//                f.delete();
+//                System.out.println(f.getName() + " is deleted!");
+//            } else {
+//                System.out.println("Delete operation is failed.");
+//            }
+//        }
+//        catch(Exception e)
+//        {
+//            e.printStackTrace();
+//        }
 
 
     }
