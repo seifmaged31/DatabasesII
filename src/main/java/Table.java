@@ -289,19 +289,22 @@ public class Table implements Serializable{
 
 
     public static void main(String[] args) throws IOException, DBAppException {
-        Table t1 = (Table) deserializeTable("donia");
-        //Table t1 = new Table("donia"); t1.serializeTable(t1.tableName);
+
+
+        Table t1 = deserializeTable("donia");
+        //Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
         Hashtable htblColNameValue = new Hashtable();
-       // htblColNameValue.put("id", 1);
-        htblColNameValue.put("name", "donia");
-        htblColNameValue.put("gpa", 5555 );
-       // Row r1 = new Row("id",htblColNameValue);
-      //  t1.insert(r1,"donia");
-        t1.update("donia",htblColNameValue,11,"id");
-        System.out.println("Number of Pages: " + t1.pageNum);
-        Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
-        Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
-        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
+        htblColNameValue.put("id", 9);
+        htblColNameValue.put("name", "d");
+//        htblColNameValue.put("gpa", 5555 );
+       //Row r1 = new Row("id",htblColNameValue);
+       t1.deleteBinary("donia",htblColNameValue,9,"id");
+       //t1.insert(r1,"donia");
+//        t1.update("donia",htblColNameValue,11,"id");
+//        System.out.println("Number of Pages: " + t1.pageNum);
+          Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
+//        Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
+//        Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
 //        Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
         for(Row row: p1.rows){
             System.out.print(row.values + ", " );
