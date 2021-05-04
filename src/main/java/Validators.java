@@ -190,7 +190,7 @@ public class Validators {
             String[] nextRecord;
             // we are going to read data line by line
             //String current =(String) itr.next();
-            while ((nextRecord = reader.readNext()) != null) {
+            while ((nextRecord = reader.readNext()) != null && i<columns.size()) {
 
                 if(nextRecord[0].equals(tableName)) {
                     if (!nextRecord[1].equals(columns.get(i))) {
@@ -303,7 +303,7 @@ public class Validators {
 
     }
     public void validateRange(String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
-        ArrayList indices = Table.getIndices(tableName,colNameValue);
+        //ArrayList indices = Table.getIndices(tableName,colNameValue);
         boolean error=false;
         try {
 
@@ -312,7 +312,7 @@ public class Validators {
             int i=0;
             ArrayList keys = new ArrayList(colNameValue.keySet());
             // we are going to read data line by line
-            while ((nextRecord = reader.readNext()) != null) {
+            while ((nextRecord = reader.readNext()) != null && i<keys.size()) {
                 if(nextRecord[0].equals(tableName)){
                     if(nextRecord[1].equals(keys.get(i))){//[gpa,last,first,id]
 

@@ -240,6 +240,7 @@ public class Table implements Serializable{
     public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue) throws IOException, DBAppException{
 
         Boolean found = false;
+        Boolean deleted=false;
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List)pagesInfos);
@@ -257,10 +258,11 @@ public class Table implements Serializable{
                         if (pageInfo.isEmpty()) {
                             try {
 //                            System.out.println("i have entered the try");
-                                new FileOutputStream(this.pages.get(pageInfo)).close();
+                              new FileOutputStream(this.pages.get(pageInfo)).close();
 //                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
 //                            System.out.println("i am going inside the if");
                                 if (new File(this.pages.get(pageInfo)).delete()) {
+                                    deleted=true;
                                     System.out.println("File Deleted");
                                 } else {
                                     System.out.println("File not Found");
@@ -271,13 +273,17 @@ public class Table implements Serializable{
                             }
 
                             this.pages.remove(pageInfo);
+                            serializeTable(tableName);
                         }
 
 
                     }
 
             }
-            serializePage(page,pageInfo.getPageNum());
+                if(!deleted) {
+                    serializePage(page, pageInfo.getPageNum());
+                }
+                deleted=false;
         }
         serializeTable(tableName);
         if(!found)
@@ -443,28 +449,30 @@ public class Table implements Serializable{
 
     public static void main(String[] args) throws IOException, DBAppException {
 
-        DBApp zeft = new DBApp();
-
-       //Table t1 = deserializeTable("donia");
-       Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
+        //DBApp zeft = new DBApp();
+//
+        Table t1 = deserializeTable("donia");
+       //Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
         Hashtable htblColNameValue = new Hashtable();
-        htblColNameValue.put("id", 7);
-       // htblColNameValue.put("name", "donia");
-     // htblColNameValue.put("gpa", 6.0);
+        //htblColNameValue.put("id", 7);
+        htblColNameValue.put("name", "dd");
+        //htblColNameValue.put("gpa", 6.0);
+
        Row r1 = new Row("id",htblColNameValue);
     //  t1.deleteBinary("donia",htblColNameValue,8,"id");
-        // t1.deleteLinear("donia",htblColNameValue);
-      // t1.insert(r1,"donia");
-        zeft.insertIntoTable("donia",htblColNameValue);
+         t1.deleteLinear("donia",htblColNameValue);
+       //t1.insert(r1,"donia");
+        //zeft.insertIntoTable("donia",htblColNameValue);
       //  t1.update("donia",htblColNameValue,11,"id");
 //        System.out.println("Number of Pages: " + t1.pageNum);
-          Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
-//          Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
+          //Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
+          //Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
 //          Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
 //          Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
-        for(Row row: p1.rows){
-            System.out.print(row.values + ", " );
-        }
+        //System.out.print(p1.rows.size());
+//        for(Row row: p1.rows){
+//            System.out.print(row.values + ", " );
+//        }
 //        System.out.println();
 //        for(Row row: p2.rows){
 //            System.out.print(row.values + ", " );

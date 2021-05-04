@@ -197,21 +197,21 @@ public class DBApp implements DBAppInterface{
         String strTableName = "donia";
         DBApp dbApp = new DBApp();
         dbApp.init();
-//        Hashtable htblColNameType = new Hashtable( );
-//        htblColNameType.put("id", "java.lang.Integer");
-//        htblColNameType.put("name", "java.lang.String");
-//        htblColNameType.put("gpa", "java.lang.double");
-//
-//        Hashtable min = new Hashtable();
-//        min.put("id", "1");
-//        min.put("name", "a");
-//        min.put("gpa", "1");
-//
-//        Hashtable max = new Hashtable();
-//        max.put("id", "100");
-//        max.put("name","zzzzzzzzzzzzzzz");
-//        max.put("gpa","4.0");
-//        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
+        Hashtable htblColNameType = new Hashtable( );
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
+
+        Hashtable min = new Hashtable();
+        min.put("id", "1");
+        min.put("name", "a");
+        min.put("gpa", "1");
+
+        Hashtable max = new Hashtable();
+        max.put("id", "100");
+        max.put("name","zzzzzzzzzzzzzzz");
+        max.put("gpa","4.0");
+        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
 
 //        Hashtable htblColNameValue = new Hashtable( );
 //        htblColNameValue.put("id", new Integer( 5 ));
