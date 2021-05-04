@@ -303,7 +303,7 @@ public class Validators {
 
     }
     public void validateRange(String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
-        ArrayList indices = Table.getIndices(tableName,colNameValue);
+        //ArrayList indices = Table.getIndices(tableName,colNameValue);
         boolean error=false;
         try {
 
