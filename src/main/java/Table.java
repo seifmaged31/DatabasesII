@@ -187,12 +187,12 @@ public class Table implements Serializable{
         //System.out.println("size of pagesHashtable: "+ pages.size());
         //System.out.println("size of pagesInfo: "+ pagesInfo.size());
         ArrayList listOfIndices = getIndices(tableName, columnNameValue);
-        System.out.println(listOfIndices.toString());
+        //System.out.println(listOfIndices.toString());
         Collections.sort(pagesInfo);
         ArrayList values = new ArrayList();
         pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
         int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
-        System.out.println("The wanted index: " + indexOfPage);
+        //System.out.println("The wanted index: " + indexOfPage);
         indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
         PageInfo pageInfo = pagesInfo.get(indexOfPage);
         Page page = this.deserializePage(this.pages.get(pageInfo));
@@ -207,7 +207,7 @@ public class Table implements Serializable{
         updatePageInfoDelete(pageInfo, page);
         serializePage(page,pageInfo.getPageNum());
         //System.out.println("size of pagesInfo: "+ pagesInfo.size());
-        System.out.println(pageInfo.isEmpty());
+        //System.out.println(pageInfo.isEmpty());
         if(pageInfo.isEmpty()){
                 try {
                     //System.out.println("i have entered the try");
@@ -448,69 +448,6 @@ public class Table implements Serializable{
 
 
     public static void main(String[] args) throws IOException, DBAppException {
-
-        //DBApp zeft = new DBApp();
-//
-        Table t1 = deserializeTable("donia");
-       //Table t1= new Table("donia"); t1.serializeTable(t1.tableName);
-        Hashtable htblColNameValue = new Hashtable();
-        //htblColNameValue.put("id", 7);
-        htblColNameValue.put("name", "dd");
-        //htblColNameValue.put("gpa", 6.0);
-
-       Row r1 = new Row("id",htblColNameValue);
-    //  t1.deleteBinary("donia",htblColNameValue,8,"id");
-         t1.deleteLinear("donia",htblColNameValue);
-       //t1.insert(r1,"donia");
-        //zeft.insertIntoTable("donia",htblColNameValue);
-      //  t1.update("donia",htblColNameValue,11,"id");
-//        System.out.println("Number of Pages: " + t1.pageNum);
-          //Page p1= (Page) t1.deserializePage("src/main/resources/data/donia_1.class");
-          //Page p2= (Page) t1.deserializePage("src/main/resources/data/donia_2.class");
-//          Page p3= (Page) t1.deserializePage("src/main/resources/data/donia_3.class");
-//          Page p4= (Page) t1.deserializePage("src/main/resources/data/donia_4.class");
-        //System.out.print(p1.rows.size());
-//        for(Row row: p1.rows){
-//            System.out.print(row.values + ", " );
-//        }
-//        System.out.println();
-//        for(Row row: p2.rows){
-//            System.out.print(row.values + ", " );
-//        }
-//        System.out.println();
-//        for(Row row: p3.rows){
-//            System.out.print(row.values + ", " );
-//        }
-//        System.out.println();
-//        for(Row row: p4.rows){
-//            System.out.print(row.values + ", " );
-//        }
-
-//        try{
-//            FileOutputStream fileOut =
-//                    new FileOutputStream(new File("src/main/resources/data/trial.class"));
-//            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-//            out.close();
-//            fileOut.close();
-//        }
-//        catch(IOException i){
-//
-//        }
-//
-//        try
-//        {
-//            File f= new File("src/main/resources/data/trial.class");
-//            if (f.exists()) {
-//                f.delete();
-//                System.out.println(f.getName() + " is deleted!");
-//            } else {
-//                System.out.println("Delete operation is failed.");
-//            }
-//        }
-//        catch(Exception e)
-//        {
-//            e.printStackTrace();
-//        }
 
 
     }

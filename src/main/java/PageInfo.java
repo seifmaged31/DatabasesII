@@ -18,14 +18,7 @@ public class PageInfo implements Serializable, Comparable {
 
         }
 
-        /*public void insert(Row row){
-            this.numOfRows++;
-            if(this.max.compareTo(row)<0)
-                this.max=row;
-            else if(this.min.compareTo(row)>0)
-                this.min=row;
 
-        }*/
 
     public Row getMax() {
         return max;

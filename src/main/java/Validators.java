@@ -11,14 +11,6 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/*class CustomizedDate{
-    public CustomizedDate(Date date){
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        String strDate= formatter.format(date);
-
-
-    }
-}*/
 
 public class Validators {
 
@@ -303,7 +295,7 @@ public class Validators {
 
     }
     public void validateRange(String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
-        //ArrayList indices = Table.getIndices(tableName,colNameValue);
+
         boolean error=false;
         try {
 
@@ -314,7 +306,7 @@ public class Validators {
             // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null && i<keys.size()) {
                 if(nextRecord[0].equals(tableName)){
-                    if(nextRecord[1].equals(keys.get(i))){//[gpa,last,first,id]
+                    if(nextRecord[1].equals(keys.get(i))){
 
                         Object value = colNameValue.get(keys.get(i));
                         Object min = getClusteringValue(nextRecord[2],nextRecord[5]);
@@ -355,84 +347,6 @@ public class Validators {
 
 
     public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Hashtable htblColNameValue = new Hashtable( );
-        htblColNameValue.put("id", 8);
-        htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 1.5 );
-        //Validators v = new Validators();
-        //v.validateInsertion("seif", htblColNameValue);
-        Row r1 = new Row("id",htblColNameValue);
-        PageInfo pinfo1 = new PageInfo(r1);
-        htblColNameValue.clear();
-
-        htblColNameValue.put("id", 5);
-        htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 1.5 );
-        r1 = new Row("id",htblColNameValue);
-        PageInfo pinfo2 = new PageInfo(r1);
-        htblColNameValue.clear();
-
-        htblColNameValue.put("id", 4);
-        htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 1.5 );
-        r1 = new Row("id",htblColNameValue);
-        PageInfo pinfo3 = new PageInfo(r1);
-        htblColNameValue.clear();
-
-        htblColNameValue.put("id", 2);
-        htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 1.5 );
-        r1 = new Row("id",htblColNameValue);
-        PageInfo pinfo4 = new PageInfo(r1);
-        htblColNameValue.clear();
-
-        ArrayList a1 = new ArrayList();
-        a1.add(new Date(100,Calendar.JANUARY, 8));
-
-        a1.add(new Date(99, Calendar.OCTOBER, 8));
-        a1.add(new Date(101, Calendar.JULY, 8));
-        a1.add(new Date(101, Calendar.JULY, 2));
-        System.out.println("before");
-      /*  for(Row row:a1)
-            System.out.println(row.values);*/
-
-        System.out.println(a1);
-        Collections.sort(a1);
-        System.out.println(a1);
-       /* System.out.println("after");
-        for(Row row:a1)
-            System.out.println(row.values);*/
-
-        htblColNameValue.put("id", 0);
-        htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 1.5 );
-        r1 = new Row("id",htblColNameValue);
-        htblColNameValue.clear();
-
-
-        int index = Collections.binarySearch(a1,new Date(101, Calendar.JULY, 3));
-        System.out.println("The date to insert: " + new Date(101, Calendar.JULY, 3));
-        System.out.println(index);
-        System.out.println((index==-1)?0:(index<0)?((index+2)*-1):index);
-
-
-//        Set<String>  x= htblColNameValue.keySet();
-//        Iterator<String> itr = x.iterator();
-//        while(itr.hasNext()){
-//            System.out.println(itr.next()+ " " + htblColNameValue.get(itr.next()));
-//        }
-
-       // System.out.println(Double.parseDouble("1.5"));
-
-//        System.out.println(Date.parse("ab")); IllegalArgumentException , NumberFormatException
-//        System.out.println(Integer.parseInt("ab"));
-//        CustomizedDate date = new CustomizedDate();
-//        Date date = new Date();
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-//        String strDate= formatter.format(date);
-//        Validators v = new Validators();
-          //v.validateTypes("java.lang.String","Ahmed");
-//        System.out.println("Done");
 
     }
 }

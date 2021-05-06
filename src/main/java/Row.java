@@ -4,17 +4,12 @@ import java.util.*;
 public class Row implements Comparable, Serializable {
     String clusteringKey;
     private Object keyValue;
-
-                            // name , gpa , id
-    Vector<String> values; //["seif","","1"]
+    Vector<String> values;
 
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
         values = new Vector<>();
         this.clusteringKey=clusteringKey;
-        //System.out.println("The clustering key " + clusteringKey);
         keyValue= colNameValues.get(clusteringKey);
-        //System.out.println("The value " +keyValue.toString());
-        //values.sort();
         Set<String> nameType = colNameValues.keySet();
         Iterator<String> itrType = nameType.iterator();
         while (itrType.hasNext()) {
@@ -52,8 +47,6 @@ public class Row implements Comparable, Serializable {
     {
         Set<String> keySet = columnNameValue.keySet();
         ArrayList<String> keys = new ArrayList<String>(keySet);
-//        System.out.println(keys);
-//        System.out.println(indices);
         for (String key:keys){
             this.values.set((int)indices.get(keys.indexOf(key)), columnNameValue.get(key).toString());
 
@@ -80,34 +73,7 @@ public class Row implements Comparable, Serializable {
 
     public static void main(String [] args)
     {
-        /*Hashtable htblColNameType = new Hashtable( );
-        Date d = new Date(1995, 11, 17);
-        Date d1 = new Date(1998, 11, 17);
-        htblColNameType.put("id", 1);
-        htblColNameType.put("date", d1);
-        htblColNameType.put("name", "salma");
-        htblColNameType.put("gpa", 0.0);
 
-
-//        Hashtable htblColNameType2 = new Hashtable( );
-//        htblColNameType2.put("id", 2);
-//        htblColNameType2.put("date", d);
-//        htblColNameType2.put("name", "seif");
-//        htblColNameType2.put("gpa", 1.0);
-
-        Row a=new Row("date",htblColNameType);
-        Row b=new Row("date",htblColNameType2);
-
-        System.out.println(b.compareTo(a));
-
-        Vector<Row> xx=new Vector<>();
-
-        xx.add(a);
-        System.out.println(a);
-        xx.add(b);
-        System.out.println(b);
-        Collections.sort(xx);
-        System.out.println(xx.toString());*/
     }
 
 
