@@ -162,6 +162,9 @@ public class DBApp implements DBAppInterface{
     }
 
     public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
+
+        //Hashtable<String,Object> colNameValue = new Hashtable<>();
+
         return null;
     }
 

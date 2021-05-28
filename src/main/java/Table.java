@@ -235,8 +235,118 @@ public class Table implements Serializable{
 
         }
 
+    }
+
+    public void selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
+        Set<PageInfo> pagesInfosSet = pages.keySet();
+        ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
+        Collections.sort((List) pagesInfos);
+        //ArrayList listOfIndices = getIndices(tableName, columnNameValue);
+        // select * FROM Student where name="a555ooya" AND Age >555
+//        int size = sqlTerms.length;
+//        Object[] statement;
+//        if(size==1) {
+//            statement = new Object[3]; //["name","=","a555oya","AND","age",">",21]
+//            statement[0]=sqlTerms[0]._strColumnName;
+//            statement[1]=sqlTerms[1]._strOperator;
+//            statement[2]=sqlTerms[2]._objValue;
+//        }
+//        else {
+//            statement = new Object[(size*3) + arrayOperators.length];
+//        }
+        Hashtable<String, Object> colNameValue = new Hashtable<>();
+        for (SQLTerm sqlTerm : sqlTerms) {
+            colNameValue.clear();
+            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
+            ArrayList listOfIndices = getIndices(tableName, colNameValue);
+            for (PageInfo pageInfo : pagesInfos) {
+                Page page = deserializePage(this.pages.get(pageInfo));
+                for (Row row : page.rows) {
+
+                }
+            }
+        }
+    }
+
+    public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2) {
+
+        ArrayList<Row> result = new ArrayList<>(operand1);
+        for (Row row : operand2) {
+            if (!result.contains(row)) {
+                result.add(row);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Row> intersect(ArrayList<Row> operand1, ArrayList<Row> operand2) {
+        //loop (operand2.get(operand1[i]) iterator.insert(operand1[i]))
+        ArrayList<Row> result = new ArrayList<>();
+        for (Row row : operand1)
+            if (operand2.contains(row))
+                result.add(row);
+        return result;
+    }
+
+    public ArrayList<Row> unique(ArrayList<Row> operand1, ArrayList<Row> operand2) {
+
+        ArrayList<Row> result = new ArrayList<>();
+
+        for (Row row : operand2) {
+            if (!operand1.contains(row)) {
+                result.add(row);
+            }
+        }
+        for (Row row : operand1) {
+            if (!operand2.contains(row)) {
+                result.add(row);
+            }
+        }
+
+        return result;
+    }
+    //age,salary
+
+    //Grid = [Bucket, bucket, bucket]*3
+    //grid = [Dimension(a1,b1),Dimension(a1,b2),Dimension(a1,b3),Dimension(a2,b1)....]
+    // Grid = []
+    /*  divisions:3
+    class Bucket a1 {
+    Hashtable colNameMin<age:1>;
+                        <salary:100>;
+    hashtable colNameMax;      a1:1-10  a2:11-20  a3:21-30  s1:100-199  s2:200-299   s3:300-399
 
     }
+        grid=[bucket(a1),bucket(a2),bucket(a3)]
+        first dimension is age;
+        min(age) = [1,15,30,...]
+        max(age) = [14, 29, 59,...]
+        first inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3)]
+        second inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3)]
+        third inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3),bucket(a3,s1),bucket(a3,s2),bucket(a3,s3)]
+       //loop for two or more dimensions
+       for(j :length grid){
+        for(i<divisions){
+            min salary = min[i];
+            max salary = max[i];
+            add(sk(min,max)) 1<k<3
+        }
+}
+
+                                                Grid
+                                                  |
+                                              [buckets]
+
+                                                Bucket [id:1-10,name:a-c,age:5-10  (checkRange)  [id=3,name=s,age=20]
+                                                   |
+                                               [Dimensions]
+
+                                             Dimension
+                                                 |
+                                             info that i want to retrieve
+
+    */
+
     public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue) throws IOException, DBAppException{
 
         Boolean found = false;
