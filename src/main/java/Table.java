@@ -4,22 +4,23 @@ import java.util.*;
 //import java.nio.file.*;
 
 
-public class Table implements Serializable{
+public class Table implements Serializable {
 
     String tableName;
-    Hashtable<PageInfo,String> pages;
+    Hashtable<PageInfo, String> pages;
     int pageNum;
 
-    public Table (String tableName){
-        this.tableName=tableName;
+    public Table(String tableName) {
+        this.tableName = tableName;
         pages = new Hashtable<PageInfo, String>();
         //serializeTable(this.tableName);
-        pageNum=0;
+        pageNum = 0;
     }
-    public void insert (Row row, String tableName) throws IOException, DBAppException {
+
+    public void insert(Row row, String tableName) throws IOException, DBAppException {
 
         Table table = this.deserializeTable(tableName);
-        if (this.pages.isEmpty()){ //first insertion
+        if (this.pages.isEmpty()) { //first insertion
             //System.out.println("first insertion");
             createPage(row);
             serializeTable(tableName);
@@ -27,161 +28,151 @@ public class Table implements Serializable{
         }
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
-        Collections.sort((List)pagesInfos);
+        Collections.sort((List) pagesInfos);
         ArrayList values = new ArrayList();
-        pagesInfos.forEach(info->values.add(info.getMin().getKeyValue()));
-        int indexOfPage =Collections.binarySearch(values,row.getKeyValue());
-        if(indexOfPage >=0)
+        pagesInfos.forEach(info -> values.add(info.getMin().getKeyValue()));
+        int indexOfPage = Collections.binarySearch(values, row.getKeyValue());
+        if (indexOfPage >= 0)
             throw new DBAppException("This clustering key already exists.");
-        indexOfPage = (indexOfPage==-1)?0:((indexOfPage+2)*-1); // [2, 4, 6 , 7]
+        indexOfPage = (indexOfPage == -1) ? 0 : ((indexOfPage + 2) * -1); // [2, 4, 6 , 7]
         Page page = this.deserializePage(this.pages.get(pagesInfos.get(indexOfPage)));
         PageInfo pageInfo = pagesInfos.get(indexOfPage);
         //for(PageInfo pageInfo:pagesInfos){
-            if(pagesInfos.indexOf(pageInfo) == pagesInfos.size()-1){//this is the last page
-                if(!pageInfo.isFull()){ // I have space to insert in this page
-                    //System.out.println("insertion in last page");
+        if (pagesInfos.indexOf(pageInfo) == pagesInfos.size() - 1) {//this is the last page
+            if (!pageInfo.isFull()) { // I have space to insert in this page
+                //System.out.println("insertion in last page");
+                page = deserializePage(pages.get(pageInfo));
+                int indexOfRow = Collections.binarySearch((List) page.rows, row);
+                if (indexOfRow >= 0)
+                    throw new DBAppException("The clustering key already exists");
+                indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                page.insert(row, indexOfRow);
+                this.updatePageInfoInsert(pageInfo, row, page);
+                serializePage(page, pageInfo.getPageNum());
+                serializeTable(tableName);
+                //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
+                return;
+            } else { // I have no space to insert so, move
+
+                if (checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || row.compareTo(pageInfo.getMin()) < 0) { //the new row is within the page
+                    //System.out.println("insertion in this last page and create new page with last elem");
                     page = deserializePage(pages.get(pageInfo));
-                    int indexOfRow =Collections.binarySearch((List)page.rows,row);
-                    if(indexOfRow>=0)
+                    Row lastElement = page.rows.lastElement();
+                    page.rows.removeElementAt(page.rows.size() - 1);
+                    pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
+                    //pageInfo.setMax(page.rows.lastElement());
+                    int indexOfRow = Collections.binarySearch((List) page.rows, row);
+                    if (indexOfRow >= 0)
                         throw new DBAppException("The clustering key already exists");
-                    indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                    page.insert(row,indexOfRow);
-                    this.updatePageInfoInsert(pageInfo,row,page);
-                    serializePage(page,pageInfo.getPageNum());
+                    indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                    page.insert(row, indexOfRow);
+                    this.updatePageInfoInsert(pageInfo, row, page);
+                    serializePage(page, pageInfo.getPageNum());
+                    createPage(lastElement);
                     serializeTable(tableName);
                     //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                     return;
+
+                } else { // the new row isn't in the range
+                    //System.out.println("created new page with row");
+                    createPage(row);
+                    serializeTable(tableName);
+                    return;
                 }
-                else { // I have no space to insert so, move
-
-                    if(checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || row.compareTo(pageInfo.getMin())<0){ //the new row is within the page
-                        //System.out.println("insertion in this last page and create new page with last elem");
-                        page = deserializePage(pages.get(pageInfo));
-                        Row lastElement = page.rows.lastElement();
-                        page.rows.removeElementAt(page.rows.size()-1);
-                        pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
-                        //pageInfo.setMax(page.rows.lastElement());
-                        int indexOfRow =Collections.binarySearch((List)page.rows,row);
-                        if(indexOfRow>=0)
-                            throw new DBAppException("The clustering key already exists");
-                        indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                        page.insert(row,indexOfRow);
-                        this.updatePageInfoInsert(pageInfo, row,page);
-                        serializePage(page, pageInfo.getPageNum());
-                        createPage(lastElement);
-                        serializeTable(tableName);
-                        //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
-                        return;
-
-                    }
-                    else{ // the new row isn't in the range
-                        //System.out.println("created new page with row");
-                        createPage(row);
-                        serializeTable(tableName);
-                        return;
-                    }
-                }
-
-
             }
-            int currentIndex =  ((List<?>) pagesInfos).indexOf(pageInfo);
-            PageInfo nextPageInfo =(PageInfo) ((List<?>) pagesInfos).get(currentIndex+1);
-            if(checkRange(row,pageInfo.getMin(),pageInfo.getMax()) || (checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())) || row.compareTo(pageInfo.getMin())<0){ // any intermediate page that I need.
+
+
+        }
+        int currentIndex = ((List<?>) pagesInfos).indexOf(pageInfo);
+        PageInfo nextPageInfo = (PageInfo) ((List<?>) pagesInfos).get(currentIndex + 1);
+        if (checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || (checkRange(row, pageInfo.getMax(), nextPageInfo.getMin())) || row.compareTo(pageInfo.getMin()) < 0) { // any intermediate page that I need.
 //                System.out.println("im within range of this page or smaller than next page or smaller than all the elements in the page" );
 //                System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
 //                System.out.println("min of next page: "+ nextPageInfo.getMin().values + "max of next page:" + nextPageInfo.getMax().values);
-                if(!pageInfo.isFull()) { // if the page has space
-                        //System.out.println("there is space in this page (within range)");
-                        page = deserializePage(pages.get(pageInfo));
-                        int indexOfRow =Collections.binarySearch((List)page.rows,row);
-                        if(indexOfRow>=0)
+            if (!pageInfo.isFull()) { // if the page has space
+                //System.out.println("there is space in this page (within range)");
+                page = deserializePage(pages.get(pageInfo));
+                int indexOfRow = Collections.binarySearch((List) page.rows, row);
+                if (indexOfRow >= 0)
+                    throw new DBAppException("The clustering key already exists");
+                indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                page.insert(row, indexOfRow);
+                this.updatePageInfoInsert(pageInfo, row, page);
+                serializePage(page, pageInfo.getPageNum());
+                serializeTable(tableName);
+                return;
+            } else { // the page has no space
+                // System.out.println("no space in first page");
+                if (!nextPageInfo.isFull()) { //shifting to the next page, as the next page has space.
+                    //System.out.println("there is space in next page");
+
+                    //pageInfo.setMax(page.rows.lastElement());
+
+                    if (checkRange(row, pageInfo.getMax(), nextPageInfo.getMin())) {
+                        Page nextPage = deserializePage(pages.get(nextPageInfo));
+                        int indexOfRow = Collections.binarySearch((List) nextPage.rows, row);
+                        if (indexOfRow >= 0)
                             throw new DBAppException("The clustering key already exists");
-                        indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                        page.insert(row,indexOfRow);
-                        this.updatePageInfoInsert(pageInfo, row,page);
+                        indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                        nextPage.insert(row, indexOfRow);
+                        this.updatePageInfoInsert(nextPageInfo, row, nextPage);
+                        serializePage(nextPage, nextPageInfo.getPageNum());
+                    } else {
+                        page = deserializePage(pages.get(pageInfo));
+                        Row lastElement = page.rows.lastElement();
+                        page.rows.removeElementAt(page.rows.size() - 1);
+                        pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
+                        int indexOfRow = Collections.binarySearch((List) page.rows, row);
+                        if (indexOfRow >= 0)
+                            throw new DBAppException("The clustering key already exists");
+                        indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                        page.insert(row, indexOfRow);
+                        this.updatePageInfoInsert(pageInfo, row, page);
                         serializePage(page, pageInfo.getPageNum());
+                        Page nextPage = deserializePage(pages.get(nextPageInfo));
+                        indexOfRow = Collections.binarySearch((List) nextPage.rows, row);
+                        if (indexOfRow >= 0)
+                            throw new DBAppException("The clustering key already exists");
+                        indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                        nextPage.insert(lastElement, indexOfRow);
+                        this.updatePageInfoInsert(nextPageInfo, lastElement, nextPage);
+                        serializePage(nextPage, nextPageInfo.getPageNum());
+                    }
+                    serializeTable(tableName);
+                    return;
+                } else {
+                    if (row.compareTo(pageInfo.getMax()) > 0) {
+                        createPage(row);
                         serializeTable(tableName);
                         return;
+                    } else {
+                        //System.out.println("no space in next page");
+                        page = deserializePage(pages.get(pageInfo));
+                        Row lastElement = page.rows.lastElement();
+                        page.rows.removeElementAt(page.rows.size() - 1);
+                        pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
+                        //pageInfo.setMax(page.rows.lastElement());
+                        int indexOfRow = Collections.binarySearch((List) page.rows, row);
+                        if (indexOfRow >= 0)
+                            throw new DBAppException("The clustering key already exists");
+                        indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
+                        page.insert(row, indexOfRow);
+                        this.updatePageInfoInsert(pageInfo, row, page);
+                        serializePage(page, pageInfo.getPageNum());
+                        createPage(lastElement);
+                        serializeTable(this.tableName);
+                        return;
                     }
-                    else{ // the page has no space
-                       // System.out.println("no space in first page");
-                        if(!nextPageInfo.isFull()){ //shifting to the next page, as the next page has space.
-                            //System.out.println("there is space in next page");
+                }
+            }
 
-                            //pageInfo.setMax(page.rows.lastElement());
+        }
 
-                            if (checkRange(row,pageInfo.getMax(),nextPageInfo.getMin())){
-                                Page nextPage = deserializePage(pages.get(nextPageInfo));
-                                int indexOfRow =Collections.binarySearch((List)nextPage.rows,row);
-                                if(indexOfRow>=0)
-                                    throw new DBAppException("The clustering key already exists");
-                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                                nextPage.insert(row,indexOfRow);
-                                this.updatePageInfoInsert(nextPageInfo, row, nextPage);
-                                serializePage(nextPage, nextPageInfo.getPageNum());
-                            }
-                            else {
-                                page = deserializePage(pages.get(pageInfo));
-                                Row lastElement = page.rows.lastElement();
-                                page.rows.removeElementAt(page.rows.size()-1);
-                                pageInfo.setNumOfRows(pageInfo.getNumOfRows()-1);
-                                int indexOfRow =Collections.binarySearch((List)page.rows,row);
-                                if(indexOfRow>=0)
-                                    throw new DBAppException("The clustering key already exists");
-                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                                page.insert(row,indexOfRow);
-                                this.updatePageInfoInsert(pageInfo, row, page);
-                                serializePage(page, pageInfo.getPageNum());
-                                Page nextPage = deserializePage(pages.get(nextPageInfo));
-                                indexOfRow =Collections.binarySearch((List)nextPage.rows,row);
-                                if(indexOfRow>=0)
-                                    throw new DBAppException("The clustering key already exists");
-                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                                nextPage.insert(lastElement,indexOfRow);
-                                this.updatePageInfoInsert(nextPageInfo, lastElement, nextPage);
-                                serializePage(nextPage, nextPageInfo.getPageNum());
-                            }
-                            serializeTable(tableName);
-                            return;
-                        }
-                        else{
-                            if(row.compareTo(pageInfo.getMax())>0){
-                                createPage(row);
-                                serializeTable(tableName);
-                                return;
-                            }
-                            else {
-                                //System.out.println("no space in next page");
-                                page = deserializePage(pages.get(pageInfo));
-                                Row lastElement = page.rows.lastElement();
-                                page.rows.removeElementAt(page.rows.size() - 1);
-                                pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
-                                //pageInfo.setMax(page.rows.lastElement());
-                                int indexOfRow =Collections.binarySearch((List)page.rows,row);
-                                if(indexOfRow>=0)
-                                    throw new DBAppException("The clustering key already exists");
-                                indexOfRow = (indexOfRow==-1)?0:((indexOfRow+1)*-1);
-                                page.insert(row,indexOfRow);
-                                this.updatePageInfoInsert(pageInfo, row,page);
-                                serializePage(page, pageInfo.getPageNum());
-                                createPage(lastElement);
-                                serializeTable(this.tableName);
-                                return;
-                            }
-                            }
-                        }
-
-                    }
-
-            //}
+        //}
     }
 
 
-
-
-    public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws  DBAppException, IOException
-
-    {
+    public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue, String clusteringKey) throws DBAppException, IOException {
 
         ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
         //System.out.println("size of pagesHashtable: "+ pages.size());
@@ -190,48 +181,46 @@ public class Table implements Serializable{
         //System.out.println(listOfIndices.toString());
         Collections.sort(pagesInfo);
         ArrayList values = new ArrayList();
-        pagesInfo.forEach(info->values.add(info.getMin().getKeyValue()));
-        int indexOfPage =Collections.binarySearch(values,clusteringKeyValue);
+        pagesInfo.forEach(info -> values.add(info.getMin().getKeyValue()));
+        int indexOfPage = Collections.binarySearch(values, clusteringKeyValue);
         //System.out.println("The wanted index: " + indexOfPage);
-        indexOfPage = (indexOfPage==-1)?0:(indexOfPage<0)?((indexOfPage+2)*-1):indexOfPage;
+        indexOfPage = (indexOfPage == -1) ? 0 : (indexOfPage < 0) ? ((indexOfPage + 2) * -1) : indexOfPage;
         PageInfo pageInfo = pagesInfo.get(indexOfPage);
         Page page = this.deserializePage(this.pages.get(pageInfo));
-        Row comparisonRow = new Row(clusteringKey,columnNameValue);
-        int indexOfRow =Collections.binarySearch((List)page.rows,comparisonRow);
-        if(indexOfRow<0)
+        Row comparisonRow = new Row(clusteringKey, columnNameValue);
+        int indexOfRow = Collections.binarySearch((List) page.rows, comparisonRow);
+        if (indexOfRow < 0)
             throw new DBAppException("No matching record.");
         Row rowToDelete = page.rows.get(indexOfRow);
-        if(!rowToDelete.matchRecord(listOfIndices,columnNameValue))
+        if (!rowToDelete.matchRecord(listOfIndices, columnNameValue))
             throw new DBAppException("No matching record.");
         page.delete(rowToDelete);
         updatePageInfoDelete(pageInfo, page);
-        serializePage(page,pageInfo.getPageNum());
+        serializePage(page, pageInfo.getPageNum());
         //System.out.println("size of pagesInfo: "+ pagesInfo.size());
         //System.out.println(pageInfo.isEmpty());
-        if(pageInfo.isEmpty()){
-                try {
-                    //System.out.println("i have entered the try");
-                    new FileOutputStream(this.pages.get(pageInfo)).close();
-                    //System.out.println("The path to delete: "+this.pages.get(pageInfo));
-                    //System.out.println("i am going inside the if");
-                    if(new File(this.pages.get(pageInfo)).delete()) {
-                        System.out.println("File Deleted");
-                    }
-                    else {
-                        System.out.println("File not Found");
-                    }
-
-                } catch (Exception e) {
-                    e.getStackTrace();
+        if (pageInfo.isEmpty()) {
+            try {
+                //System.out.println("i have entered the try");
+                new FileOutputStream(this.pages.get(pageInfo)).close();
+                //System.out.println("The path to delete: "+this.pages.get(pageInfo));
+                //System.out.println("i am going inside the if");
+                if (new File(this.pages.get(pageInfo)).delete()) {
+                    System.out.println("File Deleted");
+                } else {
+                    System.out.println("File not Found");
                 }
+
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
             this.pages.remove(pageInfo);
             serializeTable(tableName);
             return;
-        }
-        else{
-             serializePage(page, pageInfo.getPageNum());
-             serializeTable(tableName);
-             return;
+        } else {
+            serializePage(page, pageInfo.getPageNum());
+            serializeTable(tableName);
+            return;
 
         }
 
