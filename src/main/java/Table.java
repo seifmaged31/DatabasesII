@@ -296,6 +296,38 @@ public class Table implements Serializable {
     }
     //age,salary
 
+        /*
+        * class Attribute("id"){
+        * *String name; age
+        * String minVal
+        * String maxVal;
+        * List[10] ,[ , , , , ...]
+        * }
+        *
+        *
+        * ArrayList<>= "new Attribute("id"),.. "
+        * */
+    /*
+    * class Cell(){*
+    * hash5555table <"id"-> 0,"name"->3,age--5> hash.put("column",0) hash.get(age)
+    *
+    * filename *student_index.class;
+    * list(ageIndex)
+    *
+    * }
+    * */
+    /*
+     * class Index(){
+     * *String name; id
+     * String minVal; 0
+     * String maxVal; 100*
+     * List[10] [0-9,10-19 ,20-29 , , , ...]
+     * } return 0
+     * 25,salma,4.0 --- 0,3,8
+     * */
+
+
+
     //Grid = [Bucket, bucket, bucket]*3
     //grid = [Dimension(a1,b1),Dimension(a1,b2),Dimension(a1,b3),Dimension(a2,b1)....]
     // Grid = []
@@ -305,7 +337,8 @@ public class Table implements Serializable {
                         <salary:100>;
     hashtable colNameMax;      a1:1-10  a2:11-20  a3:21-30  s1:100-199  s2:200-299   s3:300-399
 
-    }
+    } [[1,2,3],[[4,5,6],[10,11]],[7,8]] -> [1,2,3,4,5,6,7,8,9,10,11]
+
         grid=[bucket(a1),bucket(a2),bucket(a3)]
         first dimension is age;
         min(age) = [1,15,30,...]
