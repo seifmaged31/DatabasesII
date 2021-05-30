@@ -235,8 +235,8 @@ public class Table implements Serializable {
 //        int size = sqlTerms.length;
 //        Object[] statement;
 //        if(size==1) {
-//            statement = new Object[3]; //["name","=","a555oya","AND","age",">",21]
-//            statement[0]=sqlTerms[0]._strColumnName;
+//            statement = new Object[3]; //["name","=","a555oya","NAD","age",">",21,"OR","age","<",5 ]
+//            statement[0]=sqlTerms[0]._strColumnName; [stat1,stat2,stat3] [array1,array2,arrsy3]
 //            statement[1]=sqlTerms[1]._strOperator;
 //            statement[2]=sqlTerms[2]._objValue;
 //        }
@@ -355,11 +355,11 @@ public class Table implements Serializable {
         }
 }
 
-                                                Grid
-                                                  |
-                                              [buckets]
-
-                                                Bucket [id:1-10,name:a-c,age:5-10  (checkRange)  [id=3,name=s,age=20]
+                         null                       Grid
+                       id                           |
+                        |                      [buckets]
+                        age
+                                                Bucket [id:1-10,name:a  -c,age:5-10  (checkRange)  [id=3,name=s,age=20]
                                                    |
                                                [Dimensions]
 
