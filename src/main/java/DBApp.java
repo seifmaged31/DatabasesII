@@ -37,6 +37,28 @@ public class DBApp implements DBAppInterface{
         if (!file.exists()){
             file.mkdirs();
         }
+        try {
+            // create CSVReader object filereader as a parameter
+            CSVReader reader = new CSVReader((new FileReader("src/main/resources/metadata.csv")));
+            // read all the previous written lines
+            List allLines = reader.readAll();
+            if(allLines.size()==0){
+                // create CSVWriter object filewriter object as parameter
+                CSVWriter writer = new CSVWriter(new FileWriter("src/main/resources/metadata.csv"));
+                // add data to end of the list
+                String[] header = new String[1];
+                header[0]="Table Name, Column Name, Column Type, Clustering Key, Indexed, Min, Max";
+                allLines.add(header);
+                writer.writeAll(allLines);
+                writer.close();
+            }
+
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 
     }
     public void createTable(String tableName, String clusteringKey, Hashtable<String, String> colNameType, Hashtable<String, String> colNameMin, Hashtable<String, String> colNameMax) throws DBAppException,IOException {
@@ -140,6 +162,9 @@ public class DBApp implements DBAppInterface{
     }
 
     public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
+
+        //Hashtable<String,Object> colNameValue = new Hashtable<>();
+
         return null;
     }
 
@@ -162,114 +187,12 @@ public class DBApp implements DBAppInterface{
         }
         return "";
     }
-//    public static ArrayList getIndices (String tableName, Hashtable<String, Object> columnNameValue) throws IOException {
-//        ArrayList list = new ArrayList();
-//        int c=-1;
-//        Set<String> keys = columnNameValue.keySet();
-//        Iterator<String> itr = keys.iterator();
-//        String cur= itr.next();
-//
-//        CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
-//        String[] nextRecord;
-//        while ((nextRecord = reader.readNext()) != null) {
-//            if(nextRecord[0].equals(tableName)) {
-//                c++;
-//                if(nextRecord[1].equals(cur)){
-//                    list.add(c);
-//                    if(itr.hasNext())
-//                        cur=itr.next();
-//                    else
-//                        break;
-//                }
-//
-//            }
-//
-//        }
-//
-//
-//        return list;
-//    }
 
 
 
     public static void main(String[] args) throws  Exception{
-
-        String strTableName = "donia";
-        DBApp dbApp = new DBApp();
-        dbApp.init();
-        Hashtable htblColNameType = new Hashtable( );
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
-
-        Hashtable min = new Hashtable();
-        min.put("id", "1");
-        min.put("name", "a");
-        min.put("gpa", "1");
-
-        Hashtable max = new Hashtable();
-        max.put("id", "100");
-        max.put("name","zzzzzzzzzzzzzzz");
-        max.put("gpa","4.0");
-        dbApp.createTable( strTableName, "id", htblColNameType,min, max);
-
-//        Hashtable htblColNameValue = new Hashtable( );
-//        htblColNameValue.put("id", new Integer( 5 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        Hashtable htblColNameValue1 = new Hashtable( );
-//        htblColNameValue.put("id", new Integer( 9 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        Hashtable htblColNameValue2 = new Hashtable( );
-//        htblColNameValue.put("id", new Integer( 1 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        Row r = new Row("id", htblColNameValue);
-//        Row r1 = new Row("id", htblColNameValue1);
-//        Row r2 = new Row("id", htblColNameValue2);
-
-
-
-        //   dbApp.insertIntoTable( strTableName , htblColNameValue );
-
-       /* Page table=null;
-        try{
-            FileInputStream fileIn =
-                    new FileInputStream(new File("src/main/resources/Data/" + "seif_1" +".class"));
-            ObjectInputStream in= new ObjectInputStream(fileIn);
-            table = (Page) in.readObject();
-            in.close();
-            fileIn.close();
-        } catch (FileNotFoundException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(table);*/
-//        Set<PageInfo> x = new HashSet<>();
-//        PageInfo p1=new PageInfo(r);
-//        p1.setPageNum(8);
-//        PageInfo p2=new PageInfo(r);
-//        p2.setPageNum(2);
-//        PageInfo p3=new PageInfo(r);
-//        p3.setPageNum(10);
-//        x.add(p1);
-//        x.add(p2);
-//        x.add(p3);
-//
-//        ArrayList y = new ArrayList<>(x);
-//        Collections.sort(y);
-//        ((PageInfo)y.get(0)).setPageNum(5);
-//        System.out.println(((PageInfo)y.get(0)).getPageNum() + "    "+ ((PageInfo)y.get(1)).getPageNum() + "   " + ((PageInfo)y.get(2)).getPageNum());
-//
-//        System.out.println(p2.getPageNum());
-
-//        Hashtable<String, Object> row = new Hashtable();
-//        row.put("first_name", "foo");
-//        row.put("gpa", 1.1);
-
-        //System.out.println(getIndices("students",row));
+        DBApp test = new DBApp();
+        test.init();
 
     }
 }
