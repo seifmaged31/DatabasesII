@@ -243,18 +243,27 @@ public class Table implements Serializable {
 //        else {
 //            statement = new Object[(size*3) + arrayOperators.length];
 //        }
-        Hashtable<String, Object> colNameValue = new Hashtable<>();
-        for (SQLTerm sqlTerm : sqlTerms) {
-            colNameValue.clear();
-            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
-            ArrayList listOfIndices = getIndices(tableName, colNameValue);
+        ArrayList<Statement> statements= new ArrayList<>();
+        Hashtable<String, Object> colNameStatement = new Hashtable<>();
+        Statement current;
+        for(SQLTerm sqlTerm : sqlTerms){
+            current=new Statement(sqlTerm._strTableName,sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
+            statements.add(current);
+            colNameStatement.put(current._strColumnName,current);
+        }
+
+//        Hashtable<String, Object> colNameValue = new Hashtable<>();
+//            colNameValue.clear();
+//            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
+        // and or xor need to be done
+            ArrayList listOfIndices = getIndices(tableName,colNameStatement);
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
                 for (Row row : page.rows) {
-
+                    row.addRecord(listOfIndices,colNameStatement);
                 }
             }
-        }
+
     }
 
     public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2) {
