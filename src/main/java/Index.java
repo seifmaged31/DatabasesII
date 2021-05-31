@@ -15,9 +15,16 @@ public class Index {
     }
 
 
+    public void setChildIndexList(ArrayList<Index> childIndexList){
 
+        this.childIndexList=childIndexList;
 
+    }
 
+    public ArrayList<Index> getNestedList(Index child){
+
+        return child.childIndexList;
+    }
 
 
 }
