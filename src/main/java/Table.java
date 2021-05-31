@@ -226,7 +226,7 @@ public class Table implements Serializable {
 
     }
 
-    public void selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
+    public ArrayList selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
@@ -260,9 +260,38 @@ public class Table implements Serializable {
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
                 for (Row row : page.rows) {
-                    row.addRecord(listOfIndices,colNameStatement);
+                         row.addRecord(listOfIndices,colNameStatement);
                 }
-            }
+            } //<z,w>
+             // r
+                ArrayList<Statement> resultStatements = new ArrayList(colNameStatement.values());
+                ArrayList result = new ArrayList();
+
+                if(arrayOperators.length>0){
+                    for(int i=0;i<arrayOperators.length;i++){
+                        if(i==0){
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            ArrayList operand2 = (resultStatements.get(1)).results;
+                           result= checkOperator(operand1,operand2,arrayOperators[0]);
+                            resultStatements.remove(0);
+                            resultStatements.remove(1);
+                        }
+                        else {
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            result = checkOperator(operand1, result, arrayOperators[i]);
+                            resultStatements.remove(0);
+                        }
+
+                    }
+                }
+                else{
+                    return resultStatements.get(0).results;
+                }
+
+                return result;
+            //
+//
+
 
     }
 
@@ -303,6 +332,17 @@ public class Table implements Serializable {
 
         return result;
     }
+
+    public ArrayList checkOperator(ArrayList operand1,ArrayList operand2 , String operator){
+
+        switch (operator){
+            case "AND": return intersect(operand1,operand2);
+            case "OR": return union(operand1,operand2);
+            case "XOR": return unique(operand1,operand2);
+        }
+        return null;
+    }
+
     //age,salary
 
         /*

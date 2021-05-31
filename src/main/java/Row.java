@@ -20,12 +20,10 @@ public class Row implements Comparable, Serializable {
         }
 
 
-
     }
 
     public Object getKeyValue(){
         return keyValue;
-
     }
 
     public int compareTo(Object o) {
