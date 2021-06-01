@@ -226,7 +226,7 @@ public class Table implements Serializable {
 
     }
 
-    public void selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
+    public ArrayList selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
@@ -235,7 +235,7 @@ public class Table implements Serializable {
 //        int size = sqlTerms.length;
 //        Object[] statement;
 //        if(size==1) {
-//            statement = new Object[3]; //["name","=","a555oya","NAD","age",">",21,"OR","age","<",5 ]
+//            statement = new Object[3]; //["name","=","a555oya","AND","age",">",21,"OR","age","<",5 ]
 //            statement[0]=sqlTerms[0]._strColumnName; [stat1,stat2,stat3] [array1,array2,arrsy3]
 //            statement[1]=sqlTerms[1]._strOperator;
 //            statement[2]=sqlTerms[2]._objValue;
@@ -243,22 +243,56 @@ public class Table implements Serializable {
 //        else {
 //            statement = new Object[(size*3) + arrayOperators.length];
 //        }
-        ArrayList Statements = new ArrayList();
+        ArrayList<Statement> statements= new ArrayList<>();
+        Hashtable<String, Object> colNameStatement = new Hashtable<>();
+        Statement current;
         for(SQLTerm sqlTerm : sqlTerms){
-                Statements.add(new Statement())
-            }
-        Hashtable<String, Object> colNameValue = new Hashtable<>();
-        for (SQLTerm sqlTerm : sqlTerms) {
-            colNameValue.clear();
-            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
-            ArrayList listOfIndices = getIndices(tableName, colNameValue);
+            current=new Statement(sqlTerm._strTableName,sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
+            statements.add(current);
+            colNameStatement.put(current._strColumnName,current);
+        }
+
+//        Hashtable<String, Object> colNameValue = new Hashtable<>();
+//            colNameValue.clear();
+//            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
+        // and or xor need to be done
+            ArrayList listOfIndices = getIndices(tableName,colNameStatement);
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
                 for (Row row : page.rows) {
-
+                         row.addRecord(listOfIndices,colNameStatement);
                 }
-            }
-        }
+            } //<z,w>
+             // r
+                ArrayList<Statement> resultStatements = new ArrayList(colNameStatement.values());
+                ArrayList result = new ArrayList();
+
+                if(arrayOperators.length>0){
+                    for(int i=0;i<arrayOperators.length;i++){
+                        if(i==0){
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            ArrayList operand2 = (resultStatements.get(1)).results;
+                           result= checkOperator(operand1,operand2,arrayOperators[0]);
+                            resultStatements.remove(0);
+                            resultStatements.remove(1);
+                        }
+                        else {
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            result = checkOperator(operand1, result, arrayOperators[i]);
+                            resultStatements.remove(0);
+                        }
+
+                    }
+                }
+                else{
+                    return resultStatements.get(0).results;
+                }
+
+                return result;
+            //
+//
+
+
     }
 
     public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2) {
@@ -298,6 +332,17 @@ public class Table implements Serializable {
 
         return result;
     }
+
+    public ArrayList checkOperator(ArrayList operand1,ArrayList operand2 , String operator){
+
+        switch (operator){
+            case "AND": return intersect(operand1,operand2);
+            case "OR": return union(operand1,operand2);
+            case "XOR": return unique(operand1,operand2);
+        }
+        return null;
+    }
+
     //age,salary
 
         /*
@@ -327,7 +372,7 @@ public class Table implements Serializable {
      * String maxVal; 100*
      * List[10] [0-9,10-19 ,20-29 , , , ...]
      * } return 0
-     * 25,salma,4.0 --- 0,3,85555555555555555555555555555555555555555555555555555555555555555555555**
+     * 25,salma,4.0 --- 0,3,8
      * */
 
 
