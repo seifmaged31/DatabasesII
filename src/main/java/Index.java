@@ -58,6 +58,37 @@ max**
     }
 
 
+    public static void main(String[] args) {
 
 
+        String y ="abc";
+
+        String x ="hij";
+
+        //System.out.println(x.compareTo(y));
+
+        createRangeOnDouble(1.2,1.99);
+    }
+
+
+    /*public static String incrementWord(String original,int increment){
+        //a 97 z 122
+        int[] ascii=new int[original.length()];
+        for(int j=0; j<original.length();j++)
+        {
+            ascii[j]=original.charAt(j);
+
+        }
+         for(int i=increment;increment>0;increment--){
+
+
+
+
+         }
+
+
+
+
+
+    }*/
 }

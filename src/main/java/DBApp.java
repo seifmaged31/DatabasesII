@@ -188,11 +188,26 @@ public class DBApp implements DBAppInterface{
         return "";
     }
 
-
+//    public static ArrayList createGridIndex(int noOfIndexes,ArrayList list){
+//
+//        if(list.isEmpty()){ //[1,2,3,...]
+//            noOfIndexes--;
+//            createGridIndex(noOfIndexes,new ArrayList(10));
+//        }
+//        else{//[[1,2,3,...],[1,2,3,...],]
+//            //[[[1,2,3,...],[1,2,3,...],],[[1,2,3,...],[1,2,3,...],],[[1,2,3,...],[1,2,3,...],]]
+//            // [ob1,ob2,ob3]
+//        }
+//
+//
+//    }
 
     public static void main(String[] args) throws  Exception{
         DBApp test = new DBApp();
         test.init();
+
+        ArrayList test1 = new ArrayList(new ArrayList(new ArrayList(10)));
+
 
     }
 }

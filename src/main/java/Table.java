@@ -243,6 +243,10 @@ public class Table implements Serializable {
 //        else {
 //            statement = new Object[(size*3) + arrayOperators.length];
 //        }
+        ArrayList Statements = new ArrayList();
+        for(SQLTerm sqlTerm : sqlTerms){
+                Statements.add(new Statement())
+            }
         Hashtable<String, Object> colNameValue = new Hashtable<>();
         for (SQLTerm sqlTerm : sqlTerms) {
             colNameValue.clear();
