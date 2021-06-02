@@ -93,9 +93,36 @@ public class DBApp implements DBAppInterface{
             table.serializeTable(tableName);
         }
         //set clustering key for table for later checks
-    public void createIndex(String tableName, String[] columnNames) throws DBAppException {
+    public void createIndex(String tableName, String[] columnNames) throws DBAppException, IOException {
         // following method creates one index – either multidimensional
         // or single dimension depending on the count of column names passed.
+        boolean found;
+        String min;
+        String max;
+        ArrayList<Range> ranges = new ArrayList<>();
+        try {
+            CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
+            String[] nextRecord;
+            // we are going to read data line by line
+            while ((nextRecord = reader.readNext()) != null) {
+                if(nextRecord[0].equals(tableName))
+                {
+                  if(Arrays.asList(columnNames).contains(nextRecord[1])) {
+                      nextRecord[4] = "true";
+                      min= nextRecord[5];
+                      max = nextRecord[6];
+                      ranges.add(new Range(min,max));// ranges b tarteeb el hierarchy
+                  }
+                }
+
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        GridIndex gridIndex = new GridIndex(tableName,columnNames,ranges);
+        gridIndex.serializeGrid();
 
     }
     public boolean tableExists(String tableName){

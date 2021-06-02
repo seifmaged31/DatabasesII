@@ -7,6 +7,7 @@ public class Index {
     Range range;
     ArrayList<Index> childIndexList=new ArrayList();
     String bucketName;
+
     public  Index(String name, Range range,String type){
         this.name=name;
         this.type=type;

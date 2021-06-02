@@ -1,4 +1,5 @@
 import com.opencsv.CSVReader;
+
 import java.io.*;
 import java.util.*;
 //import java.nio.file.*;
@@ -9,9 +10,11 @@ public class Table implements Serializable {
     String tableName;
     Hashtable<PageInfo, String> pages;
     int pageNum;
+    Vector<String[]> gridIndexNames;
 
     public Table(String tableName) {
         this.tableName = tableName;
+        gridIndexNames = new Vector<>();
         pages = new Hashtable<PageInfo, String>();
         //serializeTable(this.tableName);
         pageNum = 0;
@@ -230,19 +233,6 @@ public class Table implements Serializable {
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
-        //ArrayList listOfIndices = getIndices(tableName, columnNameValue);
-        // select * FROM Student where name="a555ooya" AND Age >555
-//        int size = sqlTerms.length;
-//        Object[] statement;
-//        if(size==1) {
-//            statement = new Object[3]; //["name","=","a555oya","AND","age",">",21,"OR","age","<",5 ]
-//            statement[0]=sqlTerms[0]._strColumnName; [stat1,stat2,stat3] [array1,array2,arrsy3]
-//            statement[1]=sqlTerms[1]._strOperator;
-//            statement[2]=sqlTerms[2]._objValue;
-//        }
-//        else {
-//            statement = new Object[(size*3) + arrayOperators.length];
-//        }
         ArrayList<Statement> statements= new ArrayList<>();
         Hashtable<String, Object> colNameStatement = new Hashtable<>();
         Statement current;
@@ -343,80 +333,7 @@ public class Table implements Serializable {
         return null;
     }
 
-    //age,salary
 
-        /*
-        * class Attribute("id"){
-        * *String name; age
-        * String minVal
-        * String maxVal;
-        * List[10] ,[ , , , , ...]
-        * }
-        *
-        *
-        * ArrayList<>= "new Attribute("id"),.. "
-        * */
-    /*
-    * class Cell(){*
-    * hash5555table <"id"-> 0,"name"->3,age--5> hash.put("column",0) hash.get(age)
-    *
-    * filename *student_index.class;
-    * list(ageIndex)
-    *
-    * }
-    * */
-    /*
-     * class Index(){
-     * *String name; id
-     * String minVal; 0
-     * String maxVal; 100*
-     * List[10] [0-9,10-19 ,20-29 , , , ...]
-     * } return 0
-     * 25,salma,4.0 --- 0,3,8
-     * */
-
-
-
-    //Grid = [Bucket, bucket, bucket]*3
-    //grid = [Dimension(a1,b1),Dimension(a1,b2),Dimension(a1,b3),Dimension(a2,b1)....]
-    // Grid = []
-    /*  divisions:3
-    class Bucket a1 {
-    Hashtable colNameMin<age:1>;
-                        <salary:100>;
-    hashtable colNameMax;      a1:1-10  a2:11-20  a3:21-30  s1:100-199  s2:200-299   s3:300-399
-
-    } [[1,2,3],[[4,5,6],[10,11]],[7,8]] -> [1,2,3,4,5,6,7,8,9,10,11]
-
-        grid=[bucket(a1),bucket(a2),bucket(a3)]
-        first dimension is age;
-        min(age) = [1,15,30,...]
-        max(age) = [14, 29, 59,...]
-        first inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3)]
-        second inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3)]
-        third inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3),bucket(a3,s1),bucket(a3,s2),bucket(a3,s3)]
-       //loop for two or more dimensions
-       for(j :length grid){
-        for(i<divisions){
-            min salary = min[i];
-            max salary = max[i];
-            add(sk(min,max)) 1<k<3
-        }
-}
-
-                         null                       Grid
-                       id                           |
-                        |                      [buckets]
-                        age
-                                                Bucket [id:1-10,name:a  -c,age:5-10  (checkRange)  [id=3,name=s,age=20]
-                                                   |
-                                               [Dimensions]
-
-                                             Dimension
-                                                 |
-                                             info that i want to retrieve
-
-    */
 
     public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue) throws IOException, DBAppException{
 
