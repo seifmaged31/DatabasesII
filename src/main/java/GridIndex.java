@@ -14,18 +14,37 @@ public class GridIndex implements Serializable {
 
     public GridIndex(String tableName,String[] columnNames,ArrayList<Range> ranges) throws IOException {
 
+        this.columnNames=columnNames;
+        allIndexes=new ArrayList<>();
         for(int j=0;j<columnNames.length;j++){
 
             String type=getType(columnNames[j]);
             Range range=getRange(columnNames[j]);//return arrayList of ranges instead
             String currName=columnNames[j];
-            ArrayList<ArrayList<Index>> allIndexes=new ArrayList<>();
+
             Index currIndex=null;
             for(int i=0;i<10;i++){
                 currName=columnNames[j];
                 currName+=i;
                 currIndex= new Index(currName,range,type);
                 allIndexes.get(j).add(currIndex);
+
+            }
+
+        }
+
+        for(int j=allIndexes.size()-1;j>=0;j--){
+
+            for(int i=0;i<10;i++){
+                if(j==allIndexes.size()-1){
+                    allIndexes.get(j).get(i).setChildIndexList(null);
+                    allIndexes.get(j).get(i).bucketName="";
+
+                }
+                else{
+                    allIndexes.get(j).get(i).setChildIndexList(allIndexes.get(j+1));
+                }
+
 
             }
 
