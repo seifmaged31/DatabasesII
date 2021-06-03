@@ -99,6 +99,16 @@ public class DBApp implements DBAppInterface{
         boolean found;
         String min;
         String max;
+        Hashtable<String,Object> tempHash = new Hashtable();
+        for(String column:columnNames){
+            tempHash.put(column,"");
+        }
+        String[] columns = new String[columnNames.length];
+        int count=0;
+        for(String column:tempHash.keySet()){
+            columns[count]=column;
+            count++;
+        }
         ArrayList<Range> ranges = new ArrayList<>();
         try {
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
@@ -111,7 +121,7 @@ public class DBApp implements DBAppInterface{
                       nextRecord[4] = "true";
                       min= nextRecord[5];
                       max = nextRecord[6];
-                      ranges.add(new Range(min,max));// ranges b tarteeb el hierarchy
+                      ranges.add(new Range(min,max,nextRecord[2]));// ranges b tarteeb el hierarchy
                   }
                 }
 
@@ -121,7 +131,10 @@ public class DBApp implements DBAppInterface{
         catch(Exception e){
             e.printStackTrace();
         }
-        GridIndex gridIndex = new GridIndex(tableName,columnNames,ranges);
+        GridIndex gridIndex = new GridIndex(tableName,columns,ranges);
+        Table table = Table.deserializeTable(tableName);
+        ArrayList indices = Table.getIndices(tableName,tempHash);
+        //call el method
         gridIndex.serializeGrid();
 
     }
@@ -213,6 +226,19 @@ public class DBApp implements DBAppInterface{
             e.printStackTrace();
         }
         return "";
+    }
+
+    public void placeCells(GridIndex gridIndex,Table table){
+
+        Set<PageInfo> pagesInfosSet = table.pages.keySet();
+        ArrayList<PageInfo> pagesInfos = new ArrayList<>(pagesInfosSet);
+        Collections.sort((List) pagesInfos);
+        for(PageInfo pageInfo: pagesInfos){
+            Page page = table.deserializePage(table.pages.get(pageInfo));
+            for (Row row : page.rows) {
+                // call insert grid index
+            }
+        }
     }
 
 //    public static ArrayList createGridIndex(int noOfIndexes,ArrayList list){

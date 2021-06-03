@@ -6,29 +6,30 @@ import java.util.*;
 import java.util.Arrays.*;
 
 public class GridIndex implements Serializable {
-   // Vector<Index> parentIndexList;
     String tableName;
     ArrayList<ArrayList<Index>> allIndexes;
     String[] columnNames;
-    ArrayList<Range> ranges;
+    //ArrayList<Range> ranges;
+    ArrayList<Range> columnsRange;
 
     public GridIndex(String tableName,String[] columnNames,ArrayList<Range> ranges) throws IOException {
 
         this.columnNames=columnNames;
         allIndexes=new ArrayList<>();
+        columnsRange = new ArrayList<>();
         for(int j=0;j<columnNames.length;j++){
 
             String type=getType(columnNames[j]);
-            Range range=getRange(columnNames[j]);//return arrayList of ranges instead
+            Range range=getRange(columnNames[j]);//return arrayList of ranges instead , range el column kolo
+            columnsRange.add(range);
             String currName=columnNames[j];
-
+            //Arraylist<Range> ranges = divideRange()
             Index currIndex=null;
             for(int i=0;i<10;i++){
                 currName=columnNames[j];
                 currName+=i;
-                currIndex= new Index(currName,range,type);
+                //currIndex= new Index(currName,ranges.get(i),type);
                 allIndexes.get(j).add(currIndex);
-
             }
 
         }
@@ -107,11 +108,11 @@ public class GridIndex implements Serializable {
     public static GridIndex deserializeGrid (String tableName, String[] columns) {
         GridIndex result = null;
         Table table = Table.deserializeTable(tableName);
-        Arrays.sort(columns);
+        //Arrays.sort(columns);
         String[] actualColumns=null;
         boolean found = false;
         for (String[] gridIndexName : table.gridIndexNames) {
-            Arrays.sort(gridIndexName);
+            //Arrays.sort(gridIndexName);
             if(Arrays.equals(columns, gridIndexName)) {
                 found = true;
                 actualColumns=gridIndexName;
@@ -164,6 +165,7 @@ public class GridIndex implements Serializable {
         double increment=(range/10.0);
         ArrayList ranges= new ArrayList(10);
         for(int i=0;i<10;i++) {
+
             minVal+=increment;
             ranges.add(minVal);
             System.out.println(ranges.get(i));
@@ -198,10 +200,77 @@ public class GridIndex implements Serializable {
         res.set(res.size() - 1, maxVal);
         return res;
     }
-    public static ArrayList<Object> createRangeonString (String minVal, String maxVal){
+    public static ArrayList<Object> createRangeOnString (String minVal, String maxVal){
         return null;
 
     }
+    // []
+   public void insertGrid(Row row,String path,ArrayList indices ){
+
+        Vector<String> keyPointerValues = new Vector();
+        for (int i=0;i<indices.size();i++){
+            keyPointerValues.add(row.values.get((int) indices.get(i)));
+        }
+        KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,path);
+        ArrayList result = new ArrayList();
+        for(ArrayList<Index> column:allIndexes){
+
+        // go to the bucket
+            Object rowValue = null;
+            String curRowValue = row.values.get((int) indices.get(allIndexes.indexOf(column)));
+            int count=0;
+            try {
+                count = allIndexes.indexOf(column);
+                rowValue = getValue(curRowValue, columnsRange.get(count).type);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+//            //ArrayList dividedRanges = new ArrayList();
+            for(Index index:column) {
+                if(row.compareObject(rowValue,index.range.min)>=0 && row.compareObject(rowValue,index.range.max)<=0)
+                {
+                  result.add(column.indexOf(index)); // [0,4,3]   table_id_age_name_0_4_3.class
+                  break;
+                }
+
+            }
+
+        }
+        String bucketPath = "src/main/resources/" + tableName;
+       for (int i=0;i<columnNames.length;i++){
+           bucketPath+="_"+columnNames[i];
+       }
+       for (int i=0;i<result.size();i++){
+           bucketPath+="_"+result.get(i);
+       }
+       bucketPath+=".class";
+       File file = new File(bucketPath);
+       if(file.exists()){
+           Bucket bucket = Bucket.deserializeBucket(bucketPath);
+           try{
+               if(bucket.isFull()){
+                   bucket.addBucket(keyPointerPair); // think about overflow
+               }
+               else{
+                   bucket.insert(keyPointerPair);
+                   bucket.serializeBucket(bucketPath);
+               }
+           }
+           catch(Exception e){
+               e.printStackTrace();
+           }
+       }
+       else{
+           Bucket bucket = new Bucket(keyPointerPair);
+           bucket.serializeBucket(bucketPath);
+
+       }
+
+
+   }
+
+
+
 
     /*public String incrementString(String original, int increment){
 
@@ -224,6 +293,17 @@ public class GridIndex implements Serializable {
 
 
     }*/
+    public Object getValue(String value,String type) throws ParseException {
+
+        if(type.equals("java.lang.integer"))
+            return Integer.parseInt(value);
+        if(type.equals("java.lang.double"))
+            return Double.parseDouble(value);
+        if(type.equals("java.lang.string"))
+            return value;
+        return (new SimpleDateFormat("yyyy-MM-dd")).parse(value);
+
+    }
     public static Date addDay(Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         Calendar c = Calendar.getInstance();
@@ -235,8 +315,15 @@ public class GridIndex implements Serializable {
     }
 
     public static void main(String[] args) {
-        Date date1 = new Date(100,1,1);
-        Date date2 = new Date(101,6,1);
-        System.out.println(createRangeOnDate(date1, date2));
+       Range r1 = new Range(1,4,"java.lang.integer");
+        Range r2 = new Range(5,8,"java.lang.integer");
+        Range r3 = new Range(9,12,"java.lang.integer");
+        ArrayList array = new ArrayList<>();
+        array.add(r1);
+        array.add(r2);
+        array.add(r3);
+        Range r4 = new Range (6,6,"java.lang.integer");
+        //Collections.sort(array);
+        System.out.println(Collections.binarySearch(array,r4));
     }
 }
