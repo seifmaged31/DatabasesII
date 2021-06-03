@@ -206,7 +206,7 @@ public class GridIndex implements Serializable {
             ranges.add(minVal);
             System.out.println(ranges.get(i));
         }
-
+        ranges.set(ranges.size()-1, maxVal);
         return ranges;
     }
     public static ArrayList<Date> createRangeOnDate (Date minVal, Date maxVal){
