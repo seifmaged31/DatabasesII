@@ -26,6 +26,11 @@ public class Index {
 
         return child.childIndexList;
     }
+    public boolean hasChild (){
+        if(this.childIndexList!=null)
+            return true;
+        return false;
+    }
 
 
 }

@@ -81,7 +81,7 @@ public class Validators {
                     //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }
-                if(type.toLowerCase().equals("java.lang.date") && !(colNameValue.get(type) instanceof Date)) {
+                if(type.toLowerCase().equals("java.util.date") && !(colNameValue.get(type) instanceof Date)) {
                     //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }

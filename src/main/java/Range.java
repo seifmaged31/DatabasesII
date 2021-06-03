@@ -1,4 +1,6 @@
-public class Range {
+import java.util.Date;
+
+public class Range implements Comparable {
 
     Object min;
     Object max;

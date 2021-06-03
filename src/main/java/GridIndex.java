@@ -1,6 +1,7 @@
 import com.opencsv.CSVReader;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Arrays.*;
@@ -63,8 +64,40 @@ public class GridIndex implements Serializable {
         while ((nextRecord = reader.readNext()) != null) {
             if(nextRecord[0].equals(tableName)){
                 if(nextRecord[1].equals(columnName))
-                    range=new Range(nextRecord[5],nextRecord[6]);
-                break;
+                {
+                    String type = nextRecord[2].toLowerCase();
+                    Object min=null;
+                    Object max=null;
+                    switch(type){
+                        case "java.lang.integer": {
+                            min=Integer.parseInt(nextRecord[5]);
+                            max=Integer.parseInt(nextRecord[6]);
+                            break;
+                        }
+                        case "java.lang.double": {
+                            min=Double.parseDouble(nextRecord[5]);
+                            max=Double.parseDouble(nextRecord[6]);
+                            break;
+                        }
+                        case "java.util.date": {
+
+                            try {
+                                min=(new SimpleDateFormat("yyyy-MM-dd")).parse(nextRecord[5]);
+                                max=(new SimpleDateFormat("yyyy-MM-dd")).parse(nextRecord[6]);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        }
+                        default:{
+                            min=nextRecord[5];
+                            max=nextRecord[6];
+                        }
+                    }
+                    range=new Range(min,max,type);
+                    break;
+                }
+
             }
         }
         return range;
@@ -145,21 +178,24 @@ public class GridIndex implements Serializable {
         return result;
     }
 
-    public static ArrayList<Object> createRangeOnInt(int minVal,int maxVal){
+    public static ArrayList<Integer> createRangeOnInt(int minVal,int maxVal){ // Donia eli 3malet dih
 
         int range=maxVal-minVal;
         int increment=(range/10)+1;
         ArrayList ranges= new ArrayList(10);
         for(int i=0;i<10;i++) {
             minVal+=increment;
-            ranges.add(minVal);
+            if(minVal<=maxVal)
+             ranges.add(minVal);
+            else
+                ranges.add(maxVal);
             System.out.println(ranges.get(i));
         }
 
         return ranges;
     }
 
-    public static ArrayList<Object> createRangeOnDouble(double minVal,double maxVal){
+    public static ArrayList<Double> createRangeOnDouble(double minVal,double maxVal){ // Ahmood 3amal dih
 
         double range=maxVal-minVal;
         double increment=(range/10.0);
@@ -326,4 +362,7 @@ public class GridIndex implements Serializable {
         //Collections.sort(array);
         System.out.println(Collections.binarySearch(array,r4));
     }
+
+
+
 }
