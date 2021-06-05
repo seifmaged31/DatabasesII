@@ -255,7 +255,53 @@ public class GridIndex implements Serializable {
         return res;
 
     }
-    // []
+
+    public static ArrayList<String> createAllStrings(int N){
+
+        ArrayList<String> generated=appendLetters("");
+        ArrayList<String> current=new ArrayList<>();
+        ArrayList<String> result=new ArrayList<>();
+        String base="";
+        //generated=appendLetters("");
+
+        if(N==1){
+            return generated;
+        }
+
+        for(int i=0;i<generated.size();i++){
+
+
+            current=appendLetters(generated.get(i));
+            if(current.get(0).length()==N)
+                result.addAll(current);
+
+            if(current.get(0).length()>N)
+                break;
+            generated.addAll(current);
+
+
+        }
+
+   return result;
+    }
+
+
+    public static ArrayList<String> appendLetters(String base){
+
+        ArrayList<String> generated=new ArrayList<>();
+
+        for (char added = 'a'; added <= 'z'; added++) {
+            generated.add(base+added);
+        }
+        return generated;
+    }
+    /*
+
+            for() generate all possible strings --> ArrayList  230
+            230/10=23
+            for()-->
+
+     */
    public void insertGrid(Row row,String path,ArrayList indices ){
 
         Vector<String> keyPointerValues = new Vector();
