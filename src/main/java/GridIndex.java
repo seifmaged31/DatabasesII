@@ -1,6 +1,7 @@
 import com.opencsv.CSVReader;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -178,6 +179,8 @@ public class GridIndex implements Serializable {
         return result;
     }
 
+
+
     public static ArrayList<Integer> createRangeOnInt(int minVal,int maxVal){ // Donia eli 3malet dih
 
         int range=maxVal-minVal;
@@ -236,8 +239,20 @@ public class GridIndex implements Serializable {
         res.set(res.size() - 1, maxVal);
         return res;
     }
-    public static ArrayList<Object> createRangeOnString (String minVal, String maxVal){
-        return null;
+    public static ArrayList<String> createRangeOnString (String minVal, String maxVal){
+        int range = maxVal.length() - minVal.length();
+        ArrayList<String> temp = new ArrayList<>();//temp to store all permutations
+        ArrayList<String> res = new ArrayList<>();
+        for(int i = 0; i<range+1; i++){
+            temp.addAll(createAllStrings(minVal.length() +i));
+        }
+        //System.out.print(temp);
+        range = temp.size() / 10;
+        for(int i =0; i<9; i++){
+            res.add(temp.get(range*(i+1)));
+        }
+        res.add(maxVal);
+        return res;
 
     }
     // []
