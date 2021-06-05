@@ -242,18 +242,15 @@ public class Table implements Serializable {
             colNameStatement.put(current._strColumnName,current);
         }
 
-//        Hashtable<String, Object> colNameValue = new Hashtable<>();
-//            colNameValue.clear();
-//            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
-        // and or xor need to be done
+
             ArrayList listOfIndices = getIndices(tableName,colNameStatement);
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
                 for (Row row : page.rows) {
                          row.addRecord(listOfIndices,colNameStatement);
                 }
-            } //<z,w>
-             // r
+            }
+
                 ArrayList<Statement> resultStatements = new ArrayList(colNameStatement.values());
                 ArrayList result = new ArrayList();
 
@@ -262,7 +259,7 @@ public class Table implements Serializable {
                         if(i==0){
                             ArrayList operand1 = (resultStatements.get(0)).results;
                             ArrayList operand2 = (resultStatements.get(1)).results;
-                           result= checkOperator(operand1,operand2,arrayOperators[0]);
+                            result= checkOperator(operand1,operand2,arrayOperators[0]);
                             resultStatements.remove(0);
                             if(resultStatements.size()>0)
                                 resultStatements.remove(0);
@@ -280,8 +277,6 @@ public class Table implements Serializable {
                 }
 
                 return Arrays.asList(result).iterator();
-            //
-//
 
 
     }

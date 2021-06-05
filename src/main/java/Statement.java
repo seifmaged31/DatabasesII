@@ -7,6 +7,8 @@ public class Statement extends SQLTerm{
         super(tableName,column,expression,value);
         results = new ArrayList();
     }
-    // eh el khara eli ehna kattabnah dah
+    public String toString(){
+        return this._strTableName + "   " + this._strColumnName + "   " + this._strOperator + "  " + this._objValue;
+    }
 
 }

@@ -307,6 +307,16 @@ public class DBApp implements DBAppInterface{
         htblColNameValue.put("name", new String("Zaky Noor" ) );
         htblColNameValue.put("gpa", new Double( 0.88 ) );
         dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 7 ));
+        htblColNameValue.put("name", new String("John Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.88 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 2 ));
+        htblColNameValue.put("name", new String("Zaky Noor" ) );
+        htblColNameValue.put("gpa", new Double( 1.5 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
         SQLTerm[] arrSQLTerms;
         arrSQLTerms = new SQLTerm[2];
         arrSQLTerms[0]= new SQLTerm();

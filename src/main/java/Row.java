@@ -68,36 +68,38 @@ public class Row implements Comparable, Serializable {
 
         ArrayList<String> keys = new ArrayList<String>(columnNameStatement.keySet());// indices: [2]
 
-        Object rowValue="";
+        Object rowValue=null;
         for(String key:keys){
             String value= this.values.get((int)indices.get(keys.indexOf(key)));
             try{
                 rowValue = getValue(value,((Statement)columnNameStatement.get(key))._objValue);
             }
             catch (ParseException e){
+                e.printStackTrace();
 
             }
 
             Object comparedValue = ((Statement)columnNameStatement.get(key))._objValue;
+
             switch(((Statement)columnNameStatement.get(key))._strOperator){
-                case "=": if(compareObject(rowValue,comparedValue)==0){
+                case "=": if(compareObject(rowValue,comparedValue)==0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
-                case ">": if(compareObject(rowValue,comparedValue)>0){
+
+                case ">": if(compareObject(rowValue,comparedValue)>0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
-                case "<": if(compareObject(rowValue,comparedValue)<0){
+
+                case "<": if(compareObject(rowValue,comparedValue)<0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
-                case ">=": if(compareObject(rowValue,comparedValue)>=0){
+
+                case ">=": if(compareObject(rowValue,comparedValue)>=0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
-                case "<=": if(compareObject(rowValue,comparedValue)<=0){
+
+                case "<=": if(compareObject(rowValue,comparedValue)<=0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
-                default: if(compareObject(rowValue,comparedValue)!=0){
+
+                default: if(compareObject(rowValue,comparedValue)!=0)
                     ((Statement)columnNameStatement.get(key)).results.add(this);break;
-                }
+
             }
         }
 
