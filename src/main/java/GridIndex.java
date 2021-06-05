@@ -283,14 +283,29 @@ public class GridIndex implements Serializable {
        File file = new File(bucketPath);
        if(file.exists()){
            Bucket bucket = Bucket.deserializeBucket(bucketPath);
+
            try{
+               Bucket bucketVariable = bucket; //pls hamoot comment pls i die pls plssss AAAAAAAAAAAA OK 3ayza a3ayat wait
                if(bucket.isFull()){
-                   bucket.addBucket(keyPointerPair); // think about overflow
+                   //Bucket  = bucket.next;
+                   //bucket.addBucket(keyPointerPair); // think about overflow
+                   while (bucketVariable.next!=null){
+                       bucketVariable=bucketVariable.next;
+                       if(!bucketVariable.isFull()){
+                           bucketVariable.insert(keyPointerPair);
+                           bucket.serializeBucket(bucketPath);
+                           return;
+                       }
+                   }
+                   bucketVariable.addBucket(keyPointerPair);
+                   bucket.serializeBucket(bucketPath);
+                   return;
                }
                else{
                    bucket.insert(keyPointerPair);
                    bucket.serializeBucket(bucketPath);
                }
+
            }
            catch(Exception e){
                e.printStackTrace();
@@ -302,6 +317,10 @@ public class GridIndex implements Serializable {
 
        }
 
+
+   }
+
+   public void updateGrid(){
 
    }
 
