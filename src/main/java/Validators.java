@@ -313,6 +313,9 @@ public class Validators {
                         Object max = getClusteringValue(nextRecord[2],nextRecord[6]);
 
                         if(!comparison(value,min,max)){
+                            System.out.println(value);
+                            System.out.println(min);
+                            System.out.println(max);
                             error=true;
                             break;
                         }

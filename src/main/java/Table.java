@@ -229,7 +229,7 @@ public class Table implements Serializable {
 
     }
 
-    public ArrayList selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
+    public  Iterator selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
@@ -264,7 +264,8 @@ public class Table implements Serializable {
                             ArrayList operand2 = (resultStatements.get(1)).results;
                            result= checkOperator(operand1,operand2,arrayOperators[0]);
                             resultStatements.remove(0);
-                            resultStatements.remove(1);
+                            if(resultStatements.size()>0)
+                                resultStatements.remove(0);
                         }
                         else {
                             ArrayList operand1 = (resultStatements.get(0)).results;
@@ -275,10 +276,10 @@ public class Table implements Serializable {
                     }
                 }
                 else{
-                    return resultStatements.get(0).results;
+                    return Arrays.asList(resultStatements.get(0).results).iterator();
                 }
 
-                return result;
+                return Arrays.asList(result).iterator();
             //
 //
 

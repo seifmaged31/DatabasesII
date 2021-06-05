@@ -202,10 +202,14 @@ public class DBApp implements DBAppInterface{
     }
 
     public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
-
-        //Hashtable<String,Object> colNameValue = new Hashtable<>();
-
-        return null;
+        Table table = Table.deserializeTable(sqlTerms[0]._strTableName);
+        Iterator itr=null;
+        try {
+            itr = table.selectLinear(sqlTerms[0]._strTableName,sqlTerms,arrayOperators);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return itr;
     }
 
     public String getClusteringKey(String tableName){
@@ -256,11 +260,73 @@ public class DBApp implements DBAppInterface{
 //    }
 
     public static void main(String[] args) throws  Exception{
+       // System.out.println("Ahmed Noor".compareTo("A") + " " + "Ahmed Noor".compareTo("ZZZZZZZZZZZ"));
         DBApp test = new DBApp();
         test.init();
+        String strTableName = "Student";
+        DBApp dbApp = new DBApp( );
+        Hashtable htblColNameType = new Hashtable( );
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
+        Hashtable <String,String> colnameMin = new Hashtable<>();
+        Hashtable <String,String> colnameMax = new Hashtable<>();
+        colnameMin.put("id","0");
+        colnameMin.put("name","A");
+        colnameMin.put("gpa","0.0");
 
-        ArrayList test1 = new ArrayList(new ArrayList(new ArrayList(10)));
+        colnameMax.put("id","10000");
+        colnameMax.put("name","Zaky Noor");
+        colnameMax.put("gpa","10.0");
 
 
+        dbApp.createTable( strTableName, "id", htblColNameType,colnameMin,colnameMax);
+        //dbApp.createIndex( strTableName, new String[] {"gpa"} );
+        Hashtable htblColNameValue = new Hashtable( );
+        htblColNameValue.put("id", new Integer( 22 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 45 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 57 ));
+        htblColNameValue.put("name", new String("Dalia Noor" ) );
+        htblColNameValue.put("gpa", new Double( 1.25 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 98 ));
+        htblColNameValue.put("name", new String("John Noor" ) );
+        htblColNameValue.put("gpa", new Double( 1.5 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        htblColNameValue.clear( );
+        htblColNameValue.put("id", new Integer( 72 ));
+        htblColNameValue.put("name", new String("Zaky Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.88 ) );
+        dbApp.insertIntoTable( strTableName , htblColNameValue );
+        SQLTerm[] arrSQLTerms;
+        arrSQLTerms = new SQLTerm[2];
+        arrSQLTerms[0]= new SQLTerm();
+        arrSQLTerms[1]=new SQLTerm();
+        arrSQLTerms[0]._strTableName = "Student";
+        arrSQLTerms[0]._strColumnName= "name";
+        arrSQLTerms[0]._strOperator = "=";
+        arrSQLTerms[0]._objValue = "John Noor";
+        arrSQLTerms[1]._strTableName = "Student";
+        arrSQLTerms[1]._strColumnName= "gpa";
+        arrSQLTerms[1]._strOperator = "=";
+        arrSQLTerms[1]._objValue = new Double( 1.5 );
+        String[]strarrOperators = new String[1];
+        strarrOperators[0] = "OR";
+        // select * from Student where name = “John Noor” or gpa = 1.5;
+        Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
+       // System.out.println(resultSet.toString());
+        while(resultSet.hasNext()) {
+            Object element = resultSet.next();
+            System.out.print(element + " ");
+        }
     }
 }

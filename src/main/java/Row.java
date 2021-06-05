@@ -130,6 +130,10 @@ public class Row implements Comparable, Serializable {
 
     }
 
+    public String toString(){
+        return this.values + "";
+    }
+
 
 
 
