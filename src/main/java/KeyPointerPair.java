@@ -31,6 +31,28 @@ public class KeyPointerPair implements Comparable{
     }
 
     public static void main(String[] args) {
-        System.out.println("abc".compareTo("fuck"));
+
+        Vector<String> v1 = new Vector<String>();
+        v1.add("seif");
+        v1.add("21");
+        v1.add("6");
+        Vector<String> v2 = new  Vector<String>();
+        v2.add("seif");
+        v2.add("21");
+        v2.add("0");
+        Vector<String> v3 = new  Vector<String>();
+        v3.add("ahmed");
+        v3.add("16");
+        v3.add("0");
+        KeyPointerPair p1 = new KeyPointerPair(v1, "seif");
+        KeyPointerPair p2 = new KeyPointerPair(v2, "donia");
+        KeyPointerPair p3 = new KeyPointerPair(v3, "salma");
+
+        Bucket b = new Bucket(p1);
+        b.insert(p2);
+        b.insert(p3);
+        for(KeyPointerPair key: b.keyPointerPairs){
+            System.out.println(key.key);
+        }
     }
 }

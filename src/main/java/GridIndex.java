@@ -304,6 +304,7 @@ public class GridIndex implements Serializable {
                else{
                    bucket.insert(keyPointerPair);
                    bucket.serializeBucket(bucketPath);
+                   return;
                }
 
            }
@@ -314,6 +315,7 @@ public class GridIndex implements Serializable {
        else{
            Bucket bucket = new Bucket(keyPointerPair);
            bucket.serializeBucket(bucketPath);
+           return;
 
        }
 
@@ -370,16 +372,56 @@ public class GridIndex implements Serializable {
     }
 
     public static void main(String[] args) {
-       Range r1 = new Range(1,4,"java.lang.integer");
-        Range r2 = new Range(5,8,"java.lang.integer");
-        Range r3 = new Range(9,12,"java.lang.integer");
-        ArrayList array = new ArrayList<>();
-        array.add(r1);
-        array.add(r2);
-        array.add(r3);
-        Range r4 = new Range (6,6,"java.lang.integer");
-        //Collections.sort(array);
-        System.out.println(Collections.binarySearch(array,r4));
+//       Range r1 = new Range(1,4,"java.lang.integer");
+//        Range r2 = new Range(5,8,"java.lang.integer");
+//        Range r3 = new Range(9,12,"java.lang.integer");
+//        ArrayList array = new ArrayList<>();
+//        array.add(r1);
+//        array.add(r2);
+//        array.add(r3);
+//        Range r4 = new Range (6,6,"java.lang.integer");
+//        //Collections.sort(array);
+//        System.out.println(Collections.binarySearch(array,r4));
+
+//        Bucket b1 = new Bucket(new KeyPointerPair(new Vector<>(),"seif"));
+//
+//        Bucket b2 = null;
+//        try {
+//            b2 = b1;
+//        } catch (CloneNotSupportedException e) {
+//            e.printStackTrace();
+//        }
+//        Bucket b3 = new Bucket(new KeyPointerPair(new Vector<>(),"donia"));
+//
+//
+//        Bucket b4 = b1;
+//        Bucket b5 = new Bucket(new KeyPointerPair(new Vector<>(),"potato"));
+//        System.out.println("1: " + b1);
+//        System.out.println("4: " + b4);
+//        System.out.println("3: " + b3);
+//        System.out.println("5: " + b5);
+//
+//        b4.next=b3;
+//        b4=b4.next;
+//        b4.next=b5;
+//
+//        System.out.println(b1.next.next);
+//        System.out.println(b1.next);
+//        System.out.println("1: " + b1);
+//        System.out.println("4: " + b4);
+//    System.out.println("3: " + b3);
+//    System.out.println("5: " + b5);
+        // han run ehna lahza
+        /*ArrayList<String> trial1= createRangeOnString("aaaa","zzzz");
+        System.out.print(trial1);*/
+
+//        b2.numOfKeys=2;
+//        System.out.println(b1.numOfKeys + " " + b2.numOfKeys);
+
+
+//        ArrayList<String> trial = createAllStrings(2);
+//        System.out.println(trial); //ok continue :) cutteee
+
     }
 
 
