@@ -4,10 +4,11 @@ public class KeyPointerPair implements Comparable{
 
     Vector<String> key;
     String pointer;
-
-    public KeyPointerPair(Vector<String> key,String pointer){
+    int rowNum;
+    public KeyPointerPair(Vector<String> key,String pointer, int rowNum){
         this.key=key;
         this.pointer=pointer;
+        this.rowNum=rowNum;
     }
 
     @Override
@@ -22,11 +23,8 @@ public class KeyPointerPair implements Comparable{
             }
 
 
-
-
         }
         return 0;
-
 
     }
 
@@ -44,15 +42,15 @@ public class KeyPointerPair implements Comparable{
         v3.add("ahmed");
         v3.add("16");
         v3.add("0");
-        KeyPointerPair p1 = new KeyPointerPair(v1, "seif");
-        KeyPointerPair p2 = new KeyPointerPair(v2, "donia");
-        KeyPointerPair p3 = new KeyPointerPair(v3, "salma");
-
-        Bucket b = new Bucket(p1);
-        b.insert(p2);
-        b.insert(p3);
-        for(KeyPointerPair key: b.keyPointerPairs){
-            System.out.println(key.key);
-        }
+//        KeyPointerPair p1 = new KeyPointerPair(v1, "seif");
+//        KeyPointerPair p2 = new KeyPointerPair(v2, "donia");
+//        KeyPointerPair p3 = new KeyPointerPair(v3, "salma");
+//
+//        Bucket b = new Bucket(p1);
+//        b.insert(p2);
+//        b.insert(p3);
+//        for(KeyPointerPair key: b.keyPointerPairs){
+//            System.out.println(key.key);
+//        }
     }
 }

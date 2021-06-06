@@ -87,6 +87,15 @@ public class Bucket implements Serializable {
         return maxRows;
 
     }
-
+        public boolean updateKeyPointerPairPath(KeyPointerPair keyPointerPair,String newPath){
+            for(KeyPointerPair key:keyPointerPairs){
+                if(key.compareTo(keyPointerPair)==0 && key.pointer.equals(keyPointerPair.pointer) && key.rowNum==keyPointerPair.rowNum){
+                    keyPointerPair.rowNum=0;
+                    keyPointerPair.pointer=newPath;
+                    return true;
+                }
+            }
+            return false;
+        }
 
 }

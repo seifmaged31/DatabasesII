@@ -7,6 +7,7 @@ public class Row implements Comparable, Serializable {
     String clusteringKey;
     private Object keyValue;
     Vector<String> values;
+    //Hashtable<String,Object> colNameValues;
 
     public Row(String clusteringKey,Hashtable<String,Object> colNameValues){
         values = new Vector<>();
@@ -14,6 +15,7 @@ public class Row implements Comparable, Serializable {
         keyValue= colNameValues.get(clusteringKey);
         Set<String> nameType = colNameValues.keySet();
         Iterator<String> itrType = nameType.iterator();
+        //colNameValues = new Hashtable<>();
         while (itrType.hasNext()) {
 
             values.add(colNameValues.get(itrType.next()).toString());

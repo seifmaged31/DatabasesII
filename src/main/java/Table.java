@@ -20,13 +20,22 @@ public class Table implements Serializable {
         pageNum = 0;
     }
 
-    public void insert(Row row, String tableName) throws IOException, DBAppException {
+    public void insert(Row row, String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
 
         Table table = this.deserializeTable(tableName);
+        String[] colNames = new String[colNameValue.size()];
+        for(String colName: (ArrayList<String>)colNameValue.keySet())
+            colNames[((ArrayList<String>)((ArrayList<?>) colNameValue.keySet())).indexOf(colName)]=colName;
+        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
         if (this.pages.isEmpty()) { //first insertion
             //System.out.println("first insertion");
             createPage(row);
             serializeTable(tableName);
+            if(gridIndex!=null){
+                String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                gridIndex.serializeGrid();
+            }
             return;
         }
         Set<PageInfo> pagesInfosSet = pages.keySet();
@@ -53,6 +62,10 @@ public class Table implements Serializable {
                 this.updatePageInfoInsert(pageInfo, row, page);
                 serializePage(page, pageInfo.getPageNum());
                 serializeTable(tableName);
+                if(gridIndex!=null){
+                    gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                    gridIndex.serializeGrid();
+                }
                 //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                 return;
             } else { // I have no space to insert so, move
@@ -72,6 +85,12 @@ public class Table implements Serializable {
                     this.updatePageInfoInsert(pageInfo, row, page);
                     serializePage(page, pageInfo.getPageNum());
                     createPage(lastElement);
+                    if(gridIndex!=null){
+                        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                        gridIndex.updatePathInGrid(gridIndex,lastElement,page.rows.size()-1,pages.get(pageInfo),path);
+                        gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                        gridIndex.serializeGrid();
+                    }
                     serializeTable(tableName);
                     //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                     return;
@@ -79,8 +98,13 @@ public class Table implements Serializable {
                 } else { // the new row isn't in the range
                     //System.out.println("created new page with row");
                     createPage(row);
+                    if(gridIndex!=null){
+                        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                        gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                        gridIndex.serializeGrid();
+                    }
                     serializeTable(tableName);
-                    return;
+                    return; // to be continued
                 }
             }
 
@@ -173,6 +197,8 @@ public class Table implements Serializable {
 
         //}
     }
+
+
 
 
     public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue, String clusteringKey) throws DBAppException, IOException {
@@ -508,7 +534,7 @@ public class Table implements Serializable {
         } catch (FileNotFoundException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return page;
     }
@@ -537,7 +563,9 @@ public class Table implements Serializable {
         info.setPageNum(this.pageNum);
         //System.out.println("min of the created page: "+ info.getMin().values + "max of the created page:" + info.getMax().values);
         serializePage(page, this.pageNum);
-        pages.put(info, "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class");
+        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+        pages.put(info, path);
+        //return path;
     }
 
 

@@ -14,44 +14,45 @@ public class GridIndex implements Serializable {
     //ArrayList<Range> ranges;
     ArrayList<Range> columnsRange;
 
-    public GridIndex(String tableName,String[] columnNames,ArrayList<Range> ranges) throws IOException {
+    public GridIndex(String tableName,String[] columnNames,ArrayList<Range> columnsRange, ArrayList indices) throws IOException {
 
         this.columnNames=columnNames;
-        allIndexes=new ArrayList<>();
-        columnsRange = new ArrayList<>();
+        this.allIndexes=new ArrayList<>();
+        this.columnsRange = columnsRange;
+        this.indices=indices;
         for(int j=0;j<columnNames.length;j++){
 
-            String type=getType(columnNames[j]);
-            Range range=getRange(columnNames[j]);//return arrayList of ranges instead , range el column kolo
-            columnsRange.add(range);
+            //String type=getType(columnNames[j]);
+            //Range range=getRange(columnNames[j]);//return arrayList of ranges instead , range el column kolo
+            //columnsRange.add(range);
             String currName=columnNames[j];
-            //Arraylist<Range> ranges = divideRange()
+            ArrayList dividedRange = getDividedRange(columnsRange.get(j).type,columnsRange.get(j).min,columnsRange.get(j).max);
             Index currIndex=null;
             for(int i=0;i<10;i++){
                 currName=columnNames[j];
                 currName+=i;
-                //currIndex= new Index(currName,ranges.get(i),type);
+                currIndex= new Index(currName,columnsRange.get(j).type,dividedRange.get(i));
                 allIndexes.get(j).add(currIndex);
             }
 
         }
 
-        for(int j=allIndexes.size()-1;j>=0;j--){
-
-            for(int i=0;i<10;i++){
-                if(j==allIndexes.size()-1){
-                    allIndexes.get(j).get(i).setChildIndexList(null);
-                    allIndexes.get(j).get(i).bucketName="";
-
-                }
-                else{
-                    allIndexes.get(j).get(i).setChildIndexList(allIndexes.get(j+1));
-                }
-
-
-            }
-
-        }
+//        for(int j=allIndexes.size()-1;j>=0;j--){
+//
+//            for(int i=0;i<10;i++){
+//                if(j==allIndexes.size()-1){
+//                    //allIndexes.get(j).get(i).setChildIndexList(null);
+//                    allIndexes.get(j).get(i).bucketName="";
+//
+//                }
+//                else{
+//                    allIndexes.get(j).get(i).setChildIndexList(allIndexes.get(j+1));
+//                }
+//
+//
+//            }
+//
+//        }
 
     }
 
@@ -170,18 +171,26 @@ public class GridIndex implements Serializable {
                 fileIn.close();
 
             } catch (FileNotFoundException | ClassNotFoundException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }
         return result;
     }
 
+    public ArrayList getDividedRange(String type,Object min,Object max){
+        switch(type){
+            case "java.lang.Integer" : return createRangeOnInt((int)min,(int)max);
+            case "java.lang.Double" : return createRangeOnDouble((Double) min,(Double) max);
+            case "java.lang.String" : return createRangeOnString((String) min,(String) max);
+            default : return createRangeOnInt((int)min,(int)max);
+        }
 
+    }
 
-    public static ArrayList<Integer> createRangeOnInt(int minVal,int maxVal){ // Donia eli 3malet dih
+    public static ArrayList<Integer> createRangeOnInt(int minVal,int maxVal){
 
         int range=maxVal-minVal;
         int increment=(range/10)+1;
@@ -302,17 +311,17 @@ public class GridIndex implements Serializable {
             for()-->
 
      */
-   public void insertGrid(Row row,String path,ArrayList indices ){
+   public void insertGrid(Row row,String path,ArrayList indices, int rowNum ){
 
         Vector<String> keyPointerValues = new Vector();
         for (int i=0;i<indices.size();i++){
             keyPointerValues.add(row.values.get((int) indices.get(i)));
         }
-        KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,path);
+        KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,path, rowNum);
         ArrayList result = new ArrayList();
         for(ArrayList<Index> column:allIndexes){
 
-        // go to the bucket
+            // go to the bucket
             Object rowValue = null;
             String curRowValue = row.values.get((int) indices.get(allIndexes.indexOf(column)));
             int count=0;
@@ -324,7 +333,7 @@ public class GridIndex implements Serializable {
             }
 //            //ArrayList dividedRanges = new ArrayList();
             for(Index index:column) {
-                if(row.compareObject(rowValue,index.range.min)>=0 && row.compareObject(rowValue,index.range.max)<=0)
+                if( row.compareObject(rowValue,index.maxValue)<=0)
                 {
                   result.add(column.indexOf(index)); // [0,4,3]   table_id_age_name_0_4_3.class
                   break;
@@ -346,7 +355,7 @@ public class GridIndex implements Serializable {
            Bucket bucket = Bucket.deserializeBucket(bucketPath);
 
            try{
-               Bucket bucketVariable = bucket; //pls hamoot comment pls i die pls plssss AAAAAAAAAAAA OK 3ayza a3ayat wait
+               Bucket bucketVariable = bucket;
                if(bucket.isFull()){
                    //Bucket  = bucket.next;
                    //bucket.addBucket(keyPointerPair); // think about overflow
@@ -383,11 +392,56 @@ public class GridIndex implements Serializable {
 
    }
 
-   public void updateGrid(){
+   public void updateGrid(Hashtable <String,Object> colNameValue){
 
    }
 
+   public void updatePathInGrid(GridIndex gridIndex,Row row,int oldRowNum ,String oldPath,String newPath){
+       Vector<String> keyPointerValues = new Vector();
+       for (int i=0;i<indices.size();i++){
+           keyPointerValues.add(row.values.get((int) indices.get(i)));
+       }
+       KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,oldPath,oldRowNum);
+       ArrayList result = new ArrayList();
+       for(ArrayList<Index> column:allIndexes){
 
+           // go to the bucket
+           Object rowValue = null;
+           String curRowValue = row.values.get((int) indices.get(allIndexes.indexOf(column)));
+           int count=0;
+           try {
+               count = allIndexes.indexOf(column);
+               rowValue = getValue(curRowValue, columnsRange.get(count).type);
+           } catch (ParseException e) {
+               e.printStackTrace();
+           }
+//            //ArrayList dividedRanges = new ArrayList();
+           for(Index index:column) {
+               if( row.compareObject(rowValue,index.maxValue)<=0)
+               {
+                   result.add(column.indexOf(index)); // [0,4,3]   table_id_age_name_0_4_3.class
+                   break;
+               }
+
+           }
+
+       }
+       String bucketPath = "src/main/resources/" + tableName;
+       for (int i=0;i<columnNames.length;i++){
+           bucketPath+="_"+columnNames[i];
+       }
+       for (int i=0;i<result.size();i++){
+           bucketPath+="_"+result.get(i);
+       }
+       bucketPath+=".class";
+       Bucket bucket = Bucket.deserializeBucket(bucketPath);
+       boolean found =false;
+       while (bucket.next!=null && !found){
+               bucket=bucket.next;
+               found =bucket.updateKeyPointerPairPath(keyPointerPair,newPath);
+               bucket.serializeBucket(bucketPath);
+       }
+   }
 
 
     /*public String incrementString(String original, int increment){
