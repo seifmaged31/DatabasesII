@@ -532,7 +532,8 @@ public class Table implements Serializable {
             in.close();
             fileIn.close();
         } catch (FileNotFoundException | ClassNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+
         } catch (IOException e) {
             //e.printStackTrace();
         }
