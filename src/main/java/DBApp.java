@@ -136,6 +136,7 @@ public class DBApp implements DBAppInterface{
         Table table = Table.deserializeTable(tableName);
         placeCells(gridIndex,table,indices);
         gridIndex.serializeGrid();
+//        table.serializeTable(tableName);
 
     }
     public boolean tableExists(String tableName){
@@ -249,6 +250,7 @@ public class DBApp implements DBAppInterface{
             for (Row row : page.rows) {
                 gridIndex.insertGrid(row,table.pages.get(pageInfo),indices,page.rows.indexOf(row));
             }
+//            table.serializePage(page,pageInfo.getPageNum());
         }
     }
 

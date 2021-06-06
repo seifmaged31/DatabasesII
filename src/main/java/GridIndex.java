@@ -13,6 +13,7 @@ public class GridIndex implements Serializable {
     String[] columnNames;
     //ArrayList<Range> ranges;
     ArrayList<Range> columnsRange;
+    ArrayList indices;
 
     public GridIndex(String tableName,String[] columnNames,ArrayList<Range> columnsRange, ArrayList indices) throws IOException {
 
@@ -36,6 +37,7 @@ public class GridIndex implements Serializable {
             }
 
         }
+
 
 //        for(int j=allIndexes.size()-1;j>=0;j--){
 //
