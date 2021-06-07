@@ -87,7 +87,7 @@ public class Table implements Serializable {
                     createPage(lastElement);
                     if(gridIndex!=null){
                         String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
-                        gridIndex.updatePathInGrid(gridIndex,lastElement,page.rows.size()-1,pages.get(pageInfo),path);
+                        gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,0);
                         gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
                         gridIndex.serializeGrid();
                     }
@@ -125,6 +125,10 @@ public class Table implements Serializable {
                 indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                 page.insert(row, indexOfRow);
                 this.updatePageInfoInsert(pageInfo, row, page);
+                if(gridIndex!=null){
+                    gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                    gridIndex.serializeGrid();
+                }
                 serializePage(page, pageInfo.getPageNum());
                 serializeTable(tableName);
                 return;
@@ -143,6 +147,10 @@ public class Table implements Serializable {
                         indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                         nextPage.insert(row, indexOfRow);
                         this.updatePageInfoInsert(nextPageInfo, row, nextPage);
+                        if(gridIndex!=null){
+                            gridIndex.insertGrid(row,pages.get(nextPageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         serializePage(nextPage, nextPageInfo.getPageNum());
                     } else {
                         page = deserializePage(pages.get(pageInfo));
@@ -156,6 +164,10 @@ public class Table implements Serializable {
                         page.insert(row, indexOfRow);
                         this.updatePageInfoInsert(pageInfo, row, page);
                         serializePage(page, pageInfo.getPageNum());
+                        if(gridIndex!=null){
+                            gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         Page nextPage = deserializePage(pages.get(nextPageInfo));
                         indexOfRow = Collections.binarySearch((List) nextPage.rows, row);
                         if (indexOfRow >= 0)
@@ -163,6 +175,11 @@ public class Table implements Serializable {
                         indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                         nextPage.insert(lastElement, indexOfRow);
                         this.updatePageInfoInsert(nextPageInfo, lastElement, nextPage);
+                        if(gridIndex!=null){
+                            String path= pages.get(nextPageInfo);
+                            gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         serializePage(nextPage, nextPageInfo.getPageNum());
                     }
                     serializeTable(tableName);
@@ -170,6 +187,11 @@ public class Table implements Serializable {
                 } else {
                     if (row.compareTo(pageInfo.getMax()) > 0) {
                         createPage(row);
+                        if(gridIndex!=null){
+                            String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                            gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                            gridIndex.serializeGrid();
+                        }
                         serializeTable(tableName);
                         return;
                     } else {
@@ -188,6 +210,12 @@ public class Table implements Serializable {
                         serializePage(page, pageInfo.getPageNum());
                         createPage(lastElement);
                         serializeTable(this.tableName);
+                        if(gridIndex!=null){
+                            String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                            gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,0);
+                            gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         return;
                     }
                 }

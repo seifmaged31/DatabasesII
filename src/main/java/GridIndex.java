@@ -398,7 +398,7 @@ public class GridIndex implements Serializable {
 
    }
 
-   public void updatePathInGrid(GridIndex gridIndex,Row row,int oldRowNum ,String oldPath,String newPath){
+   public void updatePathInGrid(Row row,int oldRowNum ,String oldPath,String newPath,int newRowNum){
        Vector<String> keyPointerValues = new Vector();
        for (int i=0;i<indices.size();i++){
            keyPointerValues.add(row.values.get((int) indices.get(i)));
@@ -440,7 +440,7 @@ public class GridIndex implements Serializable {
        boolean found =false;
        while (bucket.next!=null && !found){
                bucket=bucket.next;
-               found =bucket.updateKeyPointerPairPath(keyPointerPair,newPath);
+               found =bucket.updateKeyPointerPairPath(keyPointerPair,newPath,newRowNum);
                bucket.serializeBucket(bucketPath);
        }
    }

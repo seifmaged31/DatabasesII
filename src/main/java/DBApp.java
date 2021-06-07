@@ -167,14 +167,14 @@ public class DBApp implements DBAppInterface{
         validator.validateRange(tableName,colNameValue);
         String clusteringKey = getClusteringKey(tableName);
         Row row = new Row(clusteringKey, colNameValue);
-        String[] colNames = new String[colNameValue.size()];
-        for(String colName: (ArrayList<String>)colNameValue.keySet())
-            colNames[((ArrayList<String>)((ArrayList<?>) colNameValue.keySet())).indexOf(colName)]=colName;
+//        String[] colNames = new String[colNameValue.size()];
+//        for(String colName: (ArrayList<String>)colNameValue.keySet())
+//            colNames[((ArrayList<String>)((ArrayList<?>) colNameValue.keySet())).indexOf(colName)]=colName;
 //        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
 //        if(gridIndex!=null){
 //            gridIndex.insertGrid(row,);
 //        }
-        // insert in the grid
+//         insert in the grid
         Table table =Table.deserializeTable(tableName);
         table.insert(row, tableName,colNameValue);// Continue writing there.
 
