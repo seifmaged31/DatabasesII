@@ -453,6 +453,12 @@ public class GridIndex implements Serializable {
 
    }
 
+
+   public void deleteGrid(String tableName, Hashtable <String,Object> colNameValue, ArrayList indices){
+
+   }
+
+
    public void updatePathInGrid(Row row,int oldRowNum ,String oldPath,String newPath,int newRowNum){
        Vector<String> keyPointerValues = new Vector();
        for (int i=0;i<indices.size();i++){

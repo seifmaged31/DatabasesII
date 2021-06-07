@@ -215,10 +215,13 @@ public class DBApp implements DBAppInterface{
         //htblColNameValue enteries are ANDED together
          String clusteringKey = getClusteringKey(tableName);
         Table table = Table.deserializeTable(tableName);
+        ArrayList listOfIndices = Table.getIndices(tableName, columnNameValue);
+
         if(columnNameValue.keySet().contains(clusteringKey))
              table.deleteBinary(tableName,columnNameValue,columnNameValue.get(clusteringKey),clusteringKey);
         else
             table.deleteLinear(tableName,columnNameValue);
+
 
     }
 
