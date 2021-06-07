@@ -255,7 +255,7 @@ public class GridIndex implements Serializable {
         res.set(res.size() - 1, maxVal);
         return res;
     }
-    public static ArrayList<String> createRangeOnString (String minVal, String maxVal){
+    public static ArrayList<String> createRangeOnString (String minVal, String maxVal){/*
         int range = maxVal.length() - minVal.length();
         ArrayList<String> temp = new ArrayList<>();//temp to store all permutations
         ArrayList<String> res = new ArrayList<>();
@@ -268,7 +268,50 @@ public class GridIndex implements Serializable {
             res.add(temp.get(range*(i+1)));
         }
         res.add(maxVal);
+        return res;*/
+        int range = 0;
+        int iterations = maxVal.length() - minVal.length();
+        String startValue = minVal;
+        ArrayList<String> res = new ArrayList<>();
+        for(int i=0; i<iterations+1; i++)
+            range+=26^minVal.length()+i;
+
+
+        for (int i=0; i<9; i++){
+            for(int j=0; j<range/10; j++){
+                startValue = incrementString(startValue);
+            }
+            res.add(startValue);
+        }
+        res.add(maxVal);
         return res;
+    }
+
+
+    public static String incrementString(String input){
+        if(input.isBlank())
+            return "a";
+
+        input = input.toLowerCase();
+        int index=input.length()-1;
+        StringBuilder modifiedInput = new StringBuilder(input);
+        String result = "";
+        while(input.charAt(index) == 'z'){
+            if(index==0){
+                for(int i=0;i<=input.length();i++)
+                {
+                    result+='a';
+                }
+                return result;
+            }
+
+            modifiedInput.setCharAt(index, 'a');
+            index--;
+        }
+
+        modifiedInput.setCharAt(index, (char) (input.charAt(index)+1));
+        result = modifiedInput.toString();
+        return result;
 
     }
 
@@ -513,13 +556,16 @@ public class GridIndex implements Serializable {
     }
 
     public static void main(String[] args) {
-        Date date = null;
+      System.out.println(incrementString(""));
+
+
+       /* Date date = null;
         try {
             date =new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH).parse("Fri Mar 06 00:00:00 EET 1998");
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        System.out.println(date);
+        System.out.println(date);*/
 //        Date date = new Date(121, 10, 17);
 //        System.out.println("before" + date);
 //        Date res =  addDay(date);
