@@ -24,8 +24,9 @@ public class Table implements Serializable {
 
         Table table = this.deserializeTable(tableName);
         String[] colNames = new String[colNameValue.size()];
-        for(String colName: (ArrayList<String>)colNameValue.keySet())
-            colNames[((ArrayList<String>)((ArrayList<?>) colNameValue.keySet())).indexOf(colName)]=colName;
+        ArrayList<String> colNamesArrayList = new ArrayList<>(colNameValue.keySet());
+        for(String colName: colNamesArrayList)
+            colNames[colNamesArrayList.indexOf(colName)]=colName;
         GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
         if (this.pages.isEmpty()) { //first insertion
             //System.out.println("first insertion");

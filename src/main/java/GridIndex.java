@@ -21,6 +21,7 @@ public class GridIndex implements Serializable {
         this.allIndexes=new ArrayList<>();
         this.columnsRange = columnsRange;
         this.indices=indices;
+        this.tableName=tableName;
         for(int j=0;j<columnNames.length;j++){
 
             //String type=getType(columnNames[j]);
@@ -29,11 +30,15 @@ public class GridIndex implements Serializable {
             String currName=columnNames[j];
             ArrayList dividedRange = getDividedRange(columnsRange.get(j).type,columnsRange.get(j).min,columnsRange.get(j).max);
             Index currIndex=null;
+            ArrayList addedList = new ArrayList<Index>();
+            allIndexes.add(addedList);
             for(int i=0;i<10;i++){
                 currName=columnNames[j];
                 currName+=i;
                 currIndex= new Index(currName,columnsRange.get(j).type,dividedRange.get(i));
-                allIndexes.get(j).add(currIndex);
+                addedList.add(currIndex);
+//                allIndexes.add(addedList);
+//                allIndexes.get(j).add(currIndex);
             }
 
         }
@@ -184,10 +189,10 @@ public class GridIndex implements Serializable {
 
     public ArrayList getDividedRange(String type,Object min,Object max){
         switch(type){
-            case "java.lang.Integer" : return createRangeOnInt((int)min,(int)max);
-            case "java.lang.Double" : return createRangeOnDouble((Double) min,(Double) max);
-            case "java.lang.String" : return createRangeOnString((String) min,(String) max);
-            default : return createRangeOnInt((int)min,(int)max);
+            case "java.lang.integer" : return createRangeOnInt((int)min,(int)max);
+            case "java.lang.double" : return createRangeOnDouble((Double) min,(Double) max);
+            case "java.lang.string" : return createRangeOnString((String) min,(String) max);
+            default : return createRangeOnDate((Date) min,(Date) max);
         }
 
     }
@@ -267,15 +272,17 @@ public class GridIndex implements Serializable {
 
     }
 
-    public static ArrayList<String> createAllStrings(int N){
+    public static ArrayList<String> createAllStrings(int n){
 
+        double total= Math.pow(26.0,n);
+        int segment=(int) total/10;
         ArrayList<String> generated=appendLetters("");
         ArrayList<String> current=new ArrayList<>();
         ArrayList<String> result=new ArrayList<>();
         String base="";
         //generated=appendLetters("");
 
-        if(N==1){
+        if(n==1){
             return generated;
         }
 
@@ -283,10 +290,10 @@ public class GridIndex implements Serializable {
 
 
             current=appendLetters(generated.get(i));
-            if(current.get(0).length()==N)
+            if(current.get(0).length()==n)
                 result.addAll(current);
 
-            if(current.get(0).length()>N)
+            if(current.get(0).length()>n)
                 break;
             generated.addAll(current);
 
@@ -325,7 +332,12 @@ public class GridIndex implements Serializable {
 
             // go to the bucket
             Object rowValue = null;
-            String curRowValue = row.values.get((int) indices.get(allIndexes.indexOf(column)));
+            //System.out.println(allIndexes + "\n" + allIndexes.size());
+            //System.out.println(column);
+            System.out.println("byakhodha men allindexes:" + this.allIndexes.indexOf(column));
+            System.out.println("byakhodha men indices:" + indices.get(this.allIndexes.indexOf(column)));
+            String curRowValue = row.values.get((int) indices.get(this.allIndexes.indexOf(column)));
+            System.out.println("henaaaaaaaaaaaaaaaaaaaaa" + curRowValue + " class " + curRowValue.getClass());
             int count=0;
             try {
                 count = allIndexes.indexOf(column);
@@ -475,20 +487,43 @@ public class GridIndex implements Serializable {
             return Double.parseDouble(value);
         if(type.equals("java.lang.string"))
             return value;
-        return (new SimpleDateFormat("yyyy-MM-dd")).parse(value);
+        return (new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH).parse(value));
 
     }
     public static Date addDay(Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         Calendar c = Calendar.getInstance();
         c.setTime(date); // Using today's date
+        //c.set(date.getYear(),date.getMonth(),date.getDate());
         c.add(Calendar.DATE, 1);
         String output = sdf.format(c.getTime());
         Date resDate = new Date(output);
-        return resDate;
+        String result=""+(resDate.getYear()+1900)+"-"+(resDate.getMonth()+1)+"-"+resDate.getDate();
+        //System.out.println(result);
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+//        String output2 = sdf2.format(resDate);
+        Date resDate2 = null;
+        try {
+            resDate2 = sdf2.parse(result);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+       // System.out.println(resDate2);
+        return resDate2;
     }
 
     public static void main(String[] args) {
+        Date date = null;
+        try {
+            date =new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH).parse("Fri Mar 06 00:00:00 EET 1998");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        System.out.println(date);
+//        Date date = new Date(121, 10, 17);
+//        System.out.println("before" + date);
+//        Date res =  addDay(date);
+//        System.out.println("after "+ res);
 //       Range r1 = new Range(1,4,"java.lang.integer");
 //        Range r2 = new Range(5,8,"java.lang.integer");
 //        Range r3 = new Range(9,12,"java.lang.integer");

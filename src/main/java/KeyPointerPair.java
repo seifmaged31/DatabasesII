@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Vector;
 
-public class KeyPointerPair implements Comparable{
+public class KeyPointerPair implements Comparable, Serializable {
 
     Vector<String> key;
     String pointer;

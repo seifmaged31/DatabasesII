@@ -3,6 +3,7 @@ import com.opencsv.CSVWriter;
 
 import java.io.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 public class DBApp implements DBAppInterface{
 
@@ -97,8 +98,8 @@ public class DBApp implements DBAppInterface{
         // following method creates one index – either multidimensional
         // or single dimension depending on the count of column names passed.
         boolean found;
-        String min;
-        String max;
+        Object min;
+        Object max;
         Hashtable<String,Object> tempHash = new Hashtable();
         for(String column:columnNames){
             tempHash.put(column,"");
@@ -119,9 +120,9 @@ public class DBApp implements DBAppInterface{
                 {
                   if(Arrays.asList(columnNames).contains(nextRecord[1])) {
                       nextRecord[4] = "true";
-                      min= nextRecord[5];
-                      max = nextRecord[6];
-                      ranges.add(new Range(min,max,nextRecord[2]));// ranges b tarteeb el hierarchy
+                      min= getValue(nextRecord[5],nextRecord[2].toLowerCase());
+                      max = getValue(nextRecord[6],nextRecord[2].toLowerCase());
+                      ranges.add(new Range(min,max,nextRecord[2].toLowerCase()));// ranges b tarteeb el hierarchy
                   }
                 }
 
@@ -134,9 +135,21 @@ public class DBApp implements DBAppInterface{
         ArrayList indices = Table.getIndices(tableName,tempHash);
         GridIndex gridIndex = new GridIndex(tableName,columns,ranges,indices);
         Table table = Table.deserializeTable(tableName);
+        gridIndex.serializeGrid();
         placeCells(gridIndex,table,indices);
         gridIndex.serializeGrid();
 //        table.serializeTable(tableName);
+
+    }
+    public Object getValue(String value,String type) throws ParseException {
+
+        if(type.equals("java.lang.integer"))
+            return Integer.parseInt(value);
+        if(type.equals("java.lang.double"))
+            return Double.parseDouble(value);
+        if(type.equals("java.lang.string"))
+            return value;
+        return (new SimpleDateFormat("yyyy-MM-dd")).parse(value);
 
     }
     public boolean tableExists(String tableName){
