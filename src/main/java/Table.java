@@ -9,6 +9,7 @@ public class Table implements Serializable {
 
     String tableName;
     Hashtable<PageInfo, String> pages;
+    Hashtable <String, PageInfo> opposite;
     int pageNum;
     Vector<String[]> gridIndexNames;
 
@@ -16,13 +17,14 @@ public class Table implements Serializable {
         this.tableName = tableName;
         gridIndexNames = new Vector<>();
         pages = new Hashtable<PageInfo, String>();
+        opposite = new Hashtable<String, PageInfo>();
         //serializeTable(this.tableName);
         pageNum = 0;
     }
 
     public void insert(Row row, String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
 
-        Table table = this.deserializeTable(tableName);
+       // Table table = this.deserializeTable(tableName);
         String[] colNames = new String[colNameValue.size()];
         ArrayList<String> colNamesArrayList = new ArrayList<>(colNameValue.keySet());
         for(String colName: colNamesArrayList)
@@ -272,6 +274,7 @@ public class Table implements Serializable {
             } catch (Exception e) {
                 e.getStackTrace();
             }
+            this.opposite.remove(this.pages.get(pageInfo));
             this.pages.remove(pageInfo);
             serializeTable(tableName);
             return;
@@ -420,7 +423,7 @@ public class Table implements Serializable {
                             } catch (Exception e) {
                                 e.getStackTrace();
                             }
-
+                            this.opposite.remove(this.pages.get(pageInfo));
                             this.pages.remove(pageInfo);
                             serializeTable(tableName);
                         }
@@ -516,6 +519,7 @@ public class Table implements Serializable {
 
     serializePage(page,pagesInfo.get(indexOfPage).getPageNum());
     serializeTable(tableName);
+
 
     }
 
@@ -651,6 +655,7 @@ public class Table implements Serializable {
         serializePage(page, this.pageNum);
         String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
         pages.put(info, path);
+        opposite.put(path,info);
         //return path;
     }
 
