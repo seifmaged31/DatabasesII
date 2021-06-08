@@ -69,7 +69,6 @@ public class Row implements Comparable, Serializable {
              //keys: [name]
 
         ArrayList<String> keys = new ArrayList<String>(columnNameStatement.keySet());// indices: [2]
-
         Object rowValue=null;
         for(String key:keys){
             String value= this.values.get((int)indices.get(keys.indexOf(key)));
@@ -123,7 +122,7 @@ public class Row implements Comparable, Serializable {
 
     }
 
-    public int compareObject(Object value1,Object value2) {
+    public static int compareObject(Object value1,Object value2) {
         if(value1 instanceof Integer)
             return ((Integer) value1).compareTo((Integer) value2);
         if(value1 instanceof Double)

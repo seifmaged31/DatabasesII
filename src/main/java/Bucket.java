@@ -90,8 +90,8 @@ public class Bucket implements Serializable {
         public boolean updateKeyPointerPairPath(KeyPointerPair keyPointerPair,String newPath,int newRowNum){
             for(KeyPointerPair key:keyPointerPairs){
                 if(key.compareTo(keyPointerPair)==0 && key.pointer.equals(keyPointerPair.pointer) && key.rowNum==keyPointerPair.rowNum){
-                    keyPointerPair.rowNum=newRowNum;
-                    keyPointerPair.pointer=newPath;
+                    key.rowNum=newRowNum;
+                    key.pointer=newPath;
                     return true;
                 }
             }

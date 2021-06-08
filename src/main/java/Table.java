@@ -297,7 +297,6 @@ public class Table implements Serializable {
             colNameStatement.put(current._strColumnName,current);
         }
 
-
             ArrayList listOfIndices = getIndices(tableName,colNameStatement);
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
@@ -413,7 +412,8 @@ public class Table implements Serializable {
                                 if (new File(this.pages.get(pageInfo)).delete()) {
                                     deleted=true;
                                     System.out.println("File Deleted");
-                                } else {
+                                }
+                                else {
                                     System.out.println("File not Found");
                                 }
 
@@ -439,6 +439,48 @@ public class Table implements Serializable {
             throw new DBAppException ("No matching record found.");
     }
 
+    public void deleteGridIndex(String path, int rowNum){
+        Page page = Table.deserializePage(path);
+        Row row = page.rows.get(rowNum);
+        PageInfo pageInfo=this.opposite.get(path);
+//        for(PageInfo key:pages.keySet()){
+//            if(this.pages.get(key).equals(path)){
+//                pageInfo=key;
+//                break;
+//            }
+//        }
+        page.delete(row);
+        updatePageInfoDelete(pageInfo, page);
+        serializePage(page,pageInfo.getPageNum());
+        boolean deleted=false;
+        if (pageInfo.isEmpty()) {
+            try {
+//                            System.out.println("i have entered the try");
+                new FileOutputStream(this.pages.get(pageInfo)).close();
+//                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
+//                            System.out.println("i am going inside the if");
+                if (new File(this.pages.get(pageInfo)).delete()) {
+                    deleted=true;
+                    System.out.println("File Deleted");
+                }
+                else {
+                    System.out.println("File not Found");
+                }
+
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+            this.opposite.remove(this.pages.get(pageInfo));
+            this.pages.remove(pageInfo);
+            serializeTable(tableName);
+        }
+        if(!deleted) {
+            serializePage(page, pageInfo.getPageNum());
+        }
+        deleted=false;
+    }
+
+
     public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException, DBAppException {
 
         ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
@@ -457,7 +499,21 @@ public class Table implements Serializable {
         throw new DBAppException("There is no record for this value of the primary key.");
     //indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
     Row rowToUpdate = page.rows.get(indexOfRow);
-    rowToUpdate.update(listOfIndices,columnNameValue);
+    //Row oldRow =
+        String[] colNames = new String[columnNameValue.size()];
+        ArrayList<String> colNamesArrayList = new ArrayList<>(columnNameValue.keySet());
+        for(String colName: colNamesArrayList)
+            colNames[colNamesArrayList.indexOf(colName)]=colName;
+        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
+        if(gridIndex!=null) {
+
+            gridIndex.updateGrid(rowToUpdate,listOfIndices,columnNameValue);
+
+        }
+        else{
+            rowToUpdate.update(listOfIndices,columnNameValue);
+        }
+
     serializePage(page,pagesInfo.get(indexOfPage).getPageNum());
     serializeTable(tableName);
 
@@ -551,7 +607,7 @@ public class Table implements Serializable {
 
         }
     }
-    public Page deserializePage(String path){
+    public static Page deserializePage(String path){
         Page page = null;
         try{
             FileInputStream fileIn =

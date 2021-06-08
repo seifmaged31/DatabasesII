@@ -291,7 +291,6 @@ public class GridIndex implements Serializable {
     public static String incrementString(String input){
         if(input.isBlank())
             return "a";
-
         input = input.toLowerCase();
         int index=input.length()-1;
         StringBuilder modifiedInput = new StringBuilder(input);
@@ -330,7 +329,6 @@ public class GridIndex implements Serializable {
         }
 
         for(int i=0;i<generated.size();i++){
-
 
             current=appendLetters(generated.get(i));
             if(current.get(0).length()==n)
@@ -377,10 +375,7 @@ public class GridIndex implements Serializable {
             Object rowValue = null;
             //System.out.println(allIndexes + "\n" + allIndexes.size());
             //System.out.println(column);
-            System.out.println("byakhodha men allindexes:" + this.allIndexes.indexOf(column));
-            System.out.println("byakhodha men indices:" + indices.get(this.allIndexes.indexOf(column)));
             String curRowValue = row.values.get((int) indices.get(this.allIndexes.indexOf(column)));
-            System.out.println("henaaaaaaaaaaaaaaaaaaaaa" + curRowValue + " class " + curRowValue.getClass());
             int count=0;
             try {
                 count = allIndexes.indexOf(column);
@@ -449,15 +444,228 @@ public class GridIndex implements Serializable {
 
    }
 
-   public void updateGrid(Hashtable <String,Object> colNameValue){
+   public void updateGrid(Row row, ArrayList indices, Hashtable<String,Object> newValues){
+       Vector<String> keyPointerValues = new Vector();
+       for (int i=0;i<indices.size();i++){
+           keyPointerValues.add(row.values.get((int) indices.get(i)));
+       }
+       KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,"", 0);
+       ArrayList result = new ArrayList();
+       for(ArrayList<Index> column:allIndexes){
 
+           // go to the bucket
+           Object rowValue = null;
+           //System.out.println(allIndexes + "\n" + allIndexes.size());
+           //System.out.println(column);
+           String curRowValue = row.values.get((int) indices.get(this.allIndexes.indexOf(column)));
+           int count=0;
+           try {
+               count = allIndexes.indexOf(column);
+               rowValue = getValue(curRowValue, columnsRange.get(count).type);
+           } catch (ParseException e) {
+               e.printStackTrace();
+           }
+//            //ArrayList dividedRanges = new ArrayList();
+           for(Index index:column) {
+               if( row.compareObject(rowValue,index.maxValue)<=0)
+               {
+                   result.add(column.indexOf(index)); // [0,4,3]   table_id_age_name_0_4_3.class
+                   break;
+               }
+
+           }
+
+       }
+       String bucketPath = "src/main/resources/" + tableName;
+       for (int i=0;i<columnNames.length;i++){
+           bucketPath+="_"+columnNames[i];
+       }
+       for (int i=0;i<result.size();i++){
+           bucketPath+="_"+result.get(i);
+       }
+       bucketPath+=".class";
+       File file = new File(bucketPath);
+       boolean done = false;
+       String newPath=null;
+       int newRowNum=0;
+       if(file.exists()) {
+           Bucket bucket = Bucket.deserializeBucket(bucketPath);
+           Table table = Table.deserializeTable(tableName);
+           while(bucket!=null && !done){
+               for(KeyPointerPair key:bucket.keyPointerPairs){
+                   if(key.compareTo(keyPointerPair)==0){
+                       newPath=key.pointer;
+                       newRowNum=key.rowNum;
+                       bucket.keyPointerPairs.remove(key);
+                       done=true;
+                       break;
+                   }
+               }
+               bucket=bucket.next;
+           }
+           row.update(indices,newValues);
+           insertGrid(row,newPath,this.indices,newRowNum);
+
+
+
+       }
+   }
+
+   public Iterator selectGrid(SQLTerm[] sqlTerms, String[] arrayOperators){
+
+       ArrayList<Statement> statements= new ArrayList<>();
+       Hashtable<String, Object> colNameStatement = new Hashtable<>();
+       Statement current;
+       for(SQLTerm sqlTerm : sqlTerms){
+           current=new Statement(sqlTerm._strTableName,sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
+           statements.add(current);
+           colNameStatement.put(current._strColumnName,current);
+       }
+       ArrayList <Integer>result = new ArrayList(); // select * from student where id>7 and name=salma
+       ArrayList<String> colNamesKeys = new ArrayList<String>(colNameStatement.keySet());// indices: [2]
+       for(ArrayList<Index> column:allIndexes){
+           // go to the bucket
+           Object comparison = null;
+           //String curRowValue = keyPointerValues.get(this.allIndexes.indexOf(column));
+           int count=0;
+           try {
+               count = allIndexes.indexOf(column);
+               Statement currStatement = (Statement) colNameStatement.get(colNamesKeys.get(count));
+               comparison= getValue((String) currStatement._objValue, columnsRange.get(count).type);
+           } catch (ParseException e) {
+               //e.printStackTrace();
+           }
+           for(Index index:column) {
+               if( Row.compareObject(comparison,index.maxValue)<=0)
+               {
+                   result.add(column.indexOf(index)); //
+                   break;
+               }
+
+           }
+
+       }
+       String bucketPath = "src/main/resources/" + tableName;
+       for (int i=0;i<columnNames.length;i++){
+           bucketPath+="_"+columnNames[i];
+       }
+       for (int i=0;i<result.size();i++){
+           bucketPath+="_"+result.get(i);
+       }
+       bucketPath+=".class";
+       File file = new File(bucketPath);
+       if(file.exists()) {
+           Bucket bucket = Bucket.deserializeBucket(bucketPath);
+           Table table = Table.deserializeTable(tableName);
+           while(bucket!=null){
+               for(KeyPointerPair key:bucket.keyPointerPairs){
+//                   if(key.compareTo(keyPointerPair)==0){
+//                       int index = bucket.keyPointerPairs.indexOf(key);
+//                       String path = bucket.keyPointerPairs.get(index).pointer;
+//                       int rowNum = bucket.keyPointerPairs.get(index).rowNum;
+//                       table.deleteGridIndex(path,rowNum);
+//                       bucket.keyPointerPairs.remove(key);
+//                   }
+                   key.addRecord(colNameStatement);
+               }
+               bucket=bucket.next;
+           }
+           ArrayList<Statement> resultStatements = new ArrayList(colNameStatement.values());
+           ArrayList output = new ArrayList();
+
+           if(arrayOperators.length>0){
+               for(int i=0;i<arrayOperators.length;i++){
+                   if(i==0){
+                       ArrayList operand1 = (resultStatements.get(0)).results;
+                       ArrayList operand2 = (resultStatements.get(1)).results;
+                       result= table.checkOperator(operand1,operand2,arrayOperators[0]);
+                       resultStatements.remove(0);
+                       if(resultStatements.size()>0)
+                           resultStatements.remove(0);
+                   }
+                   else {
+                       ArrayList operand1 = (resultStatements.get(0)).results;
+                       result = table.checkOperator(operand1, result, arrayOperators[i]);
+                       resultStatements.remove(0);
+                   }
+
+               }
+           }
+           else{
+               return Arrays.asList(resultStatements.get(0).results).iterator();
+           }
+
+           return Arrays.asList(output).iterator();
+
+       }
+        return null;
    }
 
 
-   public void deleteGrid(String tableName, Hashtable <String,Object> colNameValue, ArrayList indices){
+   public void deleteGrid(String tableName, Hashtable <String,Object> colNameValue){
+       Vector<String> keyPointerValues = new Vector();
+       ArrayList<String> colNames = new ArrayList(colNameValue.keySet());
+       for (int i=0;i<colNames.size();i++){
+           keyPointerValues.add(colNameValue.get(colNames.get(i)).toString());
+       }
+       KeyPointerPair keyPointerPair= new KeyPointerPair(keyPointerValues,"", 0);
+       ArrayList <Integer>result = new ArrayList();
+       for(ArrayList<Index> column:allIndexes){
 
+           // go to the bucket
+           Object rowValue = null;
+           String curRowValue = keyPointerValues.get(this.allIndexes.indexOf(column));
+           int count=0;
+           try {
+               count = allIndexes.indexOf(column);
+               rowValue = getValue(curRowValue, columnsRange.get(count).type);
+           } catch (ParseException e) {
+               e.printStackTrace();
+           }
+           for(Index index:column) {
+               if( Row.compareObject(rowValue,index.maxValue)<=0)
+               {
+                   result.add(column.indexOf(index)); // [0,4] id>7 and name="s"  table_id_name_0_4.class [[0,2],[1,2],[2,2] ... ]
+                   break;
+               }
+
+           }
+
+       }
+       String bucketPath = "src/main/resources/" + tableName;
+       for (int i=0;i<columnNames.length;i++){
+           bucketPath+="_"+columnNames[i];
+       }
+       for (int i=0;i<result.size();i++){
+           bucketPath+="_"+result.get(i);
+       }
+       bucketPath+=".class";
+       File file = new File(bucketPath);
+       //KeyPointerPair output=null;
+       if(file.exists()) {
+           Bucket bucket = Bucket.deserializeBucket(bucketPath);
+           Table table = Table.deserializeTable(tableName);
+           while(bucket!=null){
+               for(KeyPointerPair key:bucket.keyPointerPairs){
+                   if(key.compareTo(keyPointerPair)==0){
+                       int index = bucket.keyPointerPairs.indexOf(key);
+                       String path = bucket.keyPointerPairs.get(index).pointer;
+                       int rowNum = bucket.keyPointerPairs.get(index).rowNum;
+                       table.deleteGridIndex(path,rowNum);
+                       bucket.keyPointerPairs.remove(key);
+                   }
+               }
+               bucket=bucket.next;
+           }
+           //int index = Collections.binarySearch((List)bucket.keyPointerPairs,keyPointerPair);
+           //match record
+           //Page page = Table.deserializePage(bucket.keyPointerPairs.get(index).pointer);
+           //int rowNum = bucket.keyPointerPairs.get(index).rowNum;
+           //page.rows.removeElementAt(rowNum);
+
+       }
+//       return null;
    }
-
 
    public void updatePathInGrid(Row row,int oldRowNum ,String oldPath,String newPath,int newRowNum){
        Vector<String> keyPointerValues = new Vector();
@@ -487,7 +695,6 @@ public class GridIndex implements Serializable {
                }
 
            }
-
        }
        String bucketPath = "src/main/resources/" + tableName;
        for (int i=0;i<columnNames.length;i++){
