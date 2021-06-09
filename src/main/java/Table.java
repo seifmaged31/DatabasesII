@@ -1,4 +1,5 @@
 import com.opencsv.CSVReader;
+
 import java.io.*;
 import java.util.*;
 //import java.nio.file.*;
@@ -8,22 +9,36 @@ public class Table implements Serializable {
 
     String tableName;
     Hashtable<PageInfo, String> pages;
+    Hashtable <String, PageInfo> opposite;
     int pageNum;
+    Vector<String[]> gridIndexNames;
 
     public Table(String tableName) {
         this.tableName = tableName;
+        gridIndexNames = new Vector<>();
         pages = new Hashtable<PageInfo, String>();
+        opposite = new Hashtable<String, PageInfo>();
         //serializeTable(this.tableName);
         pageNum = 0;
     }
 
-    public void insert(Row row, String tableName) throws IOException, DBAppException {
+    public void insert(Row row, String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
 
-        Table table = this.deserializeTable(tableName);
+       // Table table = this.deserializeTable(tableName);
+        String[] colNames = new String[colNameValue.size()];
+        ArrayList<String> colNamesArrayList = new ArrayList<>(colNameValue.keySet());
+        for(String colName: colNamesArrayList)
+            colNames[colNamesArrayList.indexOf(colName)]=colName;
+        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
         if (this.pages.isEmpty()) { //first insertion
             //System.out.println("first insertion");
             createPage(row);
             serializeTable(tableName);
+            if(gridIndex!=null){
+                String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                gridIndex.serializeGrid();
+            }
             return;
         }
         Set<PageInfo> pagesInfosSet = pages.keySet();
@@ -50,6 +65,10 @@ public class Table implements Serializable {
                 this.updatePageInfoInsert(pageInfo, row, page);
                 serializePage(page, pageInfo.getPageNum());
                 serializeTable(tableName);
+                if(gridIndex!=null){
+                    gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                    gridIndex.serializeGrid();
+                }
                 //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                 return;
             } else { // I have no space to insert so, move
@@ -69,6 +88,12 @@ public class Table implements Serializable {
                     this.updatePageInfoInsert(pageInfo, row, page);
                     serializePage(page, pageInfo.getPageNum());
                     createPage(lastElement);
+                    if(gridIndex!=null){
+                        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                        gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,0);
+                        gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                        gridIndex.serializeGrid();
+                    }
                     serializeTable(tableName);
                     //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                     return;
@@ -76,8 +101,13 @@ public class Table implements Serializable {
                 } else { // the new row isn't in the range
                     //System.out.println("created new page with row");
                     createPage(row);
+                    if(gridIndex!=null){
+                        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                        gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                        gridIndex.serializeGrid();
+                    }
                     serializeTable(tableName);
-                    return;
+                    return; // to be continued
                 }
             }
 
@@ -98,6 +128,10 @@ public class Table implements Serializable {
                 indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                 page.insert(row, indexOfRow);
                 this.updatePageInfoInsert(pageInfo, row, page);
+                if(gridIndex!=null){
+                    gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                    gridIndex.serializeGrid();
+                }
                 serializePage(page, pageInfo.getPageNum());
                 serializeTable(tableName);
                 return;
@@ -116,6 +150,10 @@ public class Table implements Serializable {
                         indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                         nextPage.insert(row, indexOfRow);
                         this.updatePageInfoInsert(nextPageInfo, row, nextPage);
+                        if(gridIndex!=null){
+                            gridIndex.insertGrid(row,pages.get(nextPageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         serializePage(nextPage, nextPageInfo.getPageNum());
                     } else {
                         page = deserializePage(pages.get(pageInfo));
@@ -129,6 +167,10 @@ public class Table implements Serializable {
                         page.insert(row, indexOfRow);
                         this.updatePageInfoInsert(pageInfo, row, page);
                         serializePage(page, pageInfo.getPageNum());
+                        if(gridIndex!=null){
+                            gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         Page nextPage = deserializePage(pages.get(nextPageInfo));
                         indexOfRow = Collections.binarySearch((List) nextPage.rows, row);
                         if (indexOfRow >= 0)
@@ -136,6 +178,11 @@ public class Table implements Serializable {
                         indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                         nextPage.insert(lastElement, indexOfRow);
                         this.updatePageInfoInsert(nextPageInfo, lastElement, nextPage);
+                        if(gridIndex!=null){
+                            String path= pages.get(nextPageInfo);
+                            gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         serializePage(nextPage, nextPageInfo.getPageNum());
                     }
                     serializeTable(tableName);
@@ -143,6 +190,11 @@ public class Table implements Serializable {
                 } else {
                     if (row.compareTo(pageInfo.getMax()) > 0) {
                         createPage(row);
+                        if(gridIndex!=null){
+                            String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                            gridIndex.insertGrid(row,path,gridIndex.indices,0);
+                            gridIndex.serializeGrid();
+                        }
                         serializeTable(tableName);
                         return;
                     } else {
@@ -161,6 +213,12 @@ public class Table implements Serializable {
                         serializePage(page, pageInfo.getPageNum());
                         createPage(lastElement);
                         serializeTable(this.tableName);
+                        if(gridIndex!=null){
+                            String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+                            gridIndex.updatePathInGrid(lastElement,page.rows.size()-1,pages.get(pageInfo),path,0);
+                            gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
+                            gridIndex.serializeGrid();
+                        }
                         return;
                     }
                 }
@@ -170,6 +228,8 @@ public class Table implements Serializable {
 
         //}
     }
+
+
 
 
     public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue, String clusteringKey) throws DBAppException, IOException {
@@ -214,6 +274,7 @@ public class Table implements Serializable {
             } catch (Exception e) {
                 e.getStackTrace();
             }
+            this.opposite.remove(this.pages.get(pageInfo));
             this.pages.remove(pageInfo);
             serializeTable(tableName);
             return;
@@ -226,35 +287,55 @@ public class Table implements Serializable {
 
     }
 
-    public void selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
+    public  Iterator selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
-        //ArrayList listOfIndices = getIndices(tableName, columnNameValue);
-        // select * FROM Student where name="a555ooya" AND Age >555
-//        int size = sqlTerms.length;
-//        Object[] statement;
-//        if(size==1) {
-//            statement = new Object[3]; //["name","=","a555oya","AND","age",">",21]
-//            statement[0]=sqlTerms[0]._strColumnName;
-//            statement[1]=sqlTerms[1]._strOperator;
-//            statement[2]=sqlTerms[2]._objValue;
-//        }
-//        else {
-//            statement = new Object[(size*3) + arrayOperators.length];
-//        }
-        Hashtable<String, Object> colNameValue = new Hashtable<>();
-        for (SQLTerm sqlTerm : sqlTerms) {
-            colNameValue.clear();
-            colNameValue.put(sqlTerm._strColumnName, sqlTerm._objValue);
-            ArrayList listOfIndices = getIndices(tableName, colNameValue);
+        ArrayList<Statement> statements= new ArrayList<>();
+        Hashtable<String, Object> colNameStatement = new Hashtable<>();
+        Statement current;
+        for(SQLTerm sqlTerm : sqlTerms){
+            current=new Statement(sqlTerm._strTableName,sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
+            statements.add(current);
+            colNameStatement.put(current._strColumnName,current);
+        }
+
+            ArrayList listOfIndices = getIndices(tableName,colNameStatement);
             for (PageInfo pageInfo : pagesInfos) {
                 Page page = deserializePage(this.pages.get(pageInfo));
                 for (Row row : page.rows) {
-
+                         row.addRecord(listOfIndices,colNameStatement);
                 }
             }
-        }
+
+                ArrayList<Statement> resultStatements = new ArrayList(colNameStatement.values());
+                ArrayList result = new ArrayList();
+
+                if(arrayOperators.length>0){
+                    for(int i=0;i<arrayOperators.length;i++){
+                        if(i==0){
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            ArrayList operand2 = (resultStatements.get(1)).results;
+                            result= checkOperator(operand1,operand2,arrayOperators[0]);
+                            resultStatements.remove(0);
+                            if(resultStatements.size()>0)
+                                resultStatements.remove(0);
+                        }
+                        else {
+                            ArrayList operand1 = (resultStatements.get(0)).results;
+                            result = checkOperator(operand1, result, arrayOperators[i]);
+                            resultStatements.remove(0);
+                        }
+
+                    }
+                }
+                else{
+                    return Arrays.asList(resultStatements.get(0).results).iterator();
+                }
+
+                return Arrays.asList(result).iterator();
+
+
     }
 
     public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2) {
@@ -294,47 +375,18 @@ public class Table implements Serializable {
 
         return result;
     }
-    //age,salary
 
-    //Grid = [Bucket, bucket, bucket]*3
-    //grid = [Dimension(a1,b1),Dimension(a1,b2),Dimension(a1,b3),Dimension(a2,b1)....]
-    // Grid = []
-    /*  divisions:3
-    class Bucket a1 {
-    Hashtable colNameMin<age:1>;
-                        <salary:100>;
-    hashtable colNameMax;      a1:1-10  a2:11-20  a3:21-30  s1:100-199  s2:200-299   s3:300-399
+    public ArrayList checkOperator(ArrayList operand1,ArrayList operand2 , String operator){
 
-    }
-        grid=[bucket(a1),bucket(a2),bucket(a3)]
-        first dimension is age;
-        min(age) = [1,15,30,...]
-        max(age) = [14, 29, 59,...]
-        first inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3)]
-        second inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3)]
-        third inner iter: grid[bucket(a1,s1),bucket(a1,s2),bucket(a1,s3),bucket(a2,s1),bucket(a2,s2),bucket(a2,s3),bucket(a3,s1),bucket(a3,s2),bucket(a3,s3)]
-       //loop for two or more dimensions
-       for(j :length grid){
-        for(i<divisions){
-            min salary = min[i];
-            max salary = max[i];
-            add(sk(min,max)) 1<k<3
+        switch (operator){
+            case "AND": return intersect(operand1,operand2);
+            case "OR": return union(operand1,operand2);
+            case "XOR": return unique(operand1,operand2);
         }
-}
+        return null;
+    }
 
-                                                Grid
-                                                  |
-                                              [buckets]
 
-                                                Bucket [id:1-10,name:a-c,age:5-10  (checkRange)  [id=3,name=s,age=20]
-                                                   |
-                                               [Dimensions]
-
-                                             Dimension
-                                                 |
-                                             info that i want to retrieve
-
-    */
 
     public void deleteLinear(String tableName, Hashtable<String, Object> columnNameValue) throws IOException, DBAppException{
 
@@ -363,14 +415,15 @@ public class Table implements Serializable {
                                 if (new File(this.pages.get(pageInfo)).delete()) {
                                     deleted=true;
                                     System.out.println("File Deleted");
-                                } else {
+                                }
+                                else {
                                     System.out.println("File not Found");
                                 }
 
                             } catch (Exception e) {
                                 e.getStackTrace();
                             }
-
+                            this.opposite.remove(this.pages.get(pageInfo));
                             this.pages.remove(pageInfo);
                             serializeTable(tableName);
                         }
@@ -388,6 +441,48 @@ public class Table implements Serializable {
         if(!found)
             throw new DBAppException ("No matching record found.");
     }
+
+    public void deleteGridIndex(String path, int rowNum){
+        Page page = Table.deserializePage(path);
+        Row row = page.rows.get(rowNum);
+        PageInfo pageInfo=this.opposite.get(path);
+//        for(PageInfo key:pages.keySet()){
+//            if(this.pages.get(key).equals(path)){
+//                pageInfo=key;
+//                break;
+//            }
+//        }
+        page.delete(row);
+        updatePageInfoDelete(pageInfo, page);
+        serializePage(page,pageInfo.getPageNum());
+        boolean deleted=false;
+        if (pageInfo.isEmpty()) {
+            try {
+//                            System.out.println("i have entered the try");
+                new FileOutputStream(this.pages.get(pageInfo)).close();
+//                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
+//                            System.out.println("i am going inside the if");
+                if (new File(this.pages.get(pageInfo)).delete()) {
+                    deleted=true;
+                    System.out.println("File Deleted");
+                }
+                else {
+                    System.out.println("File not Found");
+                }
+
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+            this.opposite.remove(this.pages.get(pageInfo));
+            this.pages.remove(pageInfo);
+            serializeTable(tableName);
+        }
+        if(!deleted) {
+            serializePage(page, pageInfo.getPageNum());
+        }
+        deleted=false;
+    }
+
 
     public void update(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue,String clusteringKey) throws IOException, DBAppException {
 
@@ -407,9 +502,24 @@ public class Table implements Serializable {
         throw new DBAppException("There is no record for this value of the primary key.");
     //indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
     Row rowToUpdate = page.rows.get(indexOfRow);
-    rowToUpdate.update(listOfIndices,columnNameValue);
+    //Row oldRow =
+        String[] colNames = new String[columnNameValue.size()];
+        ArrayList<String> colNamesArrayList = new ArrayList<>(columnNameValue.keySet());
+        for(String colName: colNamesArrayList)
+            colNames[colNamesArrayList.indexOf(colName)]=colName;
+        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
+        if(gridIndex!=null) {
+
+            gridIndex.updateGrid(rowToUpdate,listOfIndices,columnNameValue);
+
+        }
+        else{
+            rowToUpdate.update(listOfIndices,columnNameValue);
+        }
+
     serializePage(page,pagesInfo.get(indexOfPage).getPageNum());
     serializeTable(tableName);
+
 
     }
 
@@ -501,7 +611,7 @@ public class Table implements Serializable {
 
         }
     }
-    public Page deserializePage(String path){
+    public static Page deserializePage(String path){
         Page page = null;
         try{
             FileInputStream fileIn =
@@ -511,9 +621,10 @@ public class Table implements Serializable {
             in.close();
             fileIn.close();
         } catch (FileNotFoundException | ClassNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return page;
     }
@@ -542,7 +653,10 @@ public class Table implements Serializable {
         info.setPageNum(this.pageNum);
         //System.out.println("min of the created page: "+ info.getMin().values + "max of the created page:" + info.getMax().values);
         serializePage(page, this.pageNum);
-        pages.put(info, "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class");
+        String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
+        pages.put(info, path);
+        opposite.put(path,info);
+        //return path;
     }
 
 
