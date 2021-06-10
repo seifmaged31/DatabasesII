@@ -258,7 +258,6 @@ public class Table implements Serializable {
     }
 
     public  Iterator selectLinear(String tableName, SQLTerm[] sqlTerms, String[] arrayOperators) throws IOException {
-        System.out.println("linear");
         Set<PageInfo> pagesInfosSet = pages.keySet();
         ArrayList<PageInfo> pagesInfos = new ArrayList<PageInfo>(pagesInfosSet);
         Collections.sort((List) pagesInfos);
@@ -333,16 +332,28 @@ public class Table implements Serializable {
         return result;
     }
 
-    public ArrayList<Row> intersect(ArrayList<Row> operand1, ArrayList<Row> operand2) {
-        //loop (operand2.get(operand1[i]) iterator.insert(operand1[i]))
+    public ArrayList<Row> intersect(ArrayList<Row> operand1, ArrayList<Row> operand2,boolean grid) {
+
         ArrayList<Row> result = new ArrayList<>();
-        for (Row row : operand1)
-            if (operand2.contains(row))
-                result.add(row);
+        if(!grid){
+            result = new ArrayList<>();
+            for (Row row : operand1)
+                if (operand2.contains(row))
+                    result.add(row);
+        }
+        else {
+            for (Row row : operand1) {
+                for (Row innerRow : operand2) {
+                    if (innerRow.values.equals(row.values))
+                        result.add(row);
+                }
+            }
+        }
         return result;
+
     }
 
-    public ArrayList<Row> unique(ArrayList<Row> operand1, ArrayList<Row> operand2) {
+    public ArrayList<Row> unique(ArrayList<Row> operand1, ArrayList<Row> operand2, boolean grid) {
 
         ArrayList<Row> result = new ArrayList<>();
         if(!grid) {

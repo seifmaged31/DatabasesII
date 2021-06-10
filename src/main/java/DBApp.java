@@ -212,11 +212,20 @@ public class DBApp implements DBAppInterface{
          String clusteringKey = getClusteringKey(tableName);
         Table table = Table.deserializeTable(tableName);
         ArrayList listOfIndices = Table.getIndices(tableName, columnNameValue);
-
+        String[] colNames = new String[columnNameValue.size()];
+        ArrayList<String> colNamesArrayList = new ArrayList<>(columnNameValue.keySet());
+        for(String colName: colNamesArrayList)
+            colNames[colNamesArrayList.indexOf(colName)]=colName;
+        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
+        if(gridIndex!=null){
+            gridIndex.deleteGrid(tableName,columnNameValue);
+            return;
+        }
         if(columnNameValue.keySet().contains(clusteringKey))
              table.deleteBinary(tableName,columnNameValue,columnNameValue.get(clusteringKey),clusteringKey);
         else
             table.deleteLinear(tableName,columnNameValue);
+
 
 
     }

@@ -192,8 +192,7 @@ public class Validators {
 
         if(type)
             throw new DBAppException("A value entered for a column does not match the required data type.");
-        else
-            System.out.println("we made it");
+
 
     }
     public void validateUpdate (String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
@@ -290,9 +289,6 @@ public class Validators {
                         Object max = getClusteringValue(nextRecord[2],nextRecord[6]);
 
                         if(!comparison(value,min,max)){
-                            System.out.println(value);
-                            System.out.println(min);
-                            System.out.println(max);
                             error=true;
                             break;
                         }
