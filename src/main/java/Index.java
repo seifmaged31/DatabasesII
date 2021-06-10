@@ -1,7 +1,7 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Index {
+public class Index implements Serializable {
 
     String name;
     String type;

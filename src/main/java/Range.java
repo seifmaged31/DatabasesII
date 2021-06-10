@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Date;
 
-public class Range implements Comparable {
+public class Range implements Comparable, Serializable {
 
     Object min;
     Object max;

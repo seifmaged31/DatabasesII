@@ -606,8 +606,8 @@ public class GridIndex implements Serializable {
                            resultStatements.remove(0);
                    }
                    else {
-                       ArrayList operand1 = (resultStatements.get(0)).results;
-                       result = table.checkOperator(operand1, result, arrayOperators[i]);
+                       ArrayList <Row> operand1 = (resultStatements.get(0)).results;
+                       output = table.checkOperator(operand1, output, arrayOperators[i]);
                        resultStatements.remove(0);
                    }
 
