@@ -13,7 +13,7 @@ public class Range implements Comparable, Serializable {
     }
 
     @Override
-    // range (min=max)
+
     public int compareTo(Object o) {
         Range range = (Range)o;
         if(this.compareObject(this.min,range.min)<0)

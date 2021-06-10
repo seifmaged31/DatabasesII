@@ -1,17 +1,14 @@
 import com.opencsv.CSVReader;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Arrays.*;
 
 public class GridIndex implements Serializable {
     String tableName;
     ArrayList<ArrayList<Index>> allIndexes;
     String[] columnNames;
-    //ArrayList<Range> ranges;
     ArrayList<Range> columnsRange;
     ArrayList indices;
 
@@ -23,10 +20,6 @@ public class GridIndex implements Serializable {
         this.indices=indices;
         this.tableName=tableName;
         for(int j=0;j<columnNames.length;j++){
-
-            //String type=getType(columnNames[j]);
-            //Range range=getRange(columnNames[j]);//return arrayList of ranges instead , range el column kolo
-            //columnsRange.add(range);
             String currName=columnNames[j];
             ArrayList dividedRange = getDividedRange(columnsRange.get(j).type,columnsRange.get(j).min,columnsRange.get(j).max);
             Index currIndex=null;
@@ -37,29 +30,11 @@ public class GridIndex implements Serializable {
                 currName+=i;
                 currIndex= new Index(currName,columnsRange.get(j).type,dividedRange.get(i));
                 addedList.add(currIndex);
-//                allIndexes.add(addedList);
-//                allIndexes.get(j).add(currIndex);
             }
 
         }
 
 
-//        for(int j=allIndexes.size()-1;j>=0;j--){
-//
-//            for(int i=0;i<10;i++){
-//                if(j==allIndexes.size()-1){
-//                    //allIndexes.get(j).get(i).setChildIndexList(null);
-//                    allIndexes.get(j).get(i).bucketName="";
-//
-//                }
-//                else{
-//                    allIndexes.get(j).get(i).setChildIndexList(allIndexes.get(j+1));
-//                }
-//
-//
-//            }
-//
-//        }
 
     }
 
@@ -69,7 +44,6 @@ public class GridIndex implements Serializable {
         Range range = null;
         CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
         String[] nextRecord;
-        // we are going to read data line by line
         while ((nextRecord = reader.readNext()) != null) {
             if(nextRecord[0].equals(tableName)){
                 if(nextRecord[1].equals(columnName))
@@ -118,7 +92,6 @@ public class GridIndex implements Serializable {
         String type = "";
         CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
         String[] nextRecord;
-        // we are going to read data line by line
         while ((nextRecord = reader.readNext()) != null) {
             if(nextRecord[0].equals(tableName)){
                 if(nextRecord[1].equals(columnName))
@@ -149,23 +122,7 @@ public class GridIndex implements Serializable {
     }
     public static GridIndex deserializeGrid (String tableName, String[] columns) {
         GridIndex result = null;
-//        Table table = Table.deserializeTable(tableName);
-//        //Arrays.sort(columns);
- //        String[] actualColumns=null;
-//        boolean found = false;
-//        System.out.println(table.gridIndexNames.size());
-//        for (String[] gridIndexName : table.gridIndexNames) {
-//            //Arrays.sort(gridIndexName);
-//
-//            if(Arrays.equals(columns, gridIndexName)) {
-//                found = true;
-//                actualColumns=gridIndexName;
-//                break;
-//            }
-//
-//        }
-//        //case partial queries
-//        if (found) {
+
             String path="src/main/resources/data/" + tableName;
             for (int i=0;i<columns.length;i++){
                 path+="_"+columns[i];
@@ -186,7 +143,7 @@ public class GridIndex implements Serializable {
 
             }
 
-//        }
+
         return result;
     }
 
