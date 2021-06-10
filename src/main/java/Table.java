@@ -317,6 +317,10 @@ public class Table implements Serializable {
                         if(i==0){
                             ArrayList operand1 = (resultStatements.get(0)).results;
                             ArrayList operand2 = (resultStatements.get(1)).results;
+//                            System.out.println(operand1);
+//                            System.out.println(operand2);
+//                            System.out.println("hashcode" + operand1.get(1).hashCode());
+//                            System.out.println(operand2.get(1).hashCode());
                             result= checkOperator(operand1,operand2,arrayOperators[0]);
                             resultStatements.remove(0);
                             if(resultStatements.size()>0)

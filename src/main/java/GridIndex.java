@@ -184,8 +184,11 @@ public class GridIndex implements Serializable {
 
             } catch (FileNotFoundException | ClassNotFoundException e) {
                 //e.printStackTrace();
+                System.out.println("Grid Index is null.");
             } catch (IOException e) {
                 //e.printStackTrace();
+                System.out.println("Grid Index is null.");
+
             }
 
 //        }
@@ -399,7 +402,7 @@ public class GridIndex implements Serializable {
             }
 
         }
-        String bucketPath = "src/main/resources/" + tableName;
+        String bucketPath = "src/main/resources/data/" + tableName;
        for (int i=0;i<columnNames.length;i++){
            bucketPath+="_"+columnNames[i];
        }
@@ -481,7 +484,7 @@ public class GridIndex implements Serializable {
            }
 
        }
-       String bucketPath = "src/main/resources/" + tableName;
+       String bucketPath = "src/main/resources/data" + tableName;
        for (int i=0;i<columnNames.length;i++){
            bucketPath+="_"+columnNames[i];
        }
@@ -521,12 +524,16 @@ public class GridIndex implements Serializable {
 
        ArrayList<Statement> statements= new ArrayList<>();
        Hashtable<String, Object> colNameStatement = new Hashtable<>();
-       Statement current;
+       Statement current=null;
        for(SQLTerm sqlTerm : sqlTerms){
            current=new Statement(sqlTerm._strTableName,sqlTerm._strColumnName,sqlTerm._strOperator,sqlTerm._objValue);
            statements.add(current);
            colNameStatement.put(current._strColumnName,current);
        }
+       System.out.println(current);
+       System.out.println(statements);
+       System.out.println(colNameStatement.keySet());
+       System.out.println(colNameStatement.values());
        ArrayList <Integer>result = new ArrayList(); // select * from student where id>7 and name=salma
        ArrayList<String> colNamesKeys = new ArrayList<String>(colNameStatement.keySet());// indices: [2]
        for(ArrayList<Index> column:allIndexes){
@@ -537,7 +544,9 @@ public class GridIndex implements Serializable {
            try {
                count = allIndexes.indexOf(column);
                Statement currStatement = (Statement) colNameStatement.get(colNamesKeys.get(count));
-               comparison= getValue((String) currStatement._objValue, columnsRange.get(count).type);
+               System.out.println(currStatement);
+               comparison= getValue(currStatement._objValue.toString(), columnsRange.get(count).type);
+               System.out.println(comparison);
            } catch (ParseException e) {
                //e.printStackTrace();
            }
@@ -551,7 +560,7 @@ public class GridIndex implements Serializable {
            }
 
        }
-       String bucketPath = "src/main/resources/" + tableName;
+       String bucketPath = "src/main/resources/data" + tableName;
        for (int i=0;i<columnNames.length;i++){
            bucketPath+="_"+columnNames[i];
        }
@@ -559,8 +568,10 @@ public class GridIndex implements Serializable {
            bucketPath+="_"+result.get(i);
        }
        bucketPath+=".class";
+       System.out.println(bucketPath);
        File file = new File(bucketPath);
        if(file.exists()) {
+           System.out.println("file exists aywa");
            Bucket bucket = Bucket.deserializeBucket(bucketPath);
            Table table = Table.deserializeTable(tableName);
            while(bucket!=null){
@@ -582,9 +593,14 @@ public class GridIndex implements Serializable {
            if(arrayOperators.length>0){
                for(int i=0;i<arrayOperators.length;i++){
                    if(i==0){
-                       ArrayList operand1 = (resultStatements.get(0)).results;
-                       ArrayList operand2 = (resultStatements.get(1)).results;
-                       result= table.checkOperator(operand1,operand2,arrayOperators[0]);
+                       ArrayList <Row> operand1 = (resultStatements.get(0)).results;
+                      // System.out.println("operand" + operand1);
+                       ArrayList <Row> operand2 = (resultStatements.get(1)).results;
+                       //System.out.println(operand2);
+                       output= table.checkOperator(operand1,operand2,arrayOperators[0]);
+//                       System.out.println("hashcode" + operand1.get(0).hashCode());
+//                       System.out.println(operand2.get(0).hashCode());
+//                       System.out.println(result);
                        resultStatements.remove(0);
                        if(resultStatements.size()>0)
                            resultStatements.remove(0);
@@ -638,7 +654,7 @@ public class GridIndex implements Serializable {
            }
 
        }
-       String bucketPath = "src/main/resources/" + tableName;
+       String bucketPath = "src/main/resources/data/" + tableName;
        for (int i=0;i<columnNames.length;i++){
            bucketPath+="_"+columnNames[i];
        }
@@ -702,7 +718,7 @@ public class GridIndex implements Serializable {
 
            }
        }
-       String bucketPath = "src/main/resources/" + tableName;
+       String bucketPath = "src/main/resources/data" + tableName;
        for (int i=0;i<columnNames.length;i++){
            bucketPath+="_"+columnNames[i];
        }

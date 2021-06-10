@@ -61,24 +61,28 @@ public class KeyPointerPair implements Comparable, Serializable {
             String value= this.key.get(keys.indexOf(key));
             rowValue = getValue(value);
             Object comparedValue = ((Statement)columnNameStatement.get(key))._objValue;
+//            Row added = getRow(pointer,rowNum);
+//            Row added2 = getRow(pointer,rowNum);
+            Page page = Table.deserializePage(pointer);
+            //System.out.println("hena " + page.rows.get(rowNum).hashCode());
             switch(((Statement)columnNameStatement.get(key))._strOperator){
                 case "=": if(Row.compareObject(rowValue,comparedValue)==0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
                 case ">": if(Row.compareObject(rowValue,comparedValue)>0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
                 case "<": if(Row.compareObject(rowValue,comparedValue)<0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
                 case ">=": if(Row.compareObject(rowValue,comparedValue)>=0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
                 case "<=": if(Row.compareObject(rowValue,comparedValue)<=0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
                 default: if(Row.compareObject(rowValue,comparedValue)!=0)
-                    ((Statement)columnNameStatement.get(key)).results.add(getRow(pointer,rowNum));break;
+                    ((Statement)columnNameStatement.get(key)).results.add(page.rows.get(rowNum));break;
 
             }
         }
