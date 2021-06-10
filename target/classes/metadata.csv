@@ -1,0 +1,4 @@
+"Table Name, Column Name, Column Type, Clustering Key, Indexed, Min, Max"
+"student","gpa","java.lang.double","False","False","0.0","10.0"
+"student","name","java.lang.String","False","False","A","Zaky Noor"
+"student","id","java.lang.Integer","True","False","0","10000"

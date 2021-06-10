@@ -149,31 +149,36 @@ public class GridIndex implements Serializable {
     }
     public static GridIndex deserializeGrid (String tableName, String[] columns) {
         GridIndex result = null;
-        Table table = Table.deserializeTable(tableName);
-        //Arrays.sort(columns);
-        String[] actualColumns=null;
-        boolean found = false;
-        for (String[] gridIndexName : table.gridIndexNames) {
-            //Arrays.sort(gridIndexName);
-            if(Arrays.equals(columns, gridIndexName)) {
-                found = true;
-                actualColumns=gridIndexName;
-                break;
-            }
-
-        }
-        //case partial queries
-        if (found) {
+//        Table table = Table.deserializeTable(tableName);
+//        //Arrays.sort(columns);
+ //        String[] actualColumns=null;
+//        boolean found = false;
+//        System.out.println(table.gridIndexNames.size());
+//        for (String[] gridIndexName : table.gridIndexNames) {
+//            //Arrays.sort(gridIndexName);
+//
+//            if(Arrays.equals(columns, gridIndexName)) {
+//                found = true;
+//                actualColumns=gridIndexName;
+//                break;
+//            }
+//
+//        }
+//        //case partial queries
+//        if (found) {
             String path="src/main/resources/data/" + tableName;
-            for (int i=0;i<actualColumns.length;i++){
-                path+="_"+actualColumns[i];
+            for (int i=0;i<columns.length;i++){
+                path+="_"+columns[i];
             }
             path+=".class";
+            System.out.println(path);
             try {
+                System.out.println("in try");
                 FileInputStream fileIn =
-                        new FileInputStream(new File(path));
+                        new FileInputStream(path);
                 ObjectInputStream in = new ObjectInputStream(fileIn);
                 result = (GridIndex) in.readObject();
+                System.out.println("????");
                 in.close();
                 fileIn.close();
 
@@ -183,7 +188,7 @@ public class GridIndex implements Serializable {
                 //e.printStackTrace();
             }
 
-        }
+//        }
         return result;
     }
 
@@ -512,6 +517,7 @@ public class GridIndex implements Serializable {
    }
 
    public Iterator selectGrid(SQLTerm[] sqlTerms, String[] arrayOperators){
+       System.out.println("grid");
 
        ArrayList<Statement> statements= new ArrayList<>();
        Hashtable<String, Object> colNameStatement = new Hashtable<>();
