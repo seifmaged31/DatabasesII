@@ -183,7 +183,6 @@ public class Table implements Serializable {
                         Row lastElement = page.rows.lastElement();
                         page.rows.removeElementAt(page.rows.size() - 1);
                         pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
-                        //pageInfo.setMax(page.rows.lastElement());
                         int indexOfRow = Collections.binarySearch((List) page.rows, row);
                         if (indexOfRow >= 0)
                             throw new DBAppException("The clustering key already exists");
@@ -295,7 +294,7 @@ public class Table implements Serializable {
                         }
                         else {
                             ArrayList operand1 = (resultStatements.get(0)).results;
-                            result = checkOperator(operand1, result, arrayOperators[i]);
+                            result = checkOperator(operand1, result, arrayOperators[i],false);
                             resultStatements.remove(0);
                         }
 
@@ -310,12 +309,25 @@ public class Table implements Serializable {
 
     }
 
-    public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2) {
+    public ArrayList<Row> union(ArrayList<Row> operand1, ArrayList<Row> operand2, boolean grid) {
 
         ArrayList<Row> result = new ArrayList<>(operand1);
-        for (Row row : operand2) {
-            if (!result.contains(row)) {
-                result.add(row);
+        if(!grid) {
+            for (Row row : operand2) {
+                if (!result.contains(row)) {
+                    result.add(row);
+                }
+            }
+        }
+        else{
+            for (Row row: operand1){
+                for (Row innerRow: operand2)
+                {
+                    if (!row.values.equals(innerRow.values) && !result.contains(row))
+                    {
+                        result.add(innerRow);
+                    }
+                }
             }
         }
         return result;
@@ -345,16 +357,34 @@ public class Table implements Serializable {
                 }
             }
         }
+        else{
+            for (Row row : operand2) {
+                for(Row innerRow :operand1){
+                    if (!innerRow.values.equals(row.values)) {
+                        result.add(row);
+                    }
+                }
+
+            }
+            for (Row row : operand1) {
+                for(Row innerRow :operand2){
+                    if (!innerRow.values.equals(row.values)) {
+                        result.add(row);
+                    }
+                }
+            }
+
+        }
 
         return result;
     }
 
-    public ArrayList checkOperator(ArrayList operand1,ArrayList operand2 , String operator){
+    public ArrayList checkOperator(ArrayList operand1,ArrayList operand2 , String operator, boolean grid){
 
         switch (operator){
-            case "AND": return intersect(operand1,operand2);
-            case "OR": return union(operand1,operand2);
-            case "XOR": return unique(operand1,operand2);
+            case "AND": return intersect(operand1,operand2, grid);
+            case "OR": return union(operand1,operand2,grid);
+            case "XOR": return unique(operand1,operand2,grid);
         }
         return null;
     }
@@ -441,7 +471,7 @@ public class Table implements Serializable {
         if(!deleted) {
             serializePage(page, pageInfo.getPageNum());
         }
-        deleted=false;
+        serializeTable(tableName);
     }
 
 

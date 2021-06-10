@@ -4,7 +4,6 @@ import java.util.Properties;
 import java.util.Vector;
 
 public class Bucket implements Serializable {
-    //String pageFilePath;
     Vector<KeyPointerPair> keyPointerPairs;
     Bucket next;
     int numOfKeys=0;
@@ -33,7 +32,6 @@ public class Bucket implements Serializable {
     }
     public void addBucket(KeyPointerPair keyPointerPair){
         this.next= new Bucket(keyPointerPair);
-        //serializeBucket(this.next);
     }
     public static Bucket deserializeBucket(String path){
 

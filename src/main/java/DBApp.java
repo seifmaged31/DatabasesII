@@ -125,7 +125,7 @@ public class DBApp implements DBAppInterface{
                       nextRecord[4] = "true";
                       min= getValue(nextRecord[5],nextRecord[2].toLowerCase());
                       max = getValue(nextRecord[6],nextRecord[2].toLowerCase());
-                      ranges.add(new Range(min,max,nextRecord[2].toLowerCase()));// ranges b tarteeb el hierarchy
+                      ranges.add(new Range(min,max,nextRecord[2].toLowerCase()));
                   }
                 }
 
@@ -141,7 +141,7 @@ public class DBApp implements DBAppInterface{
         gridIndex.serializeGrid();
         placeCells(gridIndex,table,indices);
         gridIndex.serializeGrid();
-//        table.serializeTable(tableName);
+
 
     }
     public Object getValue(String value,String type) throws ParseException {
@@ -183,14 +183,7 @@ public class DBApp implements DBAppInterface{
         validator.validateRange(tableName,colNameValue);
         String clusteringKey = getClusteringKey(tableName);
         Row row = new Row(clusteringKey, colNameValue);
-//        String[] colNames = new String[colNameValue.size()];
-//        for(String colName: (ArrayList<String>)colNameValue.keySet())
-//            colNames[((ArrayList<String>)((ArrayList<?>) colNameValue.keySet())).indexOf(colName)]=colName;
-//        GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
-//        if(gridIndex!=null){
-//            gridIndex.insertGrid(row,);
-//        }
-//         insert in the grid
+
         Table table = Table.deserializeTable(tableName);
         table.insert(row,tableName,colNameValue);// Continue writing there.
 
@@ -283,7 +276,6 @@ public class DBApp implements DBAppInterface{
             for (Row row : page.rows) {
                 gridIndex.insertGrid(row,table.pages.get(pageInfo),indices,page.rows.indexOf(row));
             }
-//            table.serializePage(page,pageInfo.getPageNum());
         }
     }
 
