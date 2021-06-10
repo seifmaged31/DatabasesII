@@ -1,7 +1,10 @@
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -284,110 +287,4 @@ public class DBApp implements DBAppInterface{
         }
     }
 
-//    public static ArrayList createGridIndex(int noOfIndexes,ArrayList list){
-//
-//        if(list.isEmpty()){ //[1,2,3,...]
-//            noOfIndexes--;
-//            createGridIndex(noOfIndexes,new ArrayList(10));
-//        }
-//        else{//[[1,2,3,...],[1,2,3,...],]
-//            //[[[1,2,3,...],[1,2,3,...],],[[1,2,3,...],[1,2,3,...],],[[1,2,3,...],[1,2,3,...],]]
-//            // [ob1,ob2,ob3]
-//        }
-//
-//
-//    }
-
-    public static void main(String[] args) throws  Exception{
-        DBApp test = new DBApp();
-        test.init();
-        String strTableName = "student";
-        DBApp dbApp = new DBApp( );
-//        String[] index = {"gpa","name"};
-//        GridIndex gridIndex = GridIndex.deserializeGrid(strTableName,index );
-//        System.out.println(gridIndex);
-        Hashtable htblColNameType = new Hashtable( );
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
-        Hashtable <String,String> colnameMin = new Hashtable<>();
-        Hashtable <String,String> colnameMax = new Hashtable<>();
-        colnameMin.put("id","0");
-        colnameMin.put("name","A");
-        colnameMin.put("gpa","0.0");
-
-        colnameMax.put("id","10000");
-        colnameMax.put("name","Zaky Noor");
-        colnameMax.put("gpa","10.0");
-
-
-        dbApp.createTable( strTableName, "id", htblColNameType,colnameMin,colnameMax);
-//       dbApp.createIndex( strTableName, new String[] {"gpa", "name"} );
-//
-//        Hashtable htblColNameValue = new Hashtable();
-//        htblColNameValue.put("id", new Integer( 22 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 45 ));
-//        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.95 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 57 ));
-//        htblColNameValue.put("name", new String("Dalia Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 1.25 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 98 ));
-//        htblColNameValue.put("name", new String("John Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 1.5 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 72 ));
-//        htblColNameValue.put("name", new String("Zaky Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.88 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 7 ));
-//        htblColNameValue.put("name", new String("John Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 0.88 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        htblColNameValue.clear( );
-//        htblColNameValue.put("id", new Integer( 2 ));
-//        htblColNameValue.put("name", new String("Zaky Noor" ) );
-//        htblColNameValue.put("gpa", new Double( 1.5 ) );
-//        dbApp.insertIntoTable( strTableName , htblColNameValue );
-//        String[] index = {"name", "gpa"};
-//        dbApp.createIndex("student",index);
-//        SQLTerm[] arrSQLTerms;
-//        arrSQLTerms = new SQLTerm[2];
-//        arrSQLTerms[0]= new SQLTerm();
-//        arrSQLTerms[1]=new SQLTerm();
-       // arrSQLTerms[2]=new SQLTerm();
-//        arrSQLTerms[0]._strTableName = "student";
-//        arrSQLTerms[0]._strColumnName= "name";
-//        arrSQLTerms[0]._strOperator = "=";
-//        arrSQLTerms[0]._objValue = "John Noor";
-//        arrSQLTerms[1]._strTableName = "student";
-//        arrSQLTerms[1]._strColumnName= "gpa";
-//        arrSQLTerms[1]._strOperator = "=";
-//        arrSQLTerms[1]._objValue = new Double( 1.5 );
-////        arrSQLTerms[2]._strTableName = "Student";
-////        arrSQLTerms[2]._strColumnName= "id";
-////        arrSQLTerms[2]._strOperator = ">";
-////        arrSQLTerms[2]._objValue = 40;
-//        String[]strarrOperators = new String[1];
-//        strarrOperators[0] ="OR";
-//      // strarrOperators[1]="AND";
-        // select * from Student where name = “John Noor” or gpa = 1.5;
-//        Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
-//       // System.out.println(resultSet.toString());
-//        while(resultSet.hasNext()) {
-//            Object element = resultSet.next();
-//            System.out.print(element + " ");
-//        }
-
-    }
 }

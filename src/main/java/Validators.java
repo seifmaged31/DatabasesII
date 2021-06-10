@@ -1,14 +1,10 @@
 import com.opencsv.CSVReader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -43,15 +39,12 @@ public class Validators {
         try {
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
-            // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null) {
                 if(nextRecord[0].equals(tableName))
                 {
                     same=true;
                     break;
                 }
-//                validateTypesTable(nextRecord[2],nextRecord[5]);
-//                validateTypesTable(nextRecord[2],nextRecord[6]);
             }
 
         }
@@ -65,31 +58,25 @@ public class Validators {
 
     }
     public void validateTypesInsertion(Hashtable<String, Object> colNameValue) throws DBAppException{
-            //System.out.println(value + " I entered the validation");
-            Set<String> colNames = colNameValue.keySet();
-            for(String type:colNames){
+           Set<String> colNames = colNameValue.keySet();
+           for(String type:colNames){
 
                 if(type.toLowerCase().equals("java.lang.integer") && !(colNameValue.get(type) instanceof Integer)) {
-                    //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }
                 if(type.toLowerCase().equals("java.lang.double") && !(colNameValue.get(type) instanceof Double)) {
-                    //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }
                 if(type.toLowerCase().equals("java.lang.string") && !(colNameValue.get(type) instanceof String)) {
-                    //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }
                 if(type.toLowerCase().equals("java.util.date") && !(colNameValue.get(type) instanceof Date)) {
-                    //System.out.println(value + " the type is " + type +", but I am not");
                     throw new DBAppException("Incorrect data type");
                 }
             }
 
     }
     public void validateTypesTable(String type, String value) throws DBAppException{
-        //System.out.println(value + " I am an instance of String");
         boolean exception = false;
         if (type.toLowerCase().equals("java.lang.integer")) {
             try {
@@ -101,7 +88,7 @@ public class Validators {
                 throw new DBAppException("Incorrect data type");
 
         }
-// Do I need to check on the String ?
+
         if (type.toLowerCase().equals("java.lang.double")) {
             try {
                 Double.parseDouble(value);
@@ -121,9 +108,7 @@ public class Validators {
             if (exception)
                 throw new DBAppException("Incorrect data type");
         }
-//        int year = Integer.parseInt(fields[0].trim().substring(0, 4));
-//        int month = Integer.parseInt(fields[0].trim().substring(5, 7));
-//        int day = Integer.parseInt(fields[0].trim().substring(8));
+
     }
     public void validateColNames(String tableName, Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
         CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
@@ -131,7 +116,6 @@ public class Validators {
         Set<String> set = colNameValue.keySet();
         ArrayList<String> colNames = new ArrayList<>(set);
         ArrayList<String> csvColNames = new ArrayList<>();
-        // we are going to read data line by line
         while ((nextRecord = reader.readNext()) != null) {
             if(nextRecord[0].equals(tableName)){
                 csvColNames.add(nextRecord[1]);
@@ -172,7 +156,6 @@ public class Validators {
     }
     public void validateInsertion (String tableName, Hashtable<String, Object> colNameValue) throws DBAppException{
         Set<String> keys = colNameValue.keySet();
-//        Iterator<String> itr = keys.iterator();
         ArrayList<String> columns =  new ArrayList<>(keys);
         int i=0;
         boolean type=false;
@@ -180,8 +163,7 @@ public class Validators {
 
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
-            // we are going to read data line by line
-            //String current =(String) itr.next();
+
             while ((nextRecord = reader.readNext()) != null && i<columns.size()) {
 
                 if(nextRecord[0].equals(tableName)) {
@@ -190,12 +172,10 @@ public class Validators {
                         continue;
                     } else {
                         if (!(((colNameValue.get(columns.get(i))).getClass()).getTypeName().toLowerCase()).equals(nextRecord[2].toLowerCase())) {
-                            //System.out.println((((colNameValue.get(columns.get(i))).getClass()).getTypeName()));
-                            //System.out.println(nextRecord[2]);
+
                             type = true;
 
                         }
-                        //validateTypesInsertion(nextRecord[2],colNameValue.get(current));
                     }
 
                     i++;
@@ -226,7 +206,6 @@ public class Validators {
 
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
-            // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null) {
                 if(nextRecord[0].equals(tableName))
                     if(nextRecord[3].equals("True")){
@@ -267,7 +246,6 @@ public class Validators {
 
             CSVReader reader = new CSVReader((new FileReader(new File("src/main/resources/metadata.csv"))));
             String[] nextRecord;
-            // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null) {
                 if(nextRecord[0].equals(tableName) && nextRecord[3].equals("True")){
                     return nextRecord[2].toLowerCase();
@@ -303,7 +281,6 @@ public class Validators {
             String[] nextRecord;
             int i=0;
             ArrayList keys = new ArrayList(colNameValue.keySet());
-            // we are going to read data line by line
             while ((nextRecord = reader.readNext()) != null && i<keys.size()) {
                 if(nextRecord[0].equals(tableName)){
                     if(nextRecord[1].equals(keys.get(i))){
@@ -348,8 +325,4 @@ public class Validators {
 
     }
 
-
-    public static void main(String[] args) throws DBAppException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-
-    }
 }

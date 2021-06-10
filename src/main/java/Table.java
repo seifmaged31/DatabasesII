@@ -2,7 +2,7 @@ import com.opencsv.CSVReader;
 
 import java.io.*;
 import java.util.*;
-//import java.nio.file.*;
+
 
 
 public class Table implements Serializable {
@@ -18,20 +18,18 @@ public class Table implements Serializable {
         gridIndexNames = new Vector<>();
         pages = new Hashtable<PageInfo, String>();
         opposite = new Hashtable<String, PageInfo>();
-        //serializeTable(this.tableName);
         pageNum = 0;
     }
 
     public void insert(Row row, String tableName,Hashtable<String, Object> colNameValue) throws IOException, DBAppException {
 
-       // Table table = this.deserializeTable(tableName);
+
         String[] colNames = new String[colNameValue.size()];
         ArrayList<String> colNamesArrayList = new ArrayList<>(colNameValue.keySet());
         for(String colName: colNamesArrayList)
             colNames[colNamesArrayList.indexOf(colName)]=colName;
         GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
-        if (this.pages.isEmpty()) { //first insertion
-            //System.out.println("first insertion");
+        if (this.pages.isEmpty()) {
             createPage(row);
             serializeTable(tableName);
             if(gridIndex!=null){
@@ -49,13 +47,11 @@ public class Table implements Serializable {
         int indexOfPage = Collections.binarySearch(values, row.getKeyValue());
         if (indexOfPage >= 0)
             throw new DBAppException("This clustering key already exists.");
-        indexOfPage = (indexOfPage == -1) ? 0 : ((indexOfPage + 2) * -1); // [2, 4, 6 , 7]
+        indexOfPage = (indexOfPage == -1) ? 0 : ((indexOfPage + 2) * -1);
         Page page = this.deserializePage(this.pages.get(pagesInfos.get(indexOfPage)));
         PageInfo pageInfo = pagesInfos.get(indexOfPage);
-        //for(PageInfo pageInfo:pagesInfos){
-        if (pagesInfos.indexOf(pageInfo) == pagesInfos.size() - 1) {//this is the last page
-            if (!pageInfo.isFull()) { // I have space to insert in this page
-                //System.out.println("insertion in last page");
+        if (pagesInfos.indexOf(pageInfo) == pagesInfos.size() - 1) {
+            if (!pageInfo.isFull()) {
                 page = deserializePage(pages.get(pageInfo));
                 int indexOfRow = Collections.binarySearch((List) page.rows, row);
                 if (indexOfRow >= 0)
@@ -69,17 +65,14 @@ public class Table implements Serializable {
                     gridIndex.insertGrid(row,pages.get(pageInfo),gridIndex.indices,indexOfRow);
                     gridIndex.serializeGrid();
                 }
-                //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                 return;
-            } else { // I have no space to insert so, move
+            } else {
 
                 if (checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || row.compareTo(pageInfo.getMin()) < 0) { //the new row is within the page
-                    //System.out.println("insertion in this last page and create new page with last elem");
                     page = deserializePage(pages.get(pageInfo));
                     Row lastElement = page.rows.lastElement();
                     page.rows.removeElementAt(page.rows.size() - 1);
                     pageInfo.setNumOfRows(pageInfo.getNumOfRows() - 1);
-                    //pageInfo.setMax(page.rows.lastElement());
                     int indexOfRow = Collections.binarySearch((List) page.rows, row);
                     if (indexOfRow >= 0)
                         throw new DBAppException("The clustering key already exists");
@@ -95,11 +88,9 @@ public class Table implements Serializable {
                         gridIndex.serializeGrid();
                     }
                     serializeTable(tableName);
-                    //System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
                     return;
 
-                } else { // the new row isn't in the range
-                    //System.out.println("created new page with row");
+                } else {
                     createPage(row);
                     if(gridIndex!=null){
                         String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
@@ -107,7 +98,7 @@ public class Table implements Serializable {
                         gridIndex.serializeGrid();
                     }
                     serializeTable(tableName);
-                    return; // to be continued
+                    return;
                 }
             }
 
@@ -116,14 +107,10 @@ public class Table implements Serializable {
         int currentIndex = ((List<?>) pagesInfos).indexOf(pageInfo);
         PageInfo nextPageInfo = (PageInfo) ((List<?>) pagesInfos).get(currentIndex + 1);
         if (checkRange(row, pageInfo.getMin(), pageInfo.getMax()) || (checkRange(row, pageInfo.getMax(), nextPageInfo.getMin())) || row.compareTo(pageInfo.getMin()) < 0) { // any intermediate page that I need.
-//                System.out.println("im within range of this page or smaller than next page or smaller than all the elements in the page" );
-//                System.out.println("min of this page: "+ pageInfo.getMin().values + "max of this page:" + pageInfo.getMax().values);
-//                System.out.println("min of next page: "+ nextPageInfo.getMin().values + "max of next page:" + nextPageInfo.getMax().values);
-            if (!pageInfo.isFull()) { // if the page has space
-                //System.out.println("there is space in this page (within range)");
-                page = deserializePage(pages.get(pageInfo));
-                int indexOfRow = Collections.binarySearch((List) page.rows, row);
-                if (indexOfRow >= 0)
+          if (!pageInfo.isFull()) { // if the page has space
+               page = deserializePage(pages.get(pageInfo));
+               int indexOfRow = Collections.binarySearch((List) page.rows, row);
+               if (indexOfRow >= 0)
                     throw new DBAppException("The clustering key already exists");
                 indexOfRow = (indexOfRow == -1) ? 0 : ((indexOfRow + 1) * -1);
                 page.insert(row, indexOfRow);
@@ -135,14 +122,8 @@ public class Table implements Serializable {
                 serializePage(page, pageInfo.getPageNum());
                 serializeTable(tableName);
                 return;
-            } else { // the page has no space
-                // System.out.println("no space in first page");
-                if (!nextPageInfo.isFull()) { //shifting to the next page, as the next page has space.
-                    //System.out.println("there is space in next page");
-
-                    //pageInfo.setMax(page.rows.lastElement());
-
-                    if (checkRange(row, pageInfo.getMax(), nextPageInfo.getMin())) {
+            } else { if (!nextPageInfo.isFull()) {
+                if (checkRange(row, pageInfo.getMax(), nextPageInfo.getMin())) {
                         Page nextPage = deserializePage(pages.get(nextPageInfo));
                         int indexOfRow = Collections.binarySearch((List) nextPage.rows, row);
                         if (indexOfRow >= 0)
@@ -198,7 +179,6 @@ public class Table implements Serializable {
                         serializeTable(tableName);
                         return;
                     } else {
-                        //System.out.println("no space in next page");
                         page = deserializePage(pages.get(pageInfo));
                         Row lastElement = page.rows.lastElement();
                         page.rows.removeElementAt(page.rows.size() - 1);
@@ -235,15 +215,11 @@ public class Table implements Serializable {
     public void deleteBinary(String tableName, Hashtable<String, Object> columnNameValue, Object clusteringKeyValue, String clusteringKey) throws DBAppException, IOException {
 
         ArrayList<PageInfo> pagesInfo = new ArrayList<>(this.pages.keySet());
-        //System.out.println("size of pagesHashtable: "+ pages.size());
-        //System.out.println("size of pagesInfo: "+ pagesInfo.size());
         ArrayList listOfIndices = getIndices(tableName, columnNameValue);
-        //System.out.println(listOfIndices.toString());
         Collections.sort(pagesInfo);
         ArrayList values = new ArrayList();
         pagesInfo.forEach(info -> values.add(info.getMin().getKeyValue()));
         int indexOfPage = Collections.binarySearch(values, clusteringKeyValue);
-        //System.out.println("The wanted index: " + indexOfPage);
         indexOfPage = (indexOfPage == -1) ? 0 : (indexOfPage < 0) ? ((indexOfPage + 2) * -1) : indexOfPage;
         PageInfo pageInfo = pagesInfo.get(indexOfPage);
         Page page = this.deserializePage(this.pages.get(pageInfo));
@@ -257,14 +233,9 @@ public class Table implements Serializable {
         page.delete(rowToDelete);
         updatePageInfoDelete(pageInfo, page);
         serializePage(page, pageInfo.getPageNum());
-        //System.out.println("size of pagesInfo: "+ pagesInfo.size());
-        //System.out.println(pageInfo.isEmpty());
         if (pageInfo.isEmpty()) {
             try {
-                //System.out.println("i have entered the try");
                 new FileOutputStream(this.pages.get(pageInfo)).close();
-                //System.out.println("The path to delete: "+this.pages.get(pageInfo));
-                //System.out.println("i am going inside the if");
                 if (new File(this.pages.get(pageInfo)).delete()) {
                     System.out.println("File Deleted");
                 } else {
@@ -317,11 +288,7 @@ public class Table implements Serializable {
                         if(i==0){
                             ArrayList operand1 = (resultStatements.get(0)).results;
                             ArrayList operand2 = (resultStatements.get(1)).results;
-//                            System.out.println(operand1);
-//                            System.out.println(operand2);
-//                            System.out.println("hashcode" + operand1.get(1).hashCode());
-//                            System.out.println(operand2.get(1).hashCode());
-                            result= checkOperator(operand1,operand2,arrayOperators[0]);
+                            result= checkOperator(operand1,operand2,arrayOperators[0],false);
                             resultStatements.remove(0);
                             if(resultStatements.size()>0)
                                 resultStatements.remove(0);
@@ -366,15 +333,16 @@ public class Table implements Serializable {
     public ArrayList<Row> unique(ArrayList<Row> operand1, ArrayList<Row> operand2) {
 
         ArrayList<Row> result = new ArrayList<>();
-
-        for (Row row : operand2) {
-            if (!operand1.contains(row)) {
-                result.add(row);
+        if(!grid) {
+            for (Row row : operand2) {
+                if (!operand1.contains(row)) {
+                    result.add(row);
+                }
             }
-        }
-        for (Row row : operand1) {
-            if (!operand2.contains(row)) {
-                result.add(row);
+            for (Row row : operand1) {
+                if (!operand2.contains(row)) {
+                    result.add(row);
+                }
             }
         }
 
@@ -413,11 +381,8 @@ public class Table implements Serializable {
                         serializePage(page,pageInfo.getPageNum());
                         if (pageInfo.isEmpty()) {
                             try {
-//                            System.out.println("i have entered the try");
-                              new FileOutputStream(this.pages.get(pageInfo)).close();
-//                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
-//                            System.out.println("i am going inside the if");
-                                if (new File(this.pages.get(pageInfo)).delete()) {
+                                new FileOutputStream(this.pages.get(pageInfo)).close();
+                           if (new File(this.pages.get(pageInfo)).delete()) {
                                     deleted=true;
                                     System.out.println("File Deleted");
                                 }
@@ -451,23 +416,14 @@ public class Table implements Serializable {
         Page page = Table.deserializePage(path);
         Row row = page.rows.get(rowNum);
         PageInfo pageInfo=this.opposite.get(path);
-//        for(PageInfo key:pages.keySet()){
-//            if(this.pages.get(key).equals(path)){
-//                pageInfo=key;
-//                break;
-//            }
-//        }
         page.delete(row);
         updatePageInfoDelete(pageInfo, page);
         serializePage(page,pageInfo.getPageNum());
         boolean deleted=false;
         if (pageInfo.isEmpty()) {
             try {
-//                            System.out.println("i have entered the try");
                 new FileOutputStream(this.pages.get(pageInfo)).close();
-//                            System.out.println("The path to delete: "+this.pages.get(pageInfo));
-//                            System.out.println("i am going inside the if");
-                if (new File(this.pages.get(pageInfo)).delete()) {
+         if (new File(this.pages.get(pageInfo)).delete()) {
                     deleted=true;
                     System.out.println("File Deleted");
                 }
@@ -505,13 +461,11 @@ public class Table implements Serializable {
     int indexOfRow =Collections.binarySearch((List)page.rows,comparisonRow);
     if(indexOfRow<0)
         throw new DBAppException("There is no record for this value of the primary key.");
-    //indexOfRow = (indexOfRow==-1)?0:(indexOfRow<0)?((indexOfRow+2)*-1):indexOfRow;
     Row rowToUpdate = page.rows.get(indexOfRow);
-    //Row oldRow =
-        String[] colNames = new String[columnNameValue.size()];
-        ArrayList<String> colNamesArrayList = new ArrayList<>(columnNameValue.keySet());
-        for(String colName: colNamesArrayList)
-            colNames[colNamesArrayList.indexOf(colName)]=colName;
+    String[] colNames = new String[columnNameValue.size()];
+    ArrayList<String> colNamesArrayList = new ArrayList<>(columnNameValue.keySet());
+    for(String colName: colNamesArrayList)
+        colNames[colNamesArrayList.indexOf(colName)]=colName;
         GridIndex gridIndex = GridIndex.deserializeGrid(tableName,colNames);
         if(gridIndex!=null) {
 
@@ -625,12 +579,10 @@ public class Table implements Serializable {
             page = (Page) in.readObject();
             in.close();
             fileIn.close();
-        } catch (FileNotFoundException | ClassNotFoundException e) {
-            //e.printStackTrace();
+        } catch (FileNotFoundException | ClassNotFoundException e) {}
 
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
+        catch (IOException e) {}
+
         return page;
     }
 
@@ -656,18 +608,10 @@ public class Table implements Serializable {
         PageInfo info = new PageInfo(row);
         this.pageNum++;
         info.setPageNum(this.pageNum);
-        //System.out.println("min of the created page: "+ info.getMin().values + "max of the created page:" + info.getMax().values);
         serializePage(page, this.pageNum);
         String path= "src/main/resources/data/" + this.tableName + "_" + this.pageNum + ".class";
         pages.put(info, path);
         opposite.put(path,info);
-        //return path;
-    }
-
-
-    public static void main(String[] args) throws IOException, DBAppException {
-
-
     }
 
 }
